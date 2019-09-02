@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.event.dao.EventInfoCheckDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.event.entity.EventInfoCheck" >
+    <id column="id" property="id"  />
+    <result column="id_event" property="idEvent"  />
+    <result column="id_adu" property="idAdu"  />
+    <result column="id_user_check" property="idUserCheck"  />
+    <result column="date_check" property="dateCheck"  />
+    <result column="check_desc" property="checkDesc"  />
+    <result column="check_status" property="checkStatus"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, id_event, id_adu, id_user_check, date_check, check_desc, check_status, extend_1, 
+    extend_2, extend_3
+  </sql>
+  <!-- 查询全部 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.event.entity.EventInfoCheck" >
+    select
+    <include refid="Base_Column_List" />
+    from event_info_check
+      order by id desc
+  </select>
+  <!-- 根据ID进行查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT
+	eid.id_event,
+	su.name,
+	eic.date_check,
+	eic.check_desc,
+	eic.check_status
+	FROM event_info_deal eid,
+	event_info_check eic,sys_user su
+	WHERE eid.id = eic.id_adu AND su.id=eic.id_user_check
+	AND eid.deal_status IN(2,3,4)
+	AND eic.check_status = 65
+  </select>
+  <!-- 删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from event_info_check
+    where id = #{id}
+  </delete>
+  <!-- 新增 -->
+  <insert id="insert" parameterType="com.qkby.event.entity.EventInfoCheck" >
+    insert into event_info_check (id, id_event, id_adu, 
+      id_user_check, date_check, check_desc, 
+      check_status, extend_1, extend_2, 
+      extend_3)
+    values (#{id}, #{idEvent}, #{idAdu}, 
+      #{idUserCheck}, #{dateCheck}, #{checkDesc}, 
+      #{checkStatus}, #{extend1}, #{extend2}, 
+      #{extend3})
+  </insert>
+  <!-- 查询总体条数 -->
+  <select id="countByExample" parameterType="com.qkby.event.entity.EventInfoCheck" resultType="java.lang.Integer" >
+    select count(*) from event_info_check
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.event.entity.EventInfoCheck" >
+    update event_info_check
+    set
+      <if test="idEvent != null" >
+        id_event = #{idEvent},
+      </if>
+      <if test="idAdu != null" >
+        id_adu = #{idAdu},
+      </if>
+      <if test="idUserCheck != null" >
+        id_user_check = #{idUserCheck},
+      </if>
+      <if test="dateCheck != null" >
+        date_check = #{dateCheck},
+      </if>
+      <if test="checkStatus != null" >
+        check_status = #{checkStatus},
+      </if>
+      <if test="checkDesc != null" >
+        check_desc = #{checkDesc}
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    where id = #{id}
+  </update>
+   <select id="selectCheckMessage" parameterType="int" resultMap="BaseResultMap">
+  	SELECT 
+	(SELECT su.name FROM sys_user su WHERE su.id = eic.id_user_check) extend_1,
+	eic.date_check,
+	eic.check_desc,
+	eic.check_status
+ FROM event_info_check eic WHERE eic.check_status = 65 AND eic.id_event=#{id_event}
+  </select>
+  <!-- 提示信息审核信息 -->
+  <select id="selectMessageCkeck" resultType="hashmap" parameterType="int">
+  SELECT eic.id_event AS id,eid.date_deal as dateDeal 
+   FROM event_info_check eic,event_info_deal eid,sys_duty sd
+   WHERE 
+    DATE_FORMAT(sd.duty_date,'%Y-%m-%d')= DATE_FORMAT(NOW(),'%Y-%m-%d')
+    AND eic.check_status != 65
+   GROUP BY eic.id_event
+  </select>
+  <select id="selectMessageCkeckCount" resultType="int" parameterType="int">
+  SELECT COUNT(*) FROM (SELECT eic.id_event AS id,eid.date_deal 
+   FROM event_info_check eic,event_info_deal eid,sys_duty sd
+   WHERE 
+    DATE_FORMAT(sd.duty_date,'%Y-%m-%d')= DATE_FORMAT(NOW(),'%Y-%m-%d')
+    AND eic.check_status != 65
+   GROUP BY eic.id_event) AS zong
+  </select>
+</mapper>

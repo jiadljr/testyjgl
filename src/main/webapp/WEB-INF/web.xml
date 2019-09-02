@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance http://www.springmodules.org/schema/cache/springmodules-cache.xsd http://www.springmodules.org/schema/cache/springmodules-ehcache.xsd" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+  <display-name>Security_ad</display-name>
+  <servlet>
+    <servlet-name>mvc</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:spring-*.xml</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>mvc</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+  <!-- 编码过滤器 -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<async-supported>true</async-supported>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+  <!-- 用户登录过滤 -->  
+    <filter>  
+		 <filter-name>loginFilter</filter-name>  
+		 <filter-class>com.qkby.login.filter.LoginFilter</filter-class>  
+		 <init-param>  
+		     <param-name>LOGIN_PERSONNAME</param-name>  
+		     <param-value>user_name</param-value>  
+		 </init-param> 
+		 <init-param>  
+		     <param-name>IDENTIFYINGCODE_PATH</param-name>  
+		     <param-value>/getSysManageLoginCode.do</param-value>  
+		 </init-param>  
+		 <init-param>  
+		     <param-name>SHOW_LOGIN_PATH</param-name>  
+		     <param-value>/toLogin.do</param-value>  
+		 </init-param>  
+		 <init-param>  
+		     <param-name>DO_LOGIN_PATH</param-name>  
+		     <param-value>/login.do</param-value>  
+		 </init-param> 
+		 <init-param>  
+		     <param-name>CHECKIMAGECODE_PATH</param-name>  
+		     <param-value>/checkimagecode.do</param-value>  
+		 </init-param> 
+		 <init-param>  
+		     <param-name>TOIMG_PATH</param-name>  
+		     <param-value>/toImg.do</param-value>  
+		 </init-param>  
+		 <init-param>
+		 	 <param-name>TOSCREEND_PATH</param-name>
+		 	 <param-value>/toScreenDisplay.do</param-value>
+		 </init-param>
+		 <init-param>
+		 	 <param-name>SELECTSCREEND_PATH</param-name>
+		 	 <param-value>/selectScreen.do</param-value>
+		 </init-param>
+		 <init-param>
+		 	 <param-name>EVENTALERT_PATH</param-name>
+		 	 <param-value>/eventAlert.do</param-value>
+		 </init-param>
+		 <init-param>
+		 	 <param-name>DEALSTATUS_PATH</param-name>
+		 	 <param-value>/allDealStatus.do</param-value>
+		 </init-param>
+ 	</filter>  
+	<filter-mapping>  
+	    <filter-name>loginFilter</filter-name>  
+	    <url-pattern>*.do</url-pattern>  
+	</filter-mapping>  
+	<filter-mapping>  
+	    <filter-name>loginFilter</filter-name>  
+	    <url-pattern>*.jsp</url-pattern>  
+	</filter-mapping>
+	  
+	  <listener>   
+	    <listener-class>   
+	        org.springframework.web.context.request.RequestContextListener   
+	    </listener-class>   
+	</listener> 
+  
+  <welcome-file-list>
+<!--     <welcome-file>index.html</welcome-file> -->
+<!--     <welcome-file>index.htm</welcome-file> -->
+<!--     <welcome-file>index.jsp</welcome-file> -->
+    <welcome-file>views/login/login.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.TaskFileDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.proj.entity.TaskFile" >
+    <id column="id" property="id" />
+    <result column="proj_code" property="projCode"/>
+    <result column="id_task" property="idTask" />
+    <result column="id_file" property="idFile"/>
+    <result column="extend_1" property="extend1" />
+    <result column="extend_2" property="extend2" />
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  
+  <insert id="insertProjTaskFile" parameterType="com.qkby.proj.entity.TaskFile" >
+    insert into task_file (id, proj_code, id_task, 
+      id_file)
+    values (#{id}, #{projCode}, #{idTask}, 
+      #{idFile}
+  </insert>
+</mapper>

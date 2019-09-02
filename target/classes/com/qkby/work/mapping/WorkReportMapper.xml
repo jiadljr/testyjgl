@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.work.dao.WorkReportDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.work.entity.WorkReportInfo" >
+    <id column="id" property="id" />
+    <result column="report_name" property="reportName"  />
+    <result column="report_type" property="reportType"  />
+    <result column="report_state" property="reportState"  />
+    <result column="sub_time" property="subTime"  />
+    <result column="report_content" property="reportContent"  />
+    <result column="report_user" property="reportUser"  />
+    <result column="report_staff_name" property="reportStaffName"  />
+    <result column="report_staff" property="reportStaff"  />
+    <result column="ds" property="ds"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+    <select id="selectWorkReport" resultMap="BaseResultMap" parameterType="map">
+    SELECT wr.id AS id,
+       wr.report_content AS reportContent,
+       wr.report_staff AS reportStaff,
+       wr.report_name AS reportName,
+       wr.report_state AS reportState,
+       wr.report_type AS reportType,
+       wr.sub_time AS subbTime
+ 	FROM work_report wr
+ 	  where wr.ds != 1 AND wr.report_user = #{userId}
+ 	  ORDER BY wr.id DESC
+ 	 <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+    </select>
+    <select id="selectWorkReportCount" parameterType="map" resultType="java.lang.Integer">
+    select count(*) from work_report where ds != 1 AND report_user = #{userId}
+    </select>
+    <insert id="addWorkReport" parameterType="com.qkby.work.entity.WorkReportInfo">
+    	 <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+	          SELECT LAST_INSERT_ID() as id
+	     </selectKey>
+    	  insert into work_report(id,report_name,report_type,report_state,
+    			sub_time,report_content,report_user,report_staff_name,report_staff,ds,extend_1,extend_2,extend_3)
+    			values(#{id},#{reportName},#{reportType},#{reportState},
+    			#{subTime},#{reportContent},#{reportUser},#{reportStaffName},#{reportStaff},#{ds},#{extend1},#{extend2},#{extend3})
+    </insert>
+    <select id="selectWorkReportById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT wr.id as id,
+       wr.report_content AS reportContent,
+       wr.report_staff AS reportStaff,
+       wr.report_staff_name AS reportStaffName,
+       wr.report_name AS reportName,
+       wr.report_state AS reportState,
+       wr.report_type AS reportType,
+       wr.sub_time AS subTime
+ 	FROM work_report wr
+ 	WHERE wr.id = #{id}
+    </select>
+    <update id="updateWorkReportDs" parameterType="map">
+       UPDATE work_report wr SET 
+	     <if test="ds != null">
+	       wr.ds = #{ds}
+	     </if>
+       WHERE wr.id = #{id}
+    </update>
+    <delete id="deleteWorkReport" parameterType="java.lang.Integer">
+       DELETE FROM work_report WHERE id = #{id}
+    </delete>
+    <update id="updateWorkReport" parameterType="com.qkby.work.entity.WorkReportInfo">
+       UPDATE work_report wr SET 
+       <if test="reportContent != null">
+        wr.report_content = #{reportContent},
+       </if>
+       <if test="reportStaff != null">
+        wr.report_staff = #{reportStaff},
+       </if>
+       <if test="reportStaffName != null">
+        wr.report_staff_name = #{reportStaffName},
+       </if>
+       <if test="reportState != null">
+        wr.report_state = #{reportState},
+       </if>
+       <if test="reportType != null">
+        wr.report_type = #{reportType},
+       </if>
+       <if test="reportName != null">
+        wr.report_name = #{reportName},
+       </if>
+       <if test="subTime != null">
+        wr.sub_time = #{subTime}
+       </if>
+       where wr.id = #{id}
+    </update>
+    <select id="selectPlanReport" parameterType="map" resultType="hashmap">
+      SELECT 
+         wr.id AS id,
+         wr.report_name AS reportName,
+         wr.report_content AS reportContent,
+         wr.report_state AS  reportState,
+         wr.report_type AS reportType,
+         wr.sub_time AS subTime,
+         su.name AS reportUser
+        FROM work_report wr,sys_user su,work_user_report wur WHERE wr.report_user = su.id AND wr.id = wur.report_id AND wur.user_id = #{reportStaff}
+       	AND wr.report_state != 1 AND wur.ds != 1
+       <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	   </if>
+    </select>
+    <select id="selectPlanReportCount" parameterType="map" resultType="java.lang.Integer">
+     SELECT 
+         count(*)
+        FROM work_report wr,sys_user su,work_user_report wur WHERE wr.report_user = su.id AND wr.id = wur.report_id AND wur.user_id = #{reportStaff}
+       	AND wr.report_state != 1 AND wur.ds != 1
+    </select>
+    <select id="selectReportPushMessage" resultType="hashmap" parameterType="java.lang.Integer">
+      SELECT wr.id AS id,
+      wr.report_content AS content,
+      wr.sub_time as subTime
+      FROM work_report wr,work_user_report wur 
+      WHERE wur.report_id = wr.id 
+      AND wur.ds != 1 
+      AND wur.examine != 1 
+      AND wur.user_id = #{userId}
+      AND wr.report_state != 1
+  	  GROUP BY wr.id
+    </select>
+</mapper>

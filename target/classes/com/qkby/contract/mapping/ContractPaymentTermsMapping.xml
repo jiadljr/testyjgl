@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.contract.dao.ContractPayMentTermsDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.contract.entity.ContractPaymentTerms" >
+    <id column="id" property="id"/>
+    <result column="code" property="code"/>
+    <result column="contract_id" property="contractId"/>
+    <result column="name" property="name"/>
+    <result column="payment_amount" property="paymentAmount"/>
+    <result column="payment_proportion" property="paymentProportion"/>
+    <result column="closed_proportion" property="closedProportion"/>
+    <result column="payment_time" property="paymentTime"/>
+    <result column="invoice" property="invoice"/>
+    <result column="registrant" property="registrant"/>
+    <result column="payment_desc" property="paymentDesc"/>
+    <result column="logic_delete" property="logicDelete"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <!-- 查询所有的支付条件（带条件） -->
+  <select id="selectContractPaymentTermsAll" resultMap="BaseResultMap" parameterType="map">
+    SELECT 
+       cpt.code AS code, 
+       cpt.id AS id,
+       cpt.contract_id AS contractId,
+       cpt.invoice AS invoice,
+       cpt.name AS name, 
+       cpt.payment_amount AS paymentAmount,
+       cpt.payment_desc AS paymentDesc,
+       cpt.payment_proportion AS paymentProportion,
+       cpt.closed_proportion AS closedProportion,
+       cpt.registrant AS registrant,
+       cpt.payment_time AS paymentTime,
+       cpt.logic_delete AS logicDelete,
+       cpt.extend_1 AS extend1,
+       cpt.extend_2 AS extend2,
+       cpt.extend_3 AS extend3
+    FROM contract_payment_terms cpt
+      WHERE 1=1
+      <if test="code != null">
+        AND cpt.code = #{code}
+      </if>
+      <if test="name != null">
+        AND cpt.name = #{name}
+      </if>
+      <if test="paymentAmount != null">
+        AND cpt.payment_amount = #{paymentAmount}
+      </if>
+      <if test="paymentDesc != null">
+        AND cpt.payment_desc = #{paymentDesc}
+      </if>
+      <if test="paymentProportion != null">
+        AND cpt.payment_proportion = #{paymentProportion}
+      </if>
+      <if test="alreadyStart != null">
+        AND cpt.closed_proportion &lt;= #{alreadyStart}
+      </if>
+      <if test="alreadyEnd != null">
+        AND cpt.closed_proportion &gt;= #{alreadyEnd}
+      </if>
+      <if test="paymentTime != null">
+        AND cpt.payment_time = #{paymentTime}
+      </if>
+      <if test="registrant != null">
+        AND cpt.registrant = #{registrant}
+      </if>
+      <if test="contractId != null">
+       AND cpt.contract_id = #{contractId}
+      </if>
+      <if test="id != null">
+        AND cpt.id = #{id}
+      </if>
+      AND cpt.invoice IS NOT NULL AND cpt.logic_delete != 2
+  </select>
+  <!-- 根据合同ID查询支付条件支付金额未结金额的总和 -->
+  <select id="selectNotPaymentAmountSum" parameterType="java.lang.String" resultMap="BaseResultMap">
+     SELECT 
+     COALESCE(SUM(cpt.payment_amount),0) AS extend1
+     FROM contract_payment_terms cpt 
+     WHERE cpt.contract_id = #{contractId} AND cpt.invoice IS NULL AND cpt.logic_delete != 2
+  </select>
+  <!-- 根据合同ID查询支付条件支付金额已结金额的总和 -->
+  <select id="selectAlreadyPaymentAmountSum" parameterType="java.lang.String" resultMap="BaseResultMap">
+     SELECT 
+     COALESCE(SUM(cpt.payment_amount),0) AS extend1
+     FROM contract_payment_terms cpt 
+     WHERE cpt.contract_id = #{contractId} AND cpt.invoice IS NOT NULL AND cpt.logic_delete != 2
+  </select>
+  <!-- 根据ID查询支付条件 -->
+  <select id="selectContractPaymentTermsById" parameterType="java.lang.String" resultMap="BaseResultMap">
+      SELECT 
+       cpt.code AS code, 
+       cpt.invoice AS invoice,
+       cpt.name AS name, 
+       cpt.payment_amount AS paymentAmount,
+       cpt.payment_desc AS paymentDesc,
+       cpt.payment_proportion AS paymentProportion,
+       cpt.closed_proportion AS closedProportion,
+       cpt.registrant AS registrant,
+       cpt.payment_time AS paymentTime,
+       cpt.extend_1 AS extend1,
+       cpt.extend_2 AS extend2,
+       cpt.extend_3 AS extend3
+    FROM contract_payment_terms cpt
+      WHERE cpt.id = #{id} AND cpt.logic_delete != 2
+  </select>
+  <!-- 根据合同ID查询支付条件 -->
+  <select id="selectContractPaymentTermsByContractId" parameterType="java.lang.String" resultMap="BaseResultMap">
+      SELECT 
+       cpt.id AS id,
+       cpt.code AS code, 
+       cpt.invoice AS invoice,
+       cpt.name AS name, 
+       cpt.payment_amount AS paymentAmount,
+       cpt.payment_desc AS paymentDesc,
+       cpt.payment_proportion AS paymentProportion,
+       cpt.closed_proportion AS closedProportion,
+       cpt.registrant AS registrant,
+       cpt.payment_time AS paymentTime,
+       cpt.extend_1 AS extend1,
+       cpt.extend_2 AS extend2,
+       cpt.extend_3 AS extend3
+    FROM contract_payment_terms cpt
+      WHERE cpt.contract_id = #{contractId} AND cpt.logic_delete != 2
+  </select>
+   <!-- 根据合同ID查询未完成的支付条件 -->
+  <select id="selectContractTermsByContractId" parameterType="java.lang.String" resultMap="BaseResultMap">
+      SELECT 
+       cpt.id AS id,
+       cpt.code AS code, 
+       cpt.invoice AS invoice,
+       cpt.name AS name, 
+       cpt.payment_amount AS paymentAmount,
+       cpt.payment_desc AS paymentDesc,
+       cpt.payment_proportion AS paymentProportion,
+       cpt.closed_proportion AS closedProportion,
+       cpt.registrant AS registrant,
+       cpt.payment_time AS paymentTime,
+       cpt.extend_1 AS extend1,
+       cpt.extend_2 AS extend2,
+       cpt.extend_3 AS extend3
+    FROM contract_payment_terms cpt
+      WHERE cpt.contract_id = #{contractId} AND cpt.invoice IS NULL AND cpt.logic_delete != 2
+  </select>
+  <!-- 新增支付条件 -->
+  <insert id="insertContractPaymentTerms" parameterType="com.qkby.contract.entity.ContractPaymentTerms">
+    <selectKey resultType="java.lang.String" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+    </selectKey>
+     INSERT INTO contract_payment_terms
+        	(id,code,contract_id,invoice,name,payment_amount,payment_desc,payment_proportion,
+     		closed_proportion,registrant, payment_time,logic_delete,extend_1,extend_2,extend_3)
+     VALUES (#{id},#{code},#{contractId},#{invoice},#{name},#{paymentAmount},#{paymentDesc},#{paymentProportion},
+     		 #{closedProportion},#{registrant},#{paymentTime},#{logicDelete},#{extend1},#{extend2},#{extend3})
+  </insert>
+  <!-- 修改支付条件 -->
+  <update id="updateContractPaymentTerms" parameterType="com.qkby.contract.entity.ContractPaymentTerms">
+     UPDATE contract_payment_terms SET 
+      <if test="code != null">
+         code = #{code},
+      </if>
+      <if test="contractId != null">
+         contract_id = #{contractId},
+      </if>
+      <if test="invoice != null">
+         invoice = #{invoice},
+      </if>
+      <if test="paymentAmount != null">
+         payment_amount = #{paymentAmount},
+      </if>
+      <if test="paymentDesc != null">
+         payment_desc = #{paymentDesc},
+      </if>
+      <if test="paymentTime != null">
+         payment_time = #{paymentTime},
+      </if>
+      <if test="paymentProportion != null">
+         payment_proportion = #{paymentProportion},
+      </if>
+      <if test="registrant != null">
+         registrant = #{registrant},
+      </if>
+      <if test="closedProportion != null">
+         closed_proportion = #{closedProportion},
+      </if>
+      <if test="name != null">
+         name = #{name}
+      </if>
+      WHERE id = #{id}
+  </update>
+  <!-- 根据ID逻辑删除支付条件 -->
+  <update id="deleteContractPaymentTerms" parameterType="map">
+     UPDATE contract_payment_terms SET 
+     <if test="logicDelete != null">
+     logic_delete = #{logicDelete}
+     </if>
+      WHERE id = #{id}
+  </update>
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.work.dao.WorkUserReportDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.work.entity.WorkUserReportInfo" >
+    <id column="id" property="id" />
+    <result column="user_id" property="userId"  />
+    <result column="report_id" property="reportId"  />
+    <result column="ds" property="ds"  />
+    <result column="examine" property="examine"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+    <insert id="insertUserReport" parameterType="com.qkby.work.entity.WorkUserReportInfo">
+     insert into work_user_report(id,user_id,report_id,ds,examine,extend_1,extend_2,extend_3)
+       values(#{id},#{userId},#{reportId},#{ds},#{examine},#{extend1},#{extend2},#{extend3})
+    </insert>
+    <update id="updateUserReportDs" parameterType="com.qkby.work.entity.WorkUserReportInfo">
+      UPDATE work_user_report SET 
+	   		<if test="ds != null">
+	   		ds = #{ds}
+	   		</if>
+   		  where user_id = #{userId} AND report_id = #{reportId}
+     </update>
+     <update id="updateUserReportExamine" parameterType="com.qkby.work.entity.WorkUserReportInfo">
+      UPDATE work_user_report SET 
+	   		<if test="examine != null">
+	   		examine = #{examine}
+	   		</if>
+   		  where user_id = #{userId} AND report_id = #{reportId}
+     </update>
+</mapper>

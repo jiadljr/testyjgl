@@ -1,0 +1,880 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysUserInfoDao">
+	<resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysUserInfo">
+		<id column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="name" property="name" />
+		<result column="password" property="password" />
+		<result column="uuid" property="uuid" />
+		<result column="sex" property="sex" />
+		<result column="wechat" property="wechat" />
+		<result column="tel" property="tel" />
+		<result column="cal" property="cal" />
+		<result column="mail" property="mail" />
+		<result column="address" property="address" />
+		<result column="id_cmpy" property="idCmpy" />
+		<result column="id_dept" property="idDept" />
+		<result column="create_date" property="createDate" />
+		<result column="create_user" property="createUser" />
+		<result column="update_date" property="updateDate" />
+		<result column="update_user" property="updateUser" />
+		<result column="pwd_expired_date" property="pwdExpiredDate" />
+		<result column="ds" property="ds" />
+		<result column="arrange_proxy" property="arrangeProxy" />
+		<result column="extend_1" property="extend1" />
+		<result column="extend_2" property="extend2" />
+		<result column="extend_3" property="extend3" />
+	</resultMap>
+	<resultMap id="userMap" type="HashMap">
+		<id column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="name" property="name" />
+		<result column="password" property="password" />
+		<result column="uuid" property="uuid" />
+		<result column="sex" property="sex" />
+		<result column="wechat" property="wechat" />
+		<result column="tel" property="tel" />
+		<result column="cal" property="cal" />
+		<result column="mail" property="mail" />
+		<result column="address" property="address" />
+		<result column="id_cmpy" property="idCmpy" />
+		<result column="id_dept" property="idDept" />
+		<result column="create_date" property="createDate" />
+		<result column="create_user" property="createUser" />
+		<result column="update_date" property="updateDate" />
+		<result column="update_user" property="updateUser" />
+		<result column="pwd_expired_date" property="pwdExpiredDate" />
+		<result column="ds" property="ds" />
+		<result column="arrange_proxy" property="arrangeProxy" />
+		<result column="extend_1" property="extend1" />
+		<result column="extend_2" property="extend2" />
+		<result column="extend_3" property="extend3" />
+	</resultMap>
+	<!-- 查询数量 -->
+	<select id="countByExample" parameterType="map" resultType="java.lang.Integer">
+		select count(*) from sys_user
+		where 1=1
+		AND ds != 1
+		<if test="id != null">
+			AND id=#{id}
+		</if>
+		<if test="code != null">
+			AND code=#{code}
+		</if>
+		<if test="name != null">
+			AND name LIKE CONCAT('%',#{name},'%')
+		</if>
+		<if test="password != null">
+			AND password=#{password}
+		</if>
+		<if test="uuid != null">
+			AND uuid=#{uuid}
+		</if>
+		<if test="sex != null">
+			AND sex=#{sex}
+		</if>
+		<if test="wechat != null">
+			AND wechat=#{wechat}
+		</if>
+		<if test="tel != null">
+			AND tel LIKE CONCAT('%',#{tel},'%')
+		</if>
+		<if test="cal != null">
+			AND cal LIKE CONCAT('%',#{cal},'%')
+		</if>
+		<if test="mail != null">
+			AND mail=#{mail}
+		</if>
+		<if test="address != null">
+			AND address LIKE CONCAT('%',#{address},'%')
+		</if>
+		<if test="idCmpy != null">
+			AND id_cmpy=#{idCmpy}
+		</if>
+		<if test="idDept != null">
+			AND id_dept=#{idDept}
+		</if>
+		<if test="createDate != null">
+			AND create_date=#{createDate}
+		</if>
+		<if test="createUser != null">
+			AND create_user=#{createUser}
+		</if>
+		<if test="updateDate != null">
+			AND update_date=#{updateDate}
+		</if>
+		<if test="updateUser != null">
+			AND update_user=#{updateUser}
+		</if>
+		<if test="pwdExpiredDate != null">
+			AND pwd_expired_date=#{pwdExpiredDate}
+		</if>
+		<if test="extend1 != null">
+			AND extend_1=#{extend1}
+		</if>
+		<if test="extend2 != null">
+			AND extend_2=#{extend2}
+		</if>
+		<if test="extend3 != null">
+			AND extend_3=#{extend3}
+		</if>
+		<!-- 过滤超级管理员 -->
+		<if test="superId != null">
+			AND id != #{superId}
+		</if>
+	</select>
+	<select id="selectNameById" parameterType="int" resultMap="userMap">
+		SELECT su.id, su.code, su.name,
+		su.PASSWORD, su.UUID, su.sex,
+		su.wechat, su.tel, su.cal,su.mail,
+		su.address, su.id_cmpy, su.id_dept,
+		su.create_date, su.create_user, su.update_date,
+		su.update_user,
+		su.pwd_expired_date, su.ds,
+		sd.name AS extend_1,sp.name AS extend_2
+		FROM
+		sys_dept sd RIGHT JOIN sys_user su ON su.id_dept = sd.id ,
+		sys_user_post sup LEFT JOIN sys_post sp ON sp.id = sup.id_post WHERE
+		1=1
+		AND su.id =
+		#{id} GROUP BY id
+	</select>
+	<!-- 根据条件删除 -->
+	<delete id="deleteByExample" parameterType="com.qkby.sysmanage.entity.SysUserInfo">
+		delete from sys_user
+		where 1=1
+		<if test="id != null">
+			AND id=#{id}
+		</if>
+		<if test="code != null">
+			AND code=#{code}
+		</if>
+		<if test="name != null">
+			AND name=#{name}
+		</if>
+		<if test="password != null">
+			AND password=#{password}
+		</if>
+		<if test="uuid != null">
+			AND uuid=#{uuid}
+		</if>
+		<if test="sex != null">
+			AND sex=#{sex}
+		</if>
+		<if test="wechat != null">
+			AND wechat=#{wechat}
+		</if>
+		<if test="tel != null">
+			AND tel=#{tel}
+		</if>
+		<if test="cal != null">
+			AND cal=#{cal}
+		</if>
+		<if test="mail != null">
+			AND mail=#{mail}
+		</if>
+		<if test="address != null">
+			AND address=#{address}
+		</if>
+		<if test="idCmpy != null">
+			AND id_cmpy=#{idCmpy}
+		</if>
+		<if test="idDept != null">
+			AND id_dept=#{idDept}
+		</if>
+		<if test="createDate != null">
+			AND create_date=#{createDate}
+		</if>
+		<if test="createUser != null">
+			AND create_user=#{createUser}
+		</if>
+		<if test="updateDate != null">
+			AND update_date=#{updateDate}
+		</if>
+		<if test="updateUser != null">
+			AND update_user=#{updateUser}
+		</if>
+		<if test="pwdExpiredDate != null">
+			AND pwd_expired_date=#{pwdExpiredDate}
+		</if>
+		<if test="ds != null">
+			AND ds=#{ds}
+		</if>
+		<if test="extend1 != null">
+			AND extend_1=#{extend1}
+		</if>
+		<if test="extend2 != null">
+			AND extend_2=#{extend2}
+		</if>
+		<if test="extend3 != null">
+			AND extend_3=#{extend3}
+		</if>
+	</delete>
+	<!-- 根据Id删除 -->
+	<delete id="deleteByPrimaryKey" parameterType="map">
+		delete from sys_user
+		where id in
+		<foreach item="item" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	<!-- 添加 -->
+	<insert id="insert" parameterType="com.qkby.sysmanage.entity.SysUserInfo">
+		 <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+		insert into sys_user (id,
+		code, name,
+		password, uuid, sex,
+		wechat, tel, cal, mail,
+		address,
+		id_cmpy, id_dept,
+		create_date, create_user, update_date,
+		update_user,
+		pwd_expired_date, ds,
+		extend_1, extend_2, extend_3
+		)
+		values (#{id},
+		#{code}, #{name},
+		#{password}, #{uuid}, #{sex},
+		#{wechat}, #{tel},
+		#{cal}, #{mail},
+		#{address}, #{idCmpy}, #{idDept},
+		#{createDate},
+		#{createUser}, #{updateDate},
+		#{updateUser}, #{pwdExpiredDate}, #{ds},
+		#{extend1}, #{extend2}, #{extend3}
+		)
+	</insert>
+	<!-- 查询所有 -->
+	<select id="selectUserAll" resultMap="BaseResultMap">
+		SELECT
+		id,
+		CODE,
+		NAME,
+		PASSWORD,
+		UUID,
+		sex,
+		wechat,
+		tel,
+		cal,
+		mail,
+		address,
+		id_cmpy,
+		(SELECT
+		sc.name
+		FROM sys_cmpy sc
+		WHERE sc.id = sys.id_cmpy) extend_1,
+		id_dept,
+		(SELECT
+		sd.name
+		FROM sys_dept sd
+		WHERE sys.id_dept = sd.id) AS extend_2,
+		create_date,
+		create_user,
+		update_date,
+		update_user,
+		pwd_expired_date,
+		ds,
+		extend_3
+		FROM sys_user sys
+		WHERE 1 = 1
+		AND sys.ds!=1
+		ORDER BY id DESC
+
+	</select>
+	<select id="seleUserAll" resultMap="BaseResultMap">
+	    select * from sys_user
+	</select>
+	<!-- 根据条件查询 -->
+	<select id="selectByUserExample" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+		su.id,
+		su.CODE,
+		su.NAME,
+		su.PASSWORD,
+		su.UUID,
+		su.sex,
+		su.wechat,
+		su.tel,
+		su.cal,
+		su.mail,
+		su.address,
+		su.id_cmpy,
+		(SELECT
+		sc.name
+		FROM
+		sys_cmpy sc
+		WHERE
+		sc.id = su.id_cmpy) AS extend_1,
+		su.id_dept,
+		(SELECT
+		sd.name
+		FROM sys_dept
+		sd
+		WHERE su.id_dept = sd.id) AS extend_2,
+		su.create_date,
+		su.create_user,
+		su.update_date,
+		su.update_user,
+		su.pwd_expired_date,
+		su.ds,
+		sp.name AS extend_3
+		FROM sys_user su
+		LEFT JOIN
+		(SELECT
+		sp.id,
+		sp.name,
+		sup.id_user
+		FROM sys_post sp
+		LEFT JOIN
+		sys_user_post sup
+		ON sp.id
+		= sup.id_post) sp
+		ON su.id = sp.id_user
+		WHERE 1
+		= 1
+		<if test="id != null">
+			AND su.id=#{id}
+		</if>
+		<if test="code != null">
+			AND su.code=#{code}
+		</if>
+		<if test="name != null">
+			AND su.name LIKE CONCAT('%',#{name},'%')
+		</if>
+		<if test="password != null">
+			AND su.password=#{password}
+		</if>
+		<if test="uuid != null">
+			AND su.uuid=#{uuid}
+		</if>
+		<if test="sex != null">
+			AND su.sex=#{sex}
+		</if>
+		<if test="wechat != null">
+			AND su.wechat=#{wechat}
+		</if>
+		<if test="tel != null">
+			AND su.tel=#{tel}
+		</if>
+		<if test="cal != null">
+			AND su.cal LIKE CONCAT('%',#{cal},'%')
+		</if>
+		<if test="mail != null">
+			AND su.mail=#{mail}
+		</if>
+		<if test="perNum != null">
+			AND su.code LIKE CONCAT('%',#{perNum},'%')
+		</if>
+		<if test="idCmpy != null">
+			AND su.id_cmpy=#{idCmpy}
+		</if>
+		<if test="idDept != null">
+			AND su.id_dept=#{idDept}
+		</if>
+		<if test="createDate != null">
+			AND su.create_date=#{createDate}
+		</if>
+		<if test="createUser != null">
+			AND su.create_user=#{createUser}
+		</if>
+		<if test="updateDate != null">
+			AND su.update_date=#{updateDate}
+		</if>
+		<if test="updateUser != null">
+			AND su.update_user=#{updateUser}
+		</if>
+		<if test="pwdExpiredDate != null">
+			AND su.pwd_expired_date=#{pwdExpiredDate}
+		</if>
+		<if test="arrangeProxy != null">
+			AND su.arrange_proxy=#{arrangeProxy}
+		</if>
+		<!-- 过滤超级管理员 -->
+		<if test="superId != null">
+			AND su.id != #{superId}
+		</if>
+		AND su.ds!=1
+		ORDER BY su.id DESC
+		<if test="startPos != null">
+			LIMIT #{startPos}
+			<if test="pageSize != null">
+				,#{pageSize}
+			</if>
+		</if>
+	</select>
+	<select id="userByRoleType" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+		su.id,
+		su.name
+		FROM
+		sys_role AS sr,
+		sys_user_role AS sur,
+		sys_user AS
+		su
+		WHERE
+		sr.id = sur.id_role
+		AND su.ds!=1
+		AND su.id = sur.id_user
+		AND sr.id
+		= #{role_id}
+		<if test="arrangeProxy!=null">
+			and su.arrange_proxy != #{arrangeProxy}	
+		</if>
+	</select>
+	<select id="countUserByRoleType" parameterType="int" resultType="int">
+		SELECT
+		DISTINCT(COUNT(su.id)) extend_1
+		FROM
+		sys_role AS sr,
+		sys_user_role AS sur,
+		sys_user AS
+		su
+		WHERE
+		sr.id = sur.id_role
+		AND su.ds!=1
+		AND su.id = sur.id_user
+		AND sr.id
+		= #{role_id}
+	</select>
+	<select id="selectDealUser" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+			su.id,
+			su.name
+		FROM
+			sys_user_role AS sur,
+			sys_user AS su
+		WHERE
+			su.ds!=1
+			AND sur.id_user = su.id
+			AND sur.id_role = #{role_id}
+			AND su.id NOT IN (
+		SELECT id_user_deal FROM event_info_deal 
+		WHERE deal_status =1 AND id_event = #{event_id})
+	</select>
+	<select id="selectNowDealUser" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+			su.id,
+			su.name
+		FROM
+			sys_user_role AS sur,
+			sys_user AS su
+		WHERE
+			su.ds!=1
+			AND sur.id_user = su.id
+			AND sur.id_role = #{role_id}
+			AND su.id IN (
+		SELECT id_user_deal FROM event_info_deal 
+		WHERE deal_status =1 AND id_event = #{event_id})
+	</select>
+	<select id="userEventId" parameterType="int" resultMap="BaseResultMap">
+		SELECT
+		su.name,
+		su.cal
+		FROM
+		sys_user AS su
+		WHERE
+		su.id = #{id}
+	</select>
+	<!-- 根据部门ID查询人员 -->
+	<select id="selectDeptUser" parameterType="int" resultMap="BaseResultMap">
+		SELECT
+		su.id,
+		su.name
+		FROM
+		sys_user AS su
+		WHERE
+		su.ds!=1
+		AND su.id_dept =
+		#{id}
+	</select>
+	<!-- 新增完成之后查询最后一条id -->
+	<select id="selectLastUserId" resultType="java.lang.Integer">
+		SELECT
+		LAST_INSERT_ID();
+	</select>
+	<!-- 根据Id查询 -->
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		SELECT
+		su.id,
+		su.CODE,
+		su.NAME,
+		su.PASSWORD,
+		su.UUID,
+		su.sex,
+		su.wechat,
+		su.tel,
+		su.cal,
+		su.mail,
+		su.address,
+		su.id_cmpy,
+		(SELECT
+		sc.name
+		FROM sys_cmpy sc
+		WHERE
+		sc.id = su.id_cmpy) AS extend_1,
+		su.id_dept,
+		(SELECT
+		sd.name
+		FROM sys_dept
+		sd
+		WHERE su.id_dept = sd.id) AS extend_2,
+		su.create_date,
+		su.create_user,
+		su.update_date,
+		su.update_user,
+		su.pwd_expired_date,
+		su.ds,
+		sp.name AS extend_3
+		FROM sys_user su
+		LEFT JOIN
+		(SELECT
+		sp.id,
+		sp.name,
+		sup.id_user
+		FROM sys_post sp
+		LEFT JOIN
+		sys_user_post sup
+		ON sp.id
+		= sup.id_post) sp
+		ON su.id = sp.id_user
+		WHERE 1
+		= 1
+		AND su.ds != 1
+		AND su.id = #{id}
+		ORDER BY su.id DESC
+	</select>
+	<!-- 根据Id修改 -->
+	<update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysUserInfo">
+		update sys_user
+		<set>
+			<if test="code != null">
+				code = #{code},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="password != null">
+				password = #{password},
+			</if>
+			<if test="uuid != null">
+				uuid = #{uuid},
+			</if>
+			<if test="sex != null">
+				sex = #{sex},
+			</if>
+			<if test="wechat != null">
+				wechat = #{wechat},
+			</if>
+			<if test="tel != null">
+				tel = #{tel},
+			</if>
+			<if test="cal != null">
+				cal = #{cal},
+			</if>
+			<if test="mail != null">
+				mail = #{mail},
+			</if>
+			<if test="address != null">
+				address = #{address},
+			</if>
+			<if test="idCmpy != null">
+				id_cmpy = #{idCmpy},
+			</if>
+			<if test="idDept != null">
+				id_dept = #{idDept},
+			</if>
+			<if test="createDate != null">
+				create_date = #{createDate},
+			</if>
+			<if test="createUser != null">
+				create_user = #{createUser},
+			</if>
+			<if test="updateDate != null">
+				update_date = #{updateDate},
+			</if>
+			<if test="updateUser != null">
+				update_user = #{updateUser},
+			</if>
+			<if test="pwdExpiredDate != null">
+				pwd_expired_date = #{pwdExpiredDate},
+			</if>
+			<if test="ds != null">
+				ds = #{ds},
+			</if>
+			<if test="arrangeProxy != null">
+				arrange_proxy = #{arrangeProxy},
+			</if>
+			<if test="extend1 != null">
+				extend_1 = #{extend1},
+			</if>
+			<if test="extend2 != null">
+				extend_2 = #{extend2},
+			</if>
+			<if test="extend3 != null">
+				extend_3 = #{extend3},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<!-- 逻辑删除 -->
+	<update id="updateLogic" parameterType="map">
+		UPDATE sys_user SET ds=1 WHERE id IN
+		<foreach item="item" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</update>
+	<select id="selectByName" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select id from sys_user where code=#{code}
+	</select>
+	<select id="selectPostUser" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		SELECT
+		su.id,
+		su.name
+		FROM sys_user su,sys_user_post sup
+		WHERE
+		su.id = sup.id_user
+		AND sup.id_post = #{id}
+	</select>
+	<!-- 运维人员处理总数统计 -->
+   <select id="selectDealCount" parameterType="map" resultMap="BaseResultMap">
+   		SELECT
+		ssr.name,
+		COUNT(eid.id)     AS extend_1
+		FROM event_info_deal eid
+		RIGHT JOIN (SELECT
+		su.name,
+		su.id,
+		sur.id_role
+		FROM sys_user_role sur,
+		sys_user su
+		WHERE sur.id_user = su.id
+		AND su.ds != 1
+		AND sur.id_role = #{role_id}
+		GROUP BY su.name) ssr
+		ON eid.id_user_deal = ssr.id
+		<if test="startTime != null || endTime != null">
+			AND eid.date_deal BETWEEN #{startTime}
+			AND #{endTime}
+		</if>
+		GROUP BY ssr.name
+   </select>
+   <!-- 运维人员受理总数统计 -->
+   <select id="selectAcceptCount" parameterType="map" resultMap="BaseResultMap">
+   		SELECT
+		ssr.name,
+		COUNT(ei.id)      AS extend_1
+		FROM event_info ei
+		RIGHT JOIN (SELECT
+		su.name,
+		su.id
+		FROM sys_user_role sur,
+		sys_user su
+		WHERE sur.id_user = su.id
+		AND su.ds != 1
+		AND sur.id_role =#{role_id}
+		GROUP BY su.name) ssr
+		ON ei.id_user_accept = ssr.id
+		<if test="startTime != null || endTime != null">
+			AND ei.date_accept BETWEEN #{startTime}
+			AND #{endTime}
+		</if>
+		GROUP BY ssr.name
+   </select>
+   <!-- 查询处理人最近一个月的处理事件数 -->
+   <select id="selectDealCouByMon" resultMap="BaseResultMap">
+   	SELECT
+		ssr.name,
+		COUNT(eid.id)     AS extend_1
+		FROM event_info_deal eid
+		RIGHT JOIN (SELECT
+		su.name,
+		su.id,
+		sur.id_role
+		FROM sys_user_role sur,
+		sys_user su
+		WHERE sur.id_user = su.id
+		AND sur.id_role =#{role_id}
+		GROUP BY su.name) ssr
+		ON eid.id_user_deal = ssr.id
+		AND DATE_FORMAT(eid.date_deal,'%Y-%c-%d') IN(
+		SELECT DATE_FORMAT(ed.date_deal,'%Y-%c-%d') FROM event_info_deal ed 
+		WHERE ((TO_DAYS(NOW()) - TO_DAYS(DATE_FORMAT(ed.date_deal,'%Y-%c-%d'))) &lt;= 30) 
+		GROUP BY DATE_FORMAT(ed.date_deal,'%Y-%c-%d'))
+		GROUP BY ssr.name
+   </select>
+   <!-- 查询处理人一个月未处理事件 -->
+   <select id="selectNotDealByMon" parameterType="int" resultMap="BaseResultMap">
+   	SELECT
+		ssr.name,
+		COUNT(eid.id)     AS extend_1
+		FROM event_info_deal eid
+		RIGHT JOIN (SELECT
+		su.name,
+		su.id,
+		sur.id_role
+		FROM sys_user_role sur,
+		sys_user su
+		WHERE sur.id_user = su.id
+		AND sur.id_role #{role_id}
+		GROUP BY su.name) ssr
+		ON eid.id_user_deal = ssr.id
+		AND eid.deal_status=0
+		AND DATE_FORMAT(eid.date_respon,'%Y-%c-%d') IN(
+		SELECT DATE_FORMAT(ed.date_respon,'%Y-%c-%d') FROM event_info_deal ed 
+		WHERE ((TO_DAYS(NOW()) - TO_DAYS(DATE_FORMAT(ed.date_respon,'%Y-%c-%d'))) &lt;= 30) 
+		GROUP BY DATE_FORMAT(ed.date_respon,'%Y-%c-%d'))
+		GROUP BY ssr.name
+   </select>
+   <!-- 查询处理人所有未处理的事件 -->
+   <select id="selectNotDealAll" parameterType="int" resultMap="BaseResultMap">
+   	SELECT
+   		ssr.id extend_2,
+		ssr.name,
+		COUNT(eid.id) AS extend_1
+		FROM event_info_deal eid
+		RIGHT JOIN (SELECT
+		su.name,
+		su.id,
+		sur.id_role
+		FROM sys_user_role sur,
+		sys_user su
+		WHERE sur.id_user = su.id
+		AND sur.id_role = #{role_id}
+		GROUP BY su.name) ssr
+		ON eid.id_user_deal = ssr.id
+		AND eid.deal_status = 1
+		GROUP BY ssr.name
+   </select>
+   <select id="selectEventCountByStatus" resultType="hashmap" parameterType="map">
+	SELECT eds.name,eds.extend_1 notDeal,eds.extend_3 eventFinish,SUM(eds.extend_1+eds.extend_3) dealAll FROM 
+	(SELECT
+	ssr.name,
+	(SELECT COUNT(0) FROM event_info_deal eid WHERE eid.id_user_deal = ssr.id AND eid.deal_status=1 AND DATE_FORMAT(eid.date_respon,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m')) extend_1,
+	(SELECT COUNT(0) FROM 
+	(SELECT eid.id_user_deal FROM event_info ei,event_info_deal eid WHERE ei.id = eid.id_event AND ei.event_status IN(70,77) AND DATE_FORMAT(eid.date_respon,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m')) ed WHERE ed.id_user_deal = ssr.id) extend_3
+		FROM (SELECT
+		su.name,
+		su.id
+		FROM sys_user_role sur,
+		sys_user su
+		WHERE sur.id_user = su.id
+		AND sur.id_role = 5
+		AND su.ds !=1
+		GROUP BY su.name) ssr) eds
+		GROUP BY eds.name
+		<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+  	</if>
+   </select>
+   <select id="selectLogin" parameterType="map" resultMap="BaseResultMap">
+        SELECT *
+        FROM sys_user su
+		WHERE 1 = 1
+		<if test="code != null">
+			AND su.code = #{code}
+		</if>
+		<if test="password != null">
+			AND su.password=#{password}
+		</if>
+   </select>
+   <!-- 查询审核人员 -->
+   <select id="selectAudit" parameterType="int" resultMap="BaseResultMap">
+   SELECT su.id FROM sys_role sr,sys_user_role sur,sys_user su
+  WHERE sr.id = sur.id_role AND su.id = sur.id_user
+   AND sr.id = #{role_id} AND su.ds = 0
+   </select>
+   <!-- 查询系统管理人员 -->
+   <select id="selectSystem" parameterType="hashmap" resultType="hashmap">
+   SELECT su.id FROM sys_role sr,sys_user_role sur,sys_user su
+  WHERE sr.id = sur.id_role AND su.id = sur.id_user
+   AND (sr.id = #{role_id} or sr.id = #{role_id_two}) AND su.ds = 0
+   </select>
+   <!-- 根据Id修改 -->
+	<update id="updateOAUser" parameterType="map">
+		update sys_user
+		<set>
+			<if test="code != null">
+				code = #{code},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="password != null">
+				password = #{password},
+			</if>
+			<if test="uuid != null">
+				uuid = #{uuid},
+			</if>
+			<if test="sex != null">
+				sex = #{sex},
+			</if>
+			<if test="wechat != null">
+				wechat = #{wechat},
+			</if>
+			<if test="tel != null">
+				tel = #{tel},
+			</if>
+			<if test="cal != null">
+				cal = #{cal},
+			</if>
+			<if test="mail != null">
+				mail = #{mail},
+			</if>
+			<if test="address != null">
+				address = #{address},
+			</if>
+			<if test="idCmpy != null">
+				id_cmpy = #{idCmpy},
+			</if>
+			<if test="idDept != null">
+				id_dept = #{idDept},
+			</if>
+			<if test="createDate != null">
+				create_date = #{createDate},
+			</if>
+			<if test="createUser != null">
+				create_user = #{createUser},
+			</if>
+			<if test="updateDate != null">
+				update_date = #{updateDate},
+			</if>
+			<if test="updateUser != null">
+				update_user = #{updateUser},
+			</if>
+			<if test="pwdExpiredDate != null">
+				pwd_expired_date = #{pwdExpiredDate},
+			</if>
+			<if test="ds != null">
+				ds = #{ds},
+			</if>
+			<if test="extend1 != null">
+				extend_1 = #{extend1},
+			</if>
+			<if test="extend2 != null">
+				extend_2 = #{extend2},
+			</if>
+			<if test="extend3 != null">
+				extend_3 = #{extend3},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<select id="selectDeptByUserName" parameterType="map" resultType="hashmap">
+	SELECT 
+	sd.id AS deptId,
+	sd.name AS deptName 
+	FROM sys_user su,sys_dept sd
+	 WHERE su.id_dept = sd.id AND su.name = #{userName}
+	</select>
+</mapper>

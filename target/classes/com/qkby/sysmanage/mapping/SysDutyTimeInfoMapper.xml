@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysDutyTimeDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysDutyTimeInfo" >
+    <id column="id" property="id"/>
+    <result column="id_user" property="idUser"/>
+    <result column="duty_time" property="dutyTime"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+   <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysDutyTimeInfo">
+		insert into sys_duty_time (id, id_user, duty_time,
+		extend_1, extend_2, extend_3)
+		values (#{id}, #{idUser}, #{dutyTime},
+		#{extend1}, #{extend2}, #{extend3})
+	</insert>
+	<select id="selectDutyTime" resultMap="BaseResultMap">
+	 SELECT 
+		 sdt.duty_time AS dutyTime,
+		 sdt.id_user AS idUser,
+		 su.name AS extend_2,
+		 sdt.extend_1 AS extend_1,
+		 sdt.extend_3 AS extend_3
+		 FROM sys_duty_time sdt,sys_user su
+		 WHERE sdt.id_user = su.id
+		 GROUP BY sdt.duty_time
+	</select>
+	<delete id="deleteDutyTime" parameterType="java.lang.String">
+	   DELETE 
+	   FROM sys_duty_time 
+	   WHERE 
+	   DATE_FORMAT(duty_time,'%Y-%m') = #{dutyTime}
+	</delete>
+	<select id="selectDutyIdUser" parameterType="java.lang.String" resultMap="BaseResultMap">
+	    SELECT 
+	    sdt.id_user 
+	    FROM sys_duty_time sdt 
+	    WHERE sdt.duty_time = #{dutyTime}
+	</select>
+	<update id="updateDutyTime" parameterType="map">
+		UPDATE sys_duty_time 
+		SET 
+		<if test="idUser != null">
+		id_user = #{idUser}
+		</if>
+		WHERE 
+		duty_time = #{dutyTime}
+	</update>
+	<select id="selectDutyTimeByTime" parameterType="java.lang.String" resultMap="BaseResultMap">
+	   SELECT 
+	   DATE_FORMAT(sdt.duty_time,'%m') AS dutyTime
+	   FROM sys_duty_time sdt 
+	   WHERE DATE_FORMAT(sdt.duty_time,'%Y') = #{dutyTime}
+ 		GROUP BY DATE_FORMAT(sdt.duty_time,'%m')
+	</select>
+	<select id="selectDutyTimeByIdUser" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+	 SELECT 
+	 sdt.duty_time AS dutyTime
+	 FROM 
+	 sys_duty_time sdt 
+	 WHERE 
+	 sdt.id_user = #{idUser}
+	</select>
+</mapper>

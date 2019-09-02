@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.ProjTaskRecordDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.proj.entity.TaskRecord" >
+    <id column="id" property="id"/>
+    <result column="id_task" property="idTask"/>
+    <result column="create_time" property="createTime"/>
+    <result column="id_create_user" property="idCreateUser"/>
+    <result column="task_record" property="taskRecord"/>
+    <result column="extend_1" property="extend1" />
+    <result column="extend_2" property="extend2" />
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  
+  <select id="selectTaskRecordList" resultMap="BaseResultMap" parameterType="int" >
+    SELECT 
+		create_time,
+		(SELECT su.name FROM sys_user su WHERE su.id = ptr.id_create_user) extend_1,
+		task_record 
+	FROM proj_task_record ptr
+	WHERE ptr.id_task = #{idTask}
+  </select>
+  <insert id="insertTaskRecord" parameterType="com.qkby.proj.entity.TaskRecord" >
+    insert into proj_task_record (id, id_task, create_time, id_create_user, 
+      task_record)
+    values (#{id}, #{idTask}, #{createTime}, #{idCreateUser},
+      #{taskRecord})
+  </insert>
+  
+</mapper>

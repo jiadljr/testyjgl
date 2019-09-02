@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysconfig.dao.SysRoleInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysconfig.entity.SysRoleInfo" >
+    <id column="id" property="id"  />
+    <result column="code" property="code"/>
+    <result column="name" property="name" />
+    <result column="remark" property="remark" />
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, code, name, remark, extend_1, extend_2, extend_3
+  </sql>
+  <select id="selectCount" resultType="java.lang.Integer" parameterType="map">
+  	SELECT COUNT(*) 
+  	FROM sys_role 
+  	WHERE 1=1
+  	<if test="code != null">
+    	AND code LIKE CONCAT('%',#{code},'%')
+    </if>
+    <if test="name != null">
+    	AND name LIKE CONCAT('%',#{name},'%')
+    </if>
+    <if test="remark != null">
+    	AND remark=#{remark}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+  </select>
+  <select id="selectRoleAll" resultMap="BaseResultMap">
+  	SELECT 
+  	id, CODE, NAME, remark, extend_1, extend_2, extend_3 
+  	FROM sys_role 
+  	WHERE id != 1
+  	ORDER BY id DESC
+  </select>
+  <!-- 查询全部 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="map" >
+    select
+    id, code, name, remark, extend_1, extend_2, extend_3
+    from sys_role
+    where 1=1
+    <if test="code != null">
+    	AND code LIKE CONCAT('%',#{code},'%')
+    </if>
+    <if test="name != null">
+    	AND name LIKE CONCAT('%',#{name},'%')
+    </if>
+    <if test="remark != null">
+    	AND remark=#{remark}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+    ORDER BY id DESC 
+    <if test="startPos != null">
+	LIMIT #{startPos}
+	<if test="pageSize != null">
+		,#{pageSize}
+	</if>
+</if>
+  </select>
+  <!-- 根据ID进行查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_role
+    where id = #{id}
+  </select>
+  <!-- 查询角色 -->
+	<select id="selectRo" parameterType="int" resultMap="BaseResultMap">
+		SELECT rolename.name FROM sys_user su LEFT JOIN(SELECT ra.id_user,
+		r.name FROM sys_role r RIGHT JOIN sys_user_role ra ON r.id = ra.id_role)
+		rolename ON su.id=rolename.id_user WHERE su.id=#{id}
+	</select>
+  <!-- 删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from sys_role
+    where id in
+    <foreach index="index" collection="ids" item="item" open="(" 
+    separator="," close=")">
+    	#{item}
+    </foreach>
+  </delete>
+  <!-- 新增 -->
+  <insert id="insert" parameterType="com.qkby.sysconfig.entity.SysRoleInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_role (id, code, name, 
+      remark, extend_1, extend_2, 
+      extend_3)
+    values (#{id}, #{code}, #{name}, 
+      #{remark}, #{extend1}, #{extend2}, 
+      #{extend3})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysconfig.entity.SysRoleInfo" >
+    update sys_role
+    set
+    <trim suffixOverrides=",">
+      <if test="code != null" >
+        code = #{code},
+      </if>
+      <if test="name != null" >
+        name = #{name},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </trim>
+    where id = #{id}
+  </update>
+</mapper>

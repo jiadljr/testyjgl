@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysconfig.dao.SysRoleMenuInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysconfig.entity.SysRoleMenuInfo" >
+    <id column="id" property="id" />
+    <result column="id_role" property="idRole"/>
+    <result column="id_menu" property="idMenu"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, id_role, id_menu, extend_1, extend_2, extend_3
+  </sql>
+  <!-- 查询全部 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.sysconfig.entity.SysRoleMenuInfo" >
+    select
+    <include refid="Base_Column_List" />
+    from sys_role_menu
+   order by id
+  </select>
+  <!-- 根据ID进行查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_role_menu
+    where id = #{id}
+  </select>
+  
+  <!-- 根据menu_id进行查询 -->
+  <select id="selectByMenuIdKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_role_menu
+    where id_menu = #{id}
+  </select>
+  <select id="selectByMenuKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	SELECT
+	sm.id AS id_menu,
+	rm.id AS id_role
+	FROM sys_menu sm
+	LEFT JOIN 			
+	(SELECT
+	sr.id,
+	sr.code,
+	sr.name,
+	rm.id_menu
+	FROM sys_role sr
+	RIGHT JOIN sys_role_menu rm
+	ON sr.id = rm.id_role) rm
+	ON rm.id_menu = sm.id 
+	WHERE sm.id = #{id}
+  </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sys_role_menu
+    where id = #{id}
+  </delete>
+  <!-- 删除 -->
+  <delete id="deleteByMap" parameterType="map" >
+    delete from sys_role_menu
+    where id_menu in 
+    <foreach item="item" index="index" collection="ids" open="("
+	  separator="," close=")">
+		 #{item}
+	</foreach>
+  </delete>
+  <!-- 新增 -->
+  <insert id="insert" parameterType="com.qkby.sysconfig.entity.SysRoleMenuInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_role_menu (id, id_role, id_menu, 
+      extend_1, extend_2, extend_3)
+    values (#{id}, #{idRole}, #{idMenu}, #{extend1}, #{extend2}, #{extend3})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysconfig.entity.SysRoleMenuInfo" >
+    update sys_role_menu
+     set 
+     <trim suffixOverrides=",">
+      <if test="idRole != null" >
+        id_role = #{idRole},
+      </if>
+      <if test="idMenu != null" >
+        id_menu = #{idMenu},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </trim>
+    where id = #{id}
+  </update>
+  <!-- 根据角色id删除中间表数据 -->
+  <delete id="deleteMenuRole" parameterType="map">
+  	DELETE FROM sys_role_menu WHERE id_role IN 
+  	<foreach item="item" index="index" collection="ids" 
+		open="(" separator="," close=")">
+ 		#{item}
+	</foreach>
+  </delete>
+</mapper>

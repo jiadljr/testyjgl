@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.contract.dao.ContractTypeDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.contract.entity.ContractType" >
+    <id column="id" property="id"/>
+    <result column="code" property="code"/>
+    <result column="type_name" property="typeName"/>
+    <result column="type_explain" property="typeExplain"/>
+    <result column="color" property="color"/>
+    <result column="logically_delete" property="logicallyDelete"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <!-- 查询所有的合同类型 -->
+  <select id="selectContractTypeAllByCondition" parameterType="map" resultMap="BaseResultMap">
+     SELECT ct.code AS code, 
+       ct.color AS color,
+       ct.id AS id,
+       ct.type_explain AS typeExplain,
+       ct.type_name AS typeName,
+       ct.extend_1 AS extend1,
+       ct.extend_2 AS extend2,
+       ct.extend_3 AS extend3
+ FROM contract_type ct
+      WHERE 1=1 AND ct.logically_delete != 2
+      <if test="code != null">
+        AND ct.code = #{code}
+      </if>
+      <if test="color != null">
+        AND ct.color = #{color}
+      </if>
+      <if test="id != null">
+        AND ct.id = #{id}
+      </if>
+      <if test="typeExplain != null">
+        AND ct.type_explain = #{typeExplain}
+      </if>
+      <if test="typeName != null">
+        AND ct.type_name = #{typeName}
+      </if>
+  </select>
+  <!-- 查询所有的合同类型（不带条件） -->
+  <select id="selectContractTypeAll" resultMap="BaseResultMap">
+     SELECT * FROM contract_type WHERE logically_delete != 2
+  </select>
+  <!-- 根据ID查询合同类型 -->
+  <select id="selectContractTypeById" resultMap="BaseResultMap" parameterType="java.lang.String">
+     SELECT ct.code AS code, 
+       ct.color AS color,
+       ct.id AS id,
+       ct.type_explain AS typeExplain,
+       ct.type_name AS typeName,
+       ct.extend_1 AS extend1,
+       ct.extend_2 AS extend2,
+       ct.extend_3 AS extend3
+ FROM contract_type ct
+      WHERE 1=1 AND ct.logically_delete != 2
+      AND ct.id = #{id}
+  </select>
+  <!-- 新增合同类型 -->
+  <insert id="insertContractType" parameterType="com.qkby.contract.entity.ContractType">
+     INSERT INTO contract_type 
+         (id,code,color,type_explain,type_name,logically_delete,extend_1,extend_2,extend_3)
+     VALUES 
+         (#{id},#{code},#{color},#{typeExplain},#{typeName},#{logicallyDelete},#{extend1},#{extend2},#{extend3})
+  </insert>
+  <!-- 修改合同类型 -->
+  <update id="updateContractType" parameterType="com.qkby.contract.entity.ContractType">
+     UPDATE contract_type SET
+     <if test="code != null">
+        code = #{code},
+     </if>
+     <if test="color != null">
+        color = #{color},
+     </if>
+     <if test="typeExplain != null">
+        type_explain = #{typeExplain},
+     </if>
+     <if test="typeName != null">
+        type_name = #{typeName}
+     </if>
+     WHERE id = #{id}
+  </update>
+  <!-- 删除合同类型 -->
+  <update id="deleteContractType" parameterType="map">
+     UPDATE contract_type SET logically_delete = #{logicallyDelete}
+     WHERE id = #{id}
+  </update>
+</mapper>

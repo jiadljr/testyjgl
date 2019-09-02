@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysconfig.dao.SysServiceTypeInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysconfig.entity.SysServiceTypeInfo" >
+    <id column="id" property="id"/>
+    <result column="code" property="code"/>
+    <result column="name" property="name"/>
+    <result column="level" property="level"/>
+    <result column="parent_id" property="parentId"/>
+    <result column="remark" property="remark"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, code, name, level, parent_id, remark, extend_1, extend_2, extend_3
+  </sql>
+  <!-- 查询全部 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.sysconfig.entity.SysServiceTypeInfo" >
+    select
+    <include refid="Base_Column_List" />
+    from sys_service_type
+    order by id
+  </select>
+  <!-- 根据ID进行查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_service_type
+    where id = #{id}
+  </select>
+   <!-- 删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sys_service_type
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <!-- 新增 -->
+  <insert id="insert" parameterType="com.qkby.sysconfig.entity.SysServiceTypeInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_service_type (id, code, name, 
+      level, parent_id, remark, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{code}, #{name}, 
+      #{level}, #{parentId}, #{remark}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysconfig.entity.SysServiceTypeInfo" >
+    update sys_service_type
+    set 
+    <trim suffixOverrides=",">
+      <if test="code != null" >
+        code = #{code},
+      </if>
+      <if test="name != null" >
+        name = #{name},
+      </if>
+      <if test="level != null" >
+        level = #{level},
+      </if>
+      <if test="parentId != null" >
+        parent_id = #{parentId},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+   </trim>
+    where id = #{id}
+  </update>
+</mapper>

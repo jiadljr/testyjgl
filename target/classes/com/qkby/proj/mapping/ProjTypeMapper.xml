@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.ProjTypeDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.proj.entity.ProjectType" >
+    <id column="id" property="id"/>
+    <result column="code" property="code"/>
+    <result column="name" property="name"/>
+    <result column="color" property="color"/>
+    <result column="idCreateUser" property="id_create_user"/>
+    <result column="idUpdateUser" property="id_update_user"/>
+    <result column="dateCreate" property="date_create"/>
+    <result column="dateUpdate" property="date_update"/>
+    <result column="remark" property="remark"/>
+    <result column="ds" property="ds"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+ <!-- 查询所有项目类型 -->
+ <select id="selectProjTypeList" resultMap="BaseResultMap">
+ 	SELECT 
+ 		pt.id,
+		pt.NAME,
+		pt.color,
+		pt.remark
+	FROM proj_type pt
+	where pt.ds != 1
+ </select>
+  <!-- 
+	
+	pt.CODE,
+	pt.color,
+	(SELECT su.name FROM sys_user su WHERE su.id = pt.id_create_user) extend1,
+	(SELECT su.name FROM sys_user su WHERE su.id = pt.id_update_user) extend2,
+	pt.date_create,
+	pt.date_update,
+	pt.remark 
+ -->
+ <select id="selectProjTypeByKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+ 	SELECT 
+		pt.id,
+		pt.CODE,
+		pt.NAME,
+		pt.color,
+		(SELECT su.name FROM sys_user su WHERE su.id = pt.id_create_user) extend1,
+		(SELECT su.name FROM sys_user su WHERE su.id = pt.id_update_user) extend2,
+		pt.date_create,
+		pt.date_update,
+		pt.remark
+	FROM proj_type pt
+	where pt.id=#{id}
+ </select>
+ <insert id="insertProjType" parameterType="com.qkby.proj.entity.ProjectType">
+ 	insert into proj_type( name, color, id_create_user, date_create, remark, ds) 
+ 	values(#{name}, #{color}, #{idCreateUser}, #{dateCreate}, #{remark}, #{ds})
+ </insert>
+ <update id="updateProjType" >
+ 	update proj_type
+ 	<set>
+ 		<if test="code != null">
+ 			code = #{code},
+ 		</if>
+ 		<if test="color != null">
+ 			color = #{color},
+ 		</if>
+ 		<if test="idUpdateUser != null">
+ 			id_update_user = #{idUpdateUser},
+ 		</if>
+ 		<if test="dateUpdate != null">
+ 			date_update = #{dateUpdate},
+ 		</if>
+ 		<if test="remark != null">
+ 			remark = #{remark},
+ 		</if>
+ 		<if test="name != null">
+ 			name = #{name}<!-- 必填项 -->
+ 		</if>
+ 	</set> 
+ 	where id = #{id}
+ </update>
+ <!-- 查询所有类型的名字 -->
+ <select id="selectProjTypeName" resultType="hashmap">
+    SELECT pt.name AS ptName FROM proj_type pt
+ </select>
+ <update id="deleteProjType" parameterType="java.lang.Integer">
+ 	update proj_type set ds = 1 where id = #{id}
+ </update>
+</mapper>

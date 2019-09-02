@@ -1,0 +1,51 @@
+//登录页的样式文件
+*{
+	padding:0;
+	margin:0;
+	font-size: 14px;
+}
+	input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+　　color: #fff;
+　　}
+　　input:-moz-placeholder, textarea:-moz-placeholder {
+　　color:#fff;
+　　}
+　　input::-moz-placeholder, textarea::-moz-placeholder {
+　　color:#fff;
+　　}
+　　input:-ms-input-placeholder, textarea:-ms-input-placeholder {
+　　color:#fff;
+　　}
+	  input:-webkit-autofill {
+            -webkit-box-shadow:0 0 0 100px #3f90e6 inset; 
+            -webkit-text-fill-color: #fff;
+        }
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow:0 0 0 100px #3f90e6 inset;
+            -webkit-text-fill-color: #fff;
+        }
+	
+	*{margin:0; padding:0;}
+	body,html{ width:100%; height:100%;overflow:hidden;}
+	body{background:url('../images/login_bgk.png') no-repeat;background-size:100%;}
+	li{list-style:none;}
+	.logo{ background:url('../images/logo.png') no-repeat; height:40px;width:440px;display:block;float:left;}
+	.login_tit{font-family:"kaiti"; color:#fff; float:left; height:40px; line-height:40px;margin:40px 0 0 40px;}
+	.login_box{ float:right; width:40%;margin-top:50px; border-left:1px solid  #2d66a3; }
+	.login_box h2{ width:60%; margin:0 auto 40px auto;color:#fff;font-size:26px;height:60px; line-height:60px;border-bottom:1px solid #f7f7f7;}
+	.login_box .login_tab_tit{ width:60%; margin: 0 auto; height:40px;  box-sizing: border-box;}
+	.login_box .login_tab_tit li{color:#909090;	cursor: pointer;line-height:40px; width:49%;float:left; height:40px; border-bottom:1px solid #3ad5fc; box-sizing: border-box;}
+	.login_box .login_tab_tit .log_nav_on{border-color:#e2e2e2;color:#fff;}
+	.login_item{display:none;}
+	.login_item input{background-color:transparent;border:none;outline:medium; line-height:30px;  height:30px; color:#fff;}
+	.item_on{ display:block;}
+	.login_tab p{ width:60%; margin:20px auto; height:36px;line-height:36px;  border-bottom:1px solid #cae1f8}
+	.login_tab .mark_tit{width:60%; margin:20px auto;height:36px;line-height:36px;}
+	.login_last{width:60%; margin:20px auto;  height:36px;line-height:36px;}
+	.login_last .btn{ width:100%; padding:0; height:36px; line-height:36px; border-radius:5px;background:#fff;}
+	#userCode{ height:}
+	.pic_log{ margin: 0 10px 10px 0;}
+	.mark_tit input{ width:70px;}
+	.line{border-bottom:1px solid #cae1f8;width:50%; height:36px; line-height:36px; float:left;}
+	.footer{position:absolute;bottom:0; width:100%;height:40px;font-size:14px; line-height:40px; text-align:center;}
+

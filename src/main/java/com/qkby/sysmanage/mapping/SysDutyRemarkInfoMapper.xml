@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysDutyRemarkDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysDutyRemarkInfo" >
+    <id column="id" property="id"/>
+    <result column="duty_time" property="dutyTime"/>
+    <result column="duty_remark" property="dutyRemark"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+   <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysDutyRemarkInfo">
+		insert into sys_duty_remark (id, duty_time, duty_remark,
+		extend_1, extend_2, extend_3)
+		values (#{id}, #{dutyTime}, #{dutyRemark},
+		#{extend1}, #{extend2}, #{extend3})
+	</insert>
+	<select id="selectDutyRemark" resultMap="BaseResultMap" parameterType="java.lang.String">
+	SELECT 
+	sdr.duty_remark,
+	sdr.id
+	FROM sys_duty_remark sdr 
+	WHERE DATE_FORMAT(sdr.duty_time,'%Y-%m') = #{dutyTime}
+	</select>
+	<delete id="deleteDutyRemark" parameterType="java.lang.String">
+	DELETE 
+	FROM sys_duty_remark 
+	WHERE 
+	DATE_FORMAT(duty_time,'%Y-%m') = #{dutyTime}
+	</delete>
+	<update id="updateDutyRemark" parameterType="map">
+	  UPDATE 
+	  sys_duty_remark 
+	  SET 
+	  <if test="dutyRemark != null">
+	  duty_remark = #{dutyRemark}
+	  </if>
+	  WHERE  
+	  id = #{id}
+	</update>
+</mapper>

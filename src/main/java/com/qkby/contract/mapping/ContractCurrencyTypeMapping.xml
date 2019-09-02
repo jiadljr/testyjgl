@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.contract.dao.ContractCurrencyTypeDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.contract.entity.ContractCurrencyType" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="extend_1" property="extend1" jdbcType="VARCHAR" />
+    <result column="extend_2" property="extend2" jdbcType="VARCHAR" />
+    <result column="extend_3" property="extend3" jdbcType="VARCHAR" />
+  </resultMap>
+  <!-- 查询所有的合同货币（带条件） -->
+  <select id="selectContractCurrencyTypeByConditionAll" parameterType="map" resultMap="BaseResultMap">
+  SELECT 
+    cct.code AS code, 
+    cct.id AS id, 
+    cct.name AS name, 
+    cct.extend_1 AS extend1, 
+    cct.extend_2 AS extend2, 
+    cct.extend_3 AS extend3 
+  FROM contract_currency_type cct
+    WHERE 1=1
+    <if test="code != null">
+     AND cct.code = #{code}
+    </if>
+    <if test="name != null">
+     AND cct.name = #{name}
+    </if>
+    <if test="id != null">
+     AND cct.id = #{id}
+    </if>
+    <if test="extend1 != null">
+     AND cct.extend_1 = #{extend1}
+    </if>
+    <if test="extend2 != null">
+     AND cct.extend_2 = #{extend2}
+    </if>
+    <if test="extend3 != null">
+     AND cct.extend_3 = #{extend3}
+    </if>
+  </select>
+  <!-- 查询所有的 -->
+  <select id="selectContractCurrencyTypeAll" resultMap="BaseResultMap">
+     SELECT * FROM contract_currency_type
+  </select>
+  <!-- 根据ID查询合同货币 -->
+  <select id="selectContractCurrencyTypeById" parameterType="java.lang.String" resultMap="BaseResultMap">
+  SELECT 
+    cct.code AS code, 
+    cct.id AS id, 
+    cct.name AS name, 
+    cct.extend_1 AS extend1, 
+    cct.extend_2 AS extend2, 
+    cct.extend_3 AS extend3 
+  FROM contract_currency_type cct
+    WHERE 1=1
+    <if test="id != null">
+     AND cct.id = #{id}
+    </if>
+  </select>
+  <!-- 新增合同货币 -->
+  <insert id="insertContractCurrencyType" parameterType="com.qkby.contract.entity.ContractCurrencyType">
+  <selectKey resultType="java.lang.String" order="AFTER" keyProperty="id">
+       SELECT LAST_INSERT_ID() as id
+  </selectKey>
+    INSERT INTO contract_currency_type (id,code,name,extend_1,extend_2,extend_3)
+         VALUES(#{id},#{code},#{name},#{extend1},#{extend2},#{extend3})
+  </insert>
+  <!-- 修改合同货币 -->
+  <update id="updateContractCurrencyType" parameterType="com.qkby.contract.entity.ContractCurrencyType">
+     UPDATE contract_currency_type SET 
+      <if test="code != null">
+         code = #{code},
+      </if>
+      <if test="name != null">
+         name = #{name}
+      </if>
+    WHERE id = #{id}
+  </update>
+  <!-- 根据ID删除合同货币 -->
+  <delete id="deleteContractCurrencyType" parameterType="java.lang.String">
+     DELETE FROM contract_currency_type
+     WHERE id = #{id}
+  </delete>
+</mapper>

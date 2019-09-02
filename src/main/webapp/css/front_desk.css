@@ -1,0 +1,62 @@
+	*{margin:0;padding:0;}
+.mRpreson{ height:100%;}
+.table tr td a{ color:#3179c6;}
+.table tr td a:hover{ color:#656666; text-decoration:underline;}
+.border_blue{box-shadow: 0 0  8px #d2d2d2;}
+.pie_box{width: 35%;height:50%; margin:5px; float:left; }
+.title_bgk{padding:0;background:#fbfbfb; border-left:none; border-right:none;color:#86b3e4; height:30px; border-bottom: 1px solid #e8e8e8; line-height:30px;}
+.layui-layer-iframe .layui-layer-title {background: #3b85c7 !important;color: #fff !important;}
+.eventRank{width:36.7%; height:20% ; margin:0.4% 0 0 0.4%; float:left;overflow:hidden;}
+.per_list{ margin:0.4% 0 0 0.4%;width:36.7%; height:31% ; float:left;overflow:hidden; }
+#eventRank{text-align:center; width:100%;}
+#eventRank li {display:inline-block; color:#f7f7f7;border-radius:5px; margin:4% 2.5%; width:20%; height:60px; line-height:69%; float:left; }
+#eventRank li .topper{ height:16px; font-weight:bolder; line-height:16px; margin-top:14px; font-size:16px;}
+#eventRank li p{ height:20px; line-height:20px; font-size:12px; }
+#eventRank .red{background:#ff0000;}
+#eventRank .yellow{background:#ffd200;}
+#eventRank .orange{background:#ff6900;}
+#eventRank .blue{background:#007eff;}
+.acceptPage{ width:80px; height:20px; float:right;margin-top:4px;}
+.acceptPage li{ float:left; margin:0 10px ; width:19px; height:19px;cursor:pointer; }
+.acceptPage .prev{ background:url(../images/FrontPageL.png) no-repeat;}
+.acceptPage .next{ background:url(../images/FrontPageR.png) no-repeat;}
+.tulBox{ width:100%;overflow-x:hidden;overflow-y:auto;}
+#tul{width:100%; float:left; }
+#tul li{ width:12%; margin-left:10%; float:left; margin-top:3%; cursor: pointer;}
+#tul li span{ text-align:center;line-height:20px; width:20px; height:20px;display:block;border-radius:50%;background:red;color:#fff; position:absolute; right:-10%;top:0;}
+#tul li i{font-style:normal;position:relative;background:url('../images/user.png') no-repeat; background-size:100%; width:80%; height:80%; border:1px solid #ccc; display:block;border-radius:50%;overflow;hidden; margin:10% 10% 0 10%; ;}
+#tul li b{ width:100%; height:20px; margin-bottom:1px; line-height:14px; font-weight:normal; display:block; text-align:center;overflow: hidden;
+white-space: nowrap;
+text-overflow: ellipsis;} 
+#tul li i img{width:100%; height:100%;border:none; }
+.todayNewEvent{ width:62%; height:51.6%; margin-left:0.4%; margin-top:0.4%; float:left;}
+.todayNewEvent .fixTable{ width:90%;margin:10px auto 0 auto; }
+.todayNewEvent .fixTable .table thead tr{ background-image:none;}
+.todayNewEvent .relTable{width:90%;height:80% ;margin:0 auto;}
+.todayNewEvent .acceptPage{ margin-right:5%;}
+
+.waitTable{width: 32.8%; height: 40%; margin-left:0.4%;float: left; margin-top:0.4%;}
+.waitTable .table tr td{  padding:0; border:none;s} 
+.tbodyBox{overflow:hidden;}
+.wait_accept{width:41.7%; margin:0.4% 0 0 0.4%; }
+.overTime{width:57%; margin-top:0.4%; }
+@media only screen and (min-height: 768px){
+		.table tr td {font-szie:16px;}
+		#eventRank li {  height:60px;  }
+		#eventRank li .topper{ height:16px; line-height:16px; margin-top:14px; font-size:16px;}
+		
+@media only screen and (min-height: 768px) and (max-height: 800px){
+	.table tr td {font-szie:18px;}
+	#eventRank li { margin-top:25px; height:85px;}
+	#eventRank li .topper{ margin-top:25px; font-size:18px;}
+}
+@media only screen and (min-height: 800px) and (max-height: 900px){
+	.table tr td {font-szie:20px;}
+	#eventRank li { margin-top:25px; height:90px;}
+	#eventRank li .topper{ margin-top:30px; font-size:20px;}
+}
+@media only screen and (min-height: 900px) and (max-height: 1080px){
+	.table tr td {font-szie:22px;}
+	#eventRank li { margin-top:40px; height:100px; }
+	#eventRank li .topper{  margin-top:30px; font-size:22px;}
+}

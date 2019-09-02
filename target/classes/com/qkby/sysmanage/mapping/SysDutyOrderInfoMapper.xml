@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysDutyOrderDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysDutyOrderInfo" >
+    <id column="id" property="id"/>
+    <result column="group_name" property="groupName"/>
+    <result column="id_user_group" property="idUserGroup"/>
+    <result column="name_user_group" property="nameUserGroup"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+   <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysDutyOrderInfo">
+		insert into sys_duty_order (id, group_name, id_user_group, name_user_group,
+		extend_1, extend_2, extend_3)
+		values (#{id}, #{groupName}, #{idUserGroup}, #{nameUserGroup},
+		#{extend1}, #{extend2}, #{extend3})
+	</insert>
+	<select id="selectDutyOrder" resultMap="BaseResultMap">
+	 SELECT 
+	   sdo.id AS id,
+	   sdo.group_name AS groupName, 
+	   sdo.name_user_group AS nameUserGroup,
+	   sdo.id_user_group AS idUserGroup
+	   FROM sys_duty_order sdo
+	</select>
+	<select id="selectDutyOrderById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+	   select 
+	   sdo.group_name AS groupName, 
+	   sdo.name_user_group AS nameUserGroup,
+	   sdo.id_user_group AS idUserGroup
+	   FROM sys_duty_order sdo
+	   where 1=1
+       and sdo.id = #{ids}
+	</select>
+	<update id="updateDutyOrder" parameterType="map">
+	UPDATE sys_duty_order 
+	SET 
+	<if test="groupName != null">
+	group_name = #{groupName},
+	</if>
+	<if test="idUserGroup != null">
+	id_user_group = #{idUserGroup},
+	</if>
+	<if test="nameUserGroup != null">
+	name_user_group = #{nameUserGroup}
+	</if>
+    WHERE  id= #{id}
+	</update>
+	<delete id="deleteDutyOrder" parameterType="java.lang.Integer">
+		DELETE 
+		FROM 
+		sys_duty_order 
+		WHERE 
+		id= #{id}
+	</delete>
+</mapper>

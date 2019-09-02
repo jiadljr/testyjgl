@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.event.dao.EventFileManageInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.event.entity.EventFileManageInfo" >
+    <id column="id" property="id"/>
+    <result column="id_deal" property="idDeal"/>
+    <result column="id_file" property="idFile"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, id_deal, id_file, extend_1, extend_2, extend_3
+  </sql>
+  <insert id="insert" parameterType="com.qkby.event.entity.EventFileManageInfo" >
+    insert into event_file_manage
+     (id, id_deal, id_file,  extend_1, extend_2, extend_3)
+    values (#{id}, #{idDeal}, #{idFile},#{extend1}, #{extend2}, 
+      #{extend3})
+  </insert>
+  <delete id="deleteDealFileByFileId" parameterType="int">
+  	delete from event_file_manage
+    where 1=1 and id_file = #{id}
+  </delete>
+     <select id="selectFileId" resultMap="BaseResultMap" parameterType="map">
+      SELECT efm.id_file FROM event_file_manage efm
+     WHERE efm.id_deal in
+		<foreach item="item" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+   </select>
+</mapper>

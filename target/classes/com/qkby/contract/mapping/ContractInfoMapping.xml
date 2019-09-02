@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.contract.dao.ContractInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.contract.entity.ContractInfo" >
+    <id column="id" property="id"/>
+    <result column="code" property="code"/>
+    <result column="contract_title" property="contractTitle"/>
+    <result column="first_party_unit" property="firstPartyUnit"/>
+    <result column="second_party_unit" property="secondPartyUnit"/>
+    <result column="first_party_principal" property="firstPartyPrincipal"/>
+    <result column="second_party_principal" property="secondPartyPrincipal"/>
+    <result column="first_party_contact_way" property="firstPartyContactWay"/>
+    <result column="second_party_contact_way" property="secondPartyContactWay"/>
+    <result column="contract_type_code" property="contractTypeCode"/>
+    <result column="honour_agreement" property="honourAgreement"/>
+    <result column="sign_time" property="signTime"/>
+    <result column="contract_money" property="contractMoney"/>
+    <result column="currency_id" property="currencyId"/>
+    <result column="fund_source" property="fundSource"/>
+    <result column="payment_method" property="paymentMethod"/>
+    <result column="contract_start_time" property="contractStartTime"/>
+    <result column="contract_end_time" property="contractEndTime"/>
+    <result column="contract_object" property="contractObject"/>
+    <result column="contract_desc" property="contractDesc"/>
+    <result column="logic_delete" property="logicDelete"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+    <result column="extend_4" property="extend4"/>
+  </resultMap>
+  <!-- 查询所有合同信息（带条件） -->
+  <select id="selectContractInfoByCondition" resultMap="BaseResultMap" parameterType="map">
+ SELECT ci.code AS code,ci.contract_desc AS contractDesc,
+   ci.contract_end_time AS contractEndTime, ci.contract_money AS contractMoney,
+   ci.contract_object AS contractObject,
+   ci.contract_start_time AS contractStartTime,ci.contract_title AS contractTitle,
+   ci.contract_type_code AS contractTypeCode,ci.currency_id AS currencyId,
+   ci.first_party_contact_way AS firstPartyContactWay,ci.first_party_principal AS firstPartyPrincipal,
+   ci.first_party_unit AS firstPartyUnit,ci.fund_source AS fundSource,
+   ci.id AS id,ci.payment_method AS paymentMethod,ci.honour_agreement AS honourAgreement,
+   ci.second_party_contact_way AS secondPartyContactWay,ci.second_party_principal AS secondPartyPrincipal,
+   ci.second_party_unit AS secondPartyUnit,ci.sign_time AS signTime,ci.extend_1 AS extend1,ci.extend_2 AS extend2,
+   ci.extend_3 AS extend3,ci.extend_4 AS extend4
+ FROM contract_info ci
+   WHERE 1=1 AND ci.logic_delete != 2
+   <if test="id != null">
+     AND ci.id = #{id}
+   </if>
+   <if test="contractCode != null">
+     AND ci.code = #{contractCode}
+   </if>
+   <if test="contractDesc != null">
+     AND ci.contract_desc = #{contractDesc}
+   </if>
+   <if test="contractEndTime != null">
+     AND ci.contract_end_time = #{contractEndTime}
+   </if>
+   <if test="contractMoneyStrat != null">
+     AND ci.contract_money &lt;= #{contractMoneyStrat}
+   </if>
+   <if test="contractMoneyEnd != null">
+     AND ci.contract_money &gt;= #{contractMoneyEnd}
+   </if>
+   <if test="contractObject != null">
+     AND ci.contract_object = #{contractObject}
+   </if>
+   <if test="contractStartTime != null">
+     AND ci.contract_start_time = #{contractStartTime}
+   </if>
+   <if test="contractTitle != null">
+     AND ci.contract_title = #{contractTitle}
+   </if>
+   <if test="contractTypeCode != null">
+     AND ci.contract_type_code = #{contractTypeCode}
+   </if>
+   <if test="currencyId != null">
+     AND ci.currency_id = #{currencyId}
+   </if>
+   <if test="firstPartyContactWay != null">
+     AND ci.first_party_contact_way = #{firstPartyContactWay}
+   </if>
+   <if test="honourAgreement != null">
+     AND ci.honour_agreement = #{honourAgreement}
+   </if>
+   <if test="firstPartyPrincipal != null">
+     AND ci.first_party_principal = #{firstPartyPrincipal}
+   </if>
+   <if test="firstPartyUnit != null">
+     AND ci.first_party_unit = #{firstPartyUnit}
+   </if>
+   <if test="fundSource != null">
+     AND ci.fund_source = #{fundSource}
+   </if>
+   <if test="paymentMethod != null">
+     AND ci.payment_method = #{paymentMethod}
+   </if>
+   <if test="secondPartyContactWay != null">
+     AND ci.second_party_contact_way = #{secondPartyContactWay}
+   </if>
+   <if test="secondPartyPrincipal != null">
+     AND ci.second_party_principal = #{secondPartyPrincipal}
+   </if>
+   <if test="secondPartyUnit != null">
+     AND ci.second_party_unit = #{secondPartyUnit}
+   </if>
+   <if test="signTimeStart != null">
+     AND ci.sign_time &lt;= #{signTimeStart}
+   </if>
+   <if test="signTimeEnd != null">
+     AND ci.sign_time &gt;=  #{signTimeEnd}
+   </if>
+   <if test="conKeyWord != null">
+      AND ci.contract_title LIKE CONCAT('%',#{conKeyWord},'%') OR
+      ci.code LIKE CONCAT('%',#{conKeyWord},'%')
+   </if>
+   <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <!-- 查询合同信息（不带条件） -->
+  <select id="selectContractInfoAll" resultMap="BaseResultMap">
+    SELECT ci.code AS code,ci.contract_desc AS contractDesc,
+   ci.contract_end_time AS contractEndTime, ci.contract_money AS contractMoney,
+   ci.contract_object AS contractObject,
+   ci.contract_start_time AS contractStartTime,ci.contract_title AS contractTitle,
+   ci.contract_type_code AS contractTypeCode,ci.currency_id AS currencyId,
+   ci.first_party_contact_way AS firstPartyContactWay,ci.first_party_principal AS firstPartyPrincipal,
+   ci.first_party_unit AS firstPartyUnit,ci.fund_source AS fundSource,
+   ci.id AS id,ci.payment_method AS paymentMethod,ci.honour_agreement AS honourAgreement,
+   ci.second_party_contact_way AS secondPartyContactWay,ci.second_party_principal AS secondPartyPrincipal,
+   ci.second_party_unit AS secondPartyUnit,ci.sign_time AS signTime,ci.extend_1 AS extend1,ci.extend_2 AS extend2,
+   ci.extend_3 AS extend3,ci.extend_4 AS extend4
+ FROM contract_info ci
+   WHERE 1=1 AND ci.logic_delete != 2
+  </select>
+  <!-- 根据ID查询合同信息 -->
+  <select id="selectContractInfoById" resultMap="BaseResultMap" parameterType="java.lang.String">
+ SELECT ci.code AS code,ci.contract_desc AS contractDesc,
+   ci.contract_end_time AS contractEndTime, ci.contract_money AS contractMoney,
+   ci.contract_object AS contractObject,
+   ci.contract_start_time AS contractStartTime,ci.contract_title AS contractTitle,
+   ci.contract_type_code AS contractTypeCode,ci.currency_id AS currencyId,
+   ci.first_party_contact_way AS firstPartyContactWay,ci.first_party_principal AS firstPartyPrincipal,
+   ci.first_party_unit AS firstPartyUnit,ci.fund_source AS fundSource,
+   ci.id AS id,ci.payment_method AS paymentMethod,ci.honour_agreement AS honourAgreement,
+   ci.second_party_contact_way AS secondPartyContactWay,ci.second_party_principal AS secondPartyPrincipal,
+   ci.second_party_unit AS secondPartyUnit,ci.sign_time AS signTime,ci.extend_1 AS extend1,ci.extend_2 AS extend2,
+   ci.extend_3 AS extend3,ci.extend_4 AS extend4
+ FROM contract_info ci
+    WHERE ci.id = #{id} AND ci.logic_delete != 2
+  </select>
+  <!-- 查询合同信息总条数 -->
+  <select id="selectContractInfoCount" parameterType="map" resultType="java.lang.Integer">
+  SELECT count(*)
+  FROM contract_info ci
+   WHERE 1=1 AND ci.logic_delete != 2
+   <if test="id != null">
+     AND ci.id = #{id}
+   </if>
+   <if test="code != null">
+     AND ci.code = #{code}
+   </if>
+   <if test="contractDesc != null">
+     AND ci.contract_desc = #{contractDesc}
+   </if>
+   <if test="contractEndTime != null">
+     AND ci.contract_end_time = #{contractEndTime}
+   </if>
+   <if test="contractMoneyStrat != null">
+     AND ci.contract_money &lt;= #{contractMoneyStrat}
+   </if>
+   <if test="contractMoneyEnd != null">
+     AND ci.contract_money &gt;= #{contractMoneyEnd}
+   </if>
+   <if test="contractObject != null">
+     AND ci.contract_object = #{contractObject}
+   </if>
+   <if test="contractStartTime != null">
+     AND ci.contract_start_time = #{contractStartTime}
+   </if>
+   <if test="contractTitle != null">
+     AND ci.contract_title = #{contractTitle}
+   </if>
+   <if test="contractTypeCode != null">
+     AND ci.contract_type_code = #{contractTypeCode}
+   </if>
+   <if test="currencyId != null">
+     AND ci.currency_id = #{currencyId}
+   </if>
+   <if test="firstPartyContactWay != null">
+     AND ci.first_party_contact_way = #{firstPartyContactWay}
+   </if>
+   <if test="honourAgreement != null">
+     AND ci.honour_agreement = #{honourAgreement}
+   </if>
+   <if test="firstPartyPrincipal != null">
+     AND ci.first_party_principal = #{firstPartyPrincipal}
+   </if>
+   <if test="firstPartyUnit != null">
+     AND ci.first_party_unit = #{firstPartyUnit}
+   </if>
+   <if test="fundSource != null">
+     AND ci.fund_source = #{fundSource}
+   </if>
+   <if test="paymentMethod != null">
+     AND ci.payment_method = #{paymentMethod}
+   </if>
+   <if test="secondPartyContactWay != null">
+     AND ci.second_party_contact_way = #{secondPartyContactWay}
+   </if>
+   <if test="secondPartyPrincipal != null">
+     AND ci.second_party_principal = #{secondPartyPrincipal}
+   </if>
+   <if test="secondPartyUnit != null">
+     AND ci.second_party_unit = #{secondPartyUnit}
+   </if>
+   <if test="signTimeStart != null">
+     AND ci.sign_time &lt;= #{signTimeStart}
+   </if>
+   <if test="signTimeEnd != null">
+     AND ci.sign_time &gt;=  #{signTimeEnd}
+   </if>
+  </select>
+  <!-- 新增合同信息 -->
+  <insert id="insertContractInfo" parameterType="com.qkby.contract.entity.ContractInfo">
+    <selectKey resultType="java.lang.String" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+    </selectKey>
+    INSERT INTO contract_info(id,code,contract_desc,contract_end_time,contract_money,
+    						 contract_object,contract_start_time,contract_title,contract_type_code,
+    						 currency_id,first_party_contact_way,first_party_principal,first_party_unit,
+    						 fund_source,payment_method,second_party_contact_way,second_party_principal,honour_agreement,
+    						 second_party_unit,sign_time,logic_delete,extend_1,extend_2,extend_3,extend_4)
+    VALUES (#{id},#{code},#{contractDesc},#{contractEndTime},#{contractMoney},#{contractObject},
+           #{contractStartTime},#{contractTitle},#{contractTypeCode},#{currencyId},#{firstPartyContactWay},
+           #{firstPartyPrincipal},#{firstPartyUnit},#{fundSource},#{paymentMethod},#{secondPartyContactWay},
+           #{secondPartyPrincipal},#{honourAgreement},#{secondPartyUnit},#{signTime},#{logicDelete},#{extend1},#{extend2},#{extend3},#{extend4})
+  </insert>
+  <!-- 合同信息逻辑删除 -->
+  <update id="contractLogicDelete" parameterType="com.qkby.contract.entity.ContractInfo">
+     UPDATE contract_info SET 
+     <if test="logicDelete != null">
+       logic_delete = #{logicDelete}
+     </if>
+     WHERE id = #{id}
+  </update>
+  <!-- 根据ID修改合同信息 -->
+  <update id="updateContractInfoById" parameterType="com.qkby.contract.entity.ContractInfo">
+    UPDATE contract_info SET
+    <if test="code != null">
+       code = #{code},
+    </if>
+    <if test="contractDesc != null">
+       contract_desc = #{contractDesc},
+    </if>
+    <if test="contractEndTime != null">
+       contract_end_time = #{contractEndTime},
+    </if>
+    <if test="contractMoney != null">
+       contract_money = #{contractMoney},
+    </if>
+    <if test="contractObject != null">
+       contract_object = #{contractObject},
+    </if>
+    <if test="contractStartTime != null">
+       contract_start_time = #{contractStartTime},
+    </if>
+    <if test="contractTypeCode != null">
+       contract_type_code = #{contractTypeCode},
+    </if>
+    <if test="currencyId != null">
+       currency_id = #{currencyId},
+    </if>
+    <if test="firstPartyContactWay != null">
+       first_party_contact_way = #{firstPartyContactWay},
+    </if>
+    <if test="honourAgreement != null">
+       honour_agreement = #{honourAgreement},
+    </if>
+    <if test="firstPartyPrincipal != null">
+       first_party_principal = #{firstPartyPrincipal},
+    </if>
+    <if test="firstPartyUnit != null">
+       first_party_unit = #{firstPartyUnit},
+    </if>
+    <if test="fundSource != null">
+       fund_source = #{fundSource},
+    </if>
+    <if test="paymentMethod != null">
+       payment_method = #{paymentMethod},
+    </if>
+    <if test="secondPartyContactWay != null">
+       second_party_contact_way = #{secondPartyContactWay},
+    </if>
+    <if test="secondPartyPrincipal != null">
+       second_party_principal = #{secondPartyPrincipal},
+    </if>
+    <if test="secondPartyUnit != null">
+       second_party_unit = #{secondPartyUnit},
+    </if>
+    <if test="signTime != null">
+       sign_time = #{signTime},
+    </if>
+    <if test="signTime != null">
+       sign_time = #{signTime},
+    </if>
+    <if test="contractTitle != null">
+       contract_title = #{contractTitle}
+    </if>
+    WHERE id = #{id}
+  </update>
+  <!-- 修改合同履约情况 -->
+  <update id="updateHonourAgreement" parameterType="com.qkby.contract.entity.ContractInfo">
+     UPDATE contract_info SET 
+     <if test="honourAgreement != null">
+        honour_agreement = #{honourAgreement}
+     </if>
+     WHERE id = #{id}
+  </update>
+</mapper>

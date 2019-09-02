@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.ProjMemberDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.proj.entity.ProjectMembers" >
+    <id column="id" property="id"  />
+    <result column="proj_code" property="projCode"  />
+    <result column="id_member" property="idMember"  />
+    <result column="name_member" property="nameMember"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  
+  <!-- 根据条件进行查询 -->
+  <select id="selectProjMembersByMap" resultMap="BaseResultMap" parameterType="map">
+  	SELECT 
+  	pm.id,
+	pm.id_member,
+	(SELECT su.name FROM sys_user su WHERE su.id = pm.id_member) extend_1
+	FROM proj_member pm
+  	WHERE 1=1 
+  	<if test="projCode != null">
+  		and pm.proj_code = #{projCode}
+  	</if>
+  	<if test="idProjManager != null">
+  		and pm.id_member != #{idProjManager} 
+  	</if>
+  </select>
+  <!-- 插入项目信息 -->
+  <insert id="insertProjMember" parameterType="com.qkby.proj.entity.ProjectMembers" >
+    insert into proj_Member (proj_code, id_member, 
+      name_member, extend_1, extend_2, 
+      extend_3)
+      values ( #{projCode}, #{idMember},#{nameMember},#{extend1},#{extend2}, #{extend3})
+  </insert>
+  <!-- 修改项目信息 -->
+  <update id="updateProjMember" parameterType="com.qkby.proj.entity.ProjectMembers">
+	  update proj_Member set
+	  <trim suffixOverrides=",">
+	      <if test="proj_code != null" >
+	        proj_code = #{projCode},
+	      </if>
+	      <if test="id_member != null" >
+	        id_member = #{idMember},
+	      </if>
+	      <if test="name_member != null" >
+	        name_member = #{nameMember},
+	      </if>
+	      <if test="extend1 != null" >
+	        extend_1 = #{extend1},
+	      </if>
+	      <if test="extend2 != null" >
+	        extend_2 = #{extend2},
+	      </if>
+	      <if test="extend3 != null" >
+	        extend_3 = #{extend3},
+	      </if>
+	    </trim>
+	    where id = #{id}
+  </update>
+  <!-- 删除项目信息 -->
+  <delete id="delectProjMember" parameterType="int">
+  	delete from proj_Member where id = #{id}
+  </delete>
+</mapper>

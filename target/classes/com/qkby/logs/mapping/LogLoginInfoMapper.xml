@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.logs.dao.LogLoginInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.logs.entity.LogLoginInfo" >
+    <id column="id" property="id"  />
+    <result column="id_user" property="idUser"  />
+    <result column="name_user" property="nameUser"  />
+    <result column="date_login" property="dateLogin"/>
+    <result column="ip_login" property="ipLogin"  />
+    <result column="mac_login" property="macLogin"  />
+    <result column="fg_logout" property="fgLogOut"  />
+    <result column="date_logout" property="dateLoginOut"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <select id="selectLoginAll" resultType="hashmap" parameterType="map">
+       SELECT
+       ll.id as id, 
+       su.code AS userCode,
+       ll.name_user AS userName,
+       ll.date_login AS dateLogin,
+       ll.date_logout AS dateLoginOut,
+       ll.ip_login AS ipLogin,
+       ll.mac_login AS macLogin       
+       FROM log_login ll,sys_user su
+   WHERE su.id = ll.id_user 
+        	<if test="clientIP != null">
+		      and ip_login = #{clientIP}
+		    </if>
+		    <if test="clientMac != null" >
+		      and mac_login = #{clientMac}
+		    </if>
+		    <if test="staffContact != null" >
+		      and su.code = #{staffContact}
+		    </if>
+		    <if test="staffName != null" >
+		      and name_user = #{staffName}
+		    </if>
+		    <if test="loginStartTime != null">
+		      and  date_login &gt;= #{loginStartTime}
+		    </if>
+		    <if test="loginEndTime != null">
+		      and  date_login &lt; #{loginEndTime}
+		    </if>
+		    <if test="logOutStartTime != null">
+		      and  date_logout &gt;= #{logOutStartTime}
+		    </if>
+		    <if test="logOutEndTime != null">
+		      and  date_logout &lt; #{logOutEndTime}
+		    </if>
+		    group by ll.id desc
+		    <if test="startPos != null">
+			LIMIT #{startPos}
+			<if test="pageSize != null">
+				,#{pageSize}
+			</if>
+			
+	</if>
+  </select>
+  <insert id="insert" parameterType="com.qkby.logs.entity.LogLoginInfo" >
+     <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+     </selectKey>
+    insert into log_login (id, id_user, name_user, 
+      date_login, ip_login, mac_login,fg_logout, date_logout,
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{idUser}, #{nameUser}, 
+      #{dateLogin}, #{ipLogin}, #{macLogin}, #{fgLogOut} ,#{dateLoginOut},
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <update id="update" parameterType="com.qkby.logs.entity.LogLoginInfo" >
+    update log_login
+    <set >
+      <if test="fgLogOut != null">
+        fg_logout = #{fgLogOut},
+      </if>
+      <if test="dateLoginOut != null" >
+        date_logout = #{dateLoginOut},
+      </if>
+    </set>
+    where id =#{id}
+  </update>
+  <select id="selectLogsCount" resultType="int" parameterType="map">
+  SELECT count(*)
+       FROM log_login ll,sys_user su
+   WHERE su.id = ll.id_user 
+        	<if test="clientIP != null">
+		      and ip_login = #{clientIP}
+		    </if>
+		    <if test="clientMac != null" >
+		      and mac_login = #{clientMac}
+		    </if>
+		    <if test="staffContact != null" >
+		      and su.code = #{staffContact}
+		    </if>
+		    <if test="staffName != null" >
+		      and name_user = #{staffName}
+		    </if>
+		    <if test="loginStartTime != null">
+		      and  date_login &gt;= #{loginStartTime}
+		    </if>
+		    <if test="loginEndTime != null">
+		      and  date_login &lt; #{loginEndTime}
+		    </if>
+		    <if test="logOutStartTime != null">
+		      and  date_logout &gt;= #{logOutStartTime}
+		    </if>
+		    <if test="logOutEndTime != null">
+		      and  date_logout &lt; #{logOutEndTime}
+		    </if>
+  </select>
+</mapper>

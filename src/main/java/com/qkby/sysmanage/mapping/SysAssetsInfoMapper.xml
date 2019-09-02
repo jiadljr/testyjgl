@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysAssetsInfoDao">
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysAssetsInfo" >
+    <id column="id" property="id"/>
+    <result column="code" property="code"/>
+    <result column="name" property="name"/>
+    <result column="id_type" property="idType"/>
+    <result column="id_grade" property="idGrade"/>
+    <result column="as_model" property="asModel"/>
+    <result column="as_ip" property="asIp"/>
+    <result column="remark" property="remark"/>
+    <result column="as_manuf" property="asManuf"/>
+    <result column="as_addr" property="asAddr"/>
+    <result column="id_user" property="idUser"/>
+    <result column="id_dept" property="idDept"/>
+    <result column="create_date" property="createDate"/>
+    <result column="create_user" property="createUser"/>
+    <result column="update_date" property="updateDate"/>
+    <result column="update_user" property="updateUser"/>
+    <result column="status" property="status"/>
+    <result column="ds" property="ds"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, code, name, id_type, id_grade, as_model, as_ip, remark, as_manuf, as_addr, id_user, 
+    id_dept, create_date, create_user, update_date, update_user, status, ds, extend_1,extend_2,extend_3
+  </sql>
+  <!-- 查询总条数 -->
+  <select id="selectCount" parameterType="map" resultType="java.lang.Integer">
+  SELECT 
+	    COUNT(*)
+     FROM sys_assets sa 
+     LEFT JOIN sys_assets_type sat ON sat.id = sa.id_type 
+     LEFT JOIN sys_dept sd ON sd.id = sa.id_dept WHERE sa.ds = 0
+	<if test="code != null" >
+        and sa.code  LIKE CONCAT('%',#{code} ,'%')
+      </if>
+      <if test="name != null" >
+       and sa.name  LIKE CONCAT('%',#{name} ,'%')
+      </if>
+      <if test="asModel != null" >
+       and as_model  LIKE CONCAT('%',#{asModel} ,'%')
+      </if>
+      <if test="idDept != null" >
+       and id_dept = #{idDept}
+      </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="map">
+ 	SELECT 
+	    sa.id, 
+	    sa.code, 
+	    sa.name, 
+	    sa.id_grade, 
+	    sa.as_model, 
+	    sa.as_ip, sa.remark, 
+	    sa.as_manuf, 
+	    sa.as_addr, 
+	    sa.id_user, 
+	    sa.create_date, 
+	    sa.create_user, 
+	    sa.update_date, 
+	    sa.update_user, 
+	    sa.status,
+	    sa.ds,
+	    sat.name extend_2,
+	    sd.name extend_1
+     FROM sys_assets sa 
+     LEFT JOIN sys_assets_type sat ON sat.id = sa.id_type 
+     LEFT JOIN sys_dept sd ON sd.id = sa.id_dept WHERE sa.ds = 0
+      <if test="code != null" >
+        and sa.code  LIKE CONCAT('%',#{code} ,'%')
+      </if>
+      <if test="name != null" >
+       and sa.name  LIKE CONCAT('%',#{name} ,'%')
+      </if>
+      <if test="asModel != null" >
+       and as_model  LIKE CONCAT('%',#{asModel} ,'%')
+      </if>
+      <if test="idDept != null" >
+       and id_dept = #{idDept}
+      </if>
+      <if test="idType != null" >
+       and id_type = #{idType}
+      </if>
+      ORDER BY id desc
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+     SELECT 
+    id, CODE, NAME, id_type,(SELECT st.name FROM sys_assets_type st WHERE st.id = id_type) extend_1,id_grade, as_model, as_ip, remark, as_manuf, as_addr, id_user, 
+    id_dept, create_date, create_user, update_date, update_user, STATUS, ds, extend_1,extend_2,extend_3
+    FROM sys_assets
+    where id = #{id}
+  </select>
+  <select id="selectAssetsByDealId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT sa.id,sa.name,eda.id extend_1,sa.as_ip FROM event_deal_assets eda,event_info_deal eid,sys_assets sa 
+	WHERE eda.id_deal=eid.id AND eda.id_assets=sa.id AND eda.id_deal=#{deal_id}
+  </select>
+  <select id="seleAssById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  SELECT
+    sa.id, 
+    sa.code, 
+    sa.name, 
+    sat.name AS extend_2, 
+    sa.id_grade, 
+    sa.as_model, 
+    sa.as_ip, sa.remark, 
+    sa.as_manuf, 
+    sa.as_addr, 
+    sa.id_user, 
+    sd.name AS extend_1, 
+    sa.create_date, 
+    sa.create_user, 
+    sa.update_date, 
+    sa.update_user, 
+    sa.status
+    FROM
+    sys_assets sa 
+     LEFT JOIN sys_assets_type sat ON sat.id = sa.id_type 
+     LEFT JOIN sys_dept sd ON sd.id = sa.id_dept WHERE sa.id = #{id}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from sys_assets
+    where id in 
+    <foreach item="item" index="index" collection="id" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </delete>
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysAssetsInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_assets (id, code, name, 
+      id_type, id_grade, as_model, 
+      as_ip, remark, as_manuf, 
+      as_addr, id_user, id_dept, 
+      create_date, create_user, update_date, 
+      update_user, status)
+    values (#{id}, #{code}, #{name}, 
+      #{idType}, #{idGrade}, #{asModel}, 
+      #{asIp}, #{remark}, #{asManuf}, 
+      #{asAddr}, #{idUser}, #{idDept}, 
+      #{createDate}, #{createUser}, #{updateDate}, 
+      #{updateUser}, #{status})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysAssetsInfo" >
+    update sys_assets
+    <set >
+      <if test="code != null" >
+        code = #{code},
+      </if>
+      <if test="name != null" >
+        name = #{name},
+      </if>
+      <if test="idType != null" >
+        id_type = #{idType},
+      </if>
+      <if test="idGrade != null" >
+        id_grade = #{idGrade},
+      </if>
+      <if test="asModel != null" >
+        as_model = #{asModel},
+      </if>
+      <if test="asIp != null" >
+        as_ip = #{asIp},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="asManuf != null" >
+        as_manuf = #{asManuf},
+      </if>
+      <if test="asAddr != null" >
+        as_addr = #{asAddr},
+      </if>
+      <if test="idUser != null" >
+        id_user = #{idUser},
+      </if>
+      <if test="idDept != null" >
+        id_dept = #{idDept},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate},
+      </if>
+      <if test="updateUser != null" >
+        update_user = #{updateUser},
+      </if>
+      <if test="status != null" >
+        status = #{status},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+  <!-- 逻辑删除修改ds字段为1 -->
+  <update id="updateDs" parameterType="map" >
+    update sys_assets
+    set ds = #{ds}
+    where id in 
+    <foreach item="item" index="index" collection="id" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.qkby.sysmanage.entity.SysAssetsInfo" >
+    update sys_assets
+    set code = #{code},
+      name = #{name},
+      id_type = #{idType},
+      id_grade = #{idGrade},
+      as_model = #{asModel},
+      as_ip = #{asIp},
+      remark = #{remark},
+      as_manuf = #{asManuf},
+      as_addr = #{asAddr},
+      id_user = #{idUser},
+      id_dept = #{idDept},
+      create_date = #{createDate},
+      create_user = #{createUser},
+      update_date = #{updateDate},
+      update_user = #{updateUser},
+      status = #{status}
+    where id = #{id}
+  </update>
+</mapper>

@@ -1,0 +1,1352 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.event.dao.EventInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.event.entity.EventInfo" >
+    <id column="id" property="id"  />
+    <result column="event_code" property="eventCode"  />
+    <result column="event_name" property="eventName"  />
+    <result column="date_create" property="dateCreate"  />
+    <result column="id_user_create" property="idUserCreate"  />
+    <result column="id_dept" property="idDept"  />
+    <result column="id_user_aplly" property="idUserAplly"  />
+    <result column="event_contact" property="eventContact"  />
+    <result column="event_desc" property="eventDesc"  />
+    <result column="event_way" property="eventWay"  />
+    <result column="id_user_accept" property="idUserAccept"  />
+    <result column="date_accept" property="dateAccept"  />
+    <result column="event_type" property="eventType"  />
+    <result column="event_service" property="eventService"  />
+    <result column="event_source" property="eventSource"  />
+    <result column="event_level" property="eventLevel"  />
+    <result column="event_priority" property="eventPriority"  />
+    <result column="accept_desc" property="acceptDesc"  />
+    <result column="id_user_deal" property="idUserDeal"  />
+    <result column="id_user_check_center" property="idUserCheckCenter"  />
+    <result column="date_check_center" property="dateCheckCenter"  />
+    <result column="center_desc" property="centerDesc"  />
+    <result column="id_user_check_office" property="idUserCheckOffice"  />
+    <result column="date_check_office" property="dateCheckOffice"  />
+    <result column="office_desc" property="officeDesc"  />
+    <result column="event_assess" property="eventAssess"  />
+    <result column="date_assess" property="dateAssess"  />
+    <result column="assess_desc" property="assessDesc"  />
+    <result column="event_status" property="eventStatus"  />
+    <result column="event_ts" property="eventTs"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <!-- 大屏展示: 事件状态统计 -->
+  <select id="selectStatusCount" resultMap="BaseResultMap">
+  	SELECT
+	  event_status,event_priority
+	FROM event_info
+	WHERE TO_DAYS(date_create) = TO_DAYS(NOW()) AND event_status NOT IN(29)
+  </select>
+  
+  <!-- 大屏展示: 事件等级统计 -->
+  <select id="selectLevelCount" resultType="map">
+	SELECT
+	COUNT(CASE ei.event_level WHEN 1 THEN 1 END) first_level,
+	COUNT(CASE ei.event_level WHEN 2 THEN 1 END) second_level,
+	COUNT(CASE ei.event_level WHEN 3 THEN 1 END) third_level,
+	COUNT(CASE ei.event_level WHEN 4 THEN 1 END) fourth_level
+	FROM event_info ei
+	WHERE TO_DAYS(ei.date_create) = TO_DAYS(NOW()) AND ei.event_status NOT IN(20,29)
+  </select>
+  <select id="selectLevelSum" resultMap="BaseResultMap">
+  	SELECT
+	ei.event_level
+	FROM event_info ei
+	WHERE ei.event_status NOT IN(20,29) AND DATE_FORMAT(ei.date_create,'%Y-%c-%d') = DATE_FORMAT(NOW(),'%Y-%c-%d')
+  </select>
+  <select id="selectEventCause" resultMap="BaseResultMap">
+	  SELECT
+		sat.name extend_1,sat.layer extend_2
+		FROM event_info ei,sys_assets_type sat
+		WHERE ei.event_source=sat.id AND TO_DAYS(ei.date_create) = TO_DAYS(NOW()) AND ei.event_status NOT IN(29)
+  </select>
+  <select id="selectLevelCountByTime" parameterType="map" resultType="map">
+  	SELECT
+	COUNT(*) allCount,
+	COUNT(CASE ei.event_level WHEN 1 THEN 1 END) oneLevelCount,
+	COUNT(CASE ei.event_level WHEN 2 THEN 1 END) twoLevelCount,
+	COUNT(CASE ei.event_level WHEN 3 THEN 1 END) threeLevelCount,
+	COUNT(CASE ei.event_level WHEN 4 THEN 1 END) fourLevelCount
+	FROM event_info ei
+	WHERE ei.event_status NOT IN(20,29)
+	<if test="startTime != null || endTime != null">
+		AND ei.date_create BETWEEN #{startTime}
+		AND #{endTime}
+	</if>
+  </select>
+  <!-- 根据ID查询申告受理信息 -->
+ <select id="selectEventInfoAll" resultType="hashmap" parameterType="map">
+SELECT 
+   ei.id,
+   ei.event_code,
+   sst.name service_name,
+   eid.id deal_id,
+   ei.id_dept,
+   ei.id_user_aplly,
+   event_contact,
+   date_create,
+   event_desc,
+   event_name,
+   ei.id_user_accept,
+   ei.accept_desc,
+   date_accept,
+   event_level,
+   event_service,
+   eid.id_user_deal,
+   eid.event_cause,
+   ei.event_status,
+   eid.deal_desc,
+   ei.event_source as idSource,
+   (SELECT sat.name FROM sys_assets_type sat WHERE sat.id = ei.event_source) event_source
+ FROM event_info ei,sys_user su,sys_dept sd,event_info_deal eid,sys_service_type sst
+   WHERE ei.id_user_aplly = su.id AND sst.id = ei.event_service AND ei.id_dept=sd.id AND eid.id_event = ei.id 
+   AND eid.deal_status = 1
+   <if test="id != null">
+     AND ei.id = #{id}
+   </if>
+   <if test="idUserDeal != null">
+     AND eid.id_user_deal = #{idUserDeal}
+   </if>
+   AND (CASE 
+	WHEN 
+	ei.event_status = 61
+	THEN 1
+	 ELSE eid.date_deal IS NULL 
+	END 
+	)
+ </select>
+ 
+  <!-- 查询申告信息全部 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+     ei.id, event_code, 
+     event_name, 
+     date_create, 
+     sd.name AS extend_1, 
+     su.name AS extend_2, 
+     event_desc,
+     event_contact,
+     event_status,
+     event_level,
+     event_priority,
+     ei.id_user_create,
+     (SELECT suser.name FROM sys_user suser WHERE suser.id = ei.id_user_create) extend_3,
+     date_accept
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id 
+     <if test="eventStatus">
+     	AND ei.event_status != #{eventStatus}
+     </if>
+     <if test="userId != null">
+       and  ei.id_user_aplly = #{userId}
+    </if>
+     <if test="startTime != null">
+       and  date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   date_create &lt; #{endTime}
+    </if>
+    <if test="tel != null">
+       and  event_contact LIKE CONCAT('%',#{tel},'%')
+    </if>
+    <if test="idDept != null">
+       and   ei.id_dept = #{idDept}
+    </if>
+    <if test="statusList != null">
+       and   event_status in
+       <foreach collection="statusList" item="item"  index="index" open="(" separator="," close=")">
+       		${item}
+       </foreach>
+    </if>
+    <if test="eventContact != null">
+       and   event_contact = #{eventContact}
+    </if>
+      ORDER BY ei.date_create desc
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <!-- 查询申告信息全部 -->
+  <select id="selectAccept" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+     ei.id, event_code, 
+     event_name, 
+     date_create, 
+     sd.name AS extend_1, 
+     su.name AS extend_2, 
+     event_desc,
+     event_contact,
+     event_ts,
+     event_status
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id
+     <if test="idDept != null">
+       and  ei.id_dept &gt;= #{idDept}
+    </if>
+     <if test="startTime != null">
+       and  date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   date_create &lt; #{endTime}
+    </if>
+    <if test="eventPer != null">
+       and   ei.id_user_aplly = #{eventPer}
+    </if>
+    <if test="statusList != null">
+       and   event_status in
+       <foreach collection="statusList" item="item"  index="index" open="(" separator="," close=")">
+       		${item}
+       </foreach>
+    </if>
+      ORDER BY ei.id desc
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <!-- 根据ID进行查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+   	 SELECT
+     ei.id_dept,
+     id_user_aplly,
+     event_way,
+     ei.id, event_code, 
+     event_name, 
+     date_create, 
+    (SELECT su.name FROM sys_user su WHERE ei.id_user_aplly = su.id) extend_1,
+    (SELECT sd.name FROM sys_dept sd WHERE sd.id = ei.id_dept) extend_2,
+    (SELECT su.name FROM sys_user su WHERE ei.id_user_create= su.id) extend_3,
+     event_desc,
+     event_contact,
+     event_status,
+     id_user_check_center,
+     date_check_center,
+     event_ts,
+     center_desc,
+	ei.date_accept,ei.id_user_accept,ei.event_level,ei.accept_desc,ei.event_priority
+    FROM event_info ei
+    where ei.id = #{id}
+  </select>
+  <!-- 删除 -->
+  <delete id="eventRepeal" parameterType="map" >
+   UPDATE event_info SET event_status = 29
+    where id = #{id}
+  </delete>
+  <!-- 新增 -->
+  <insert id="insert" parameterType="com.qkby.event.entity.EventInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+    </selectKey>
+    insert into event_info (id, event_code, event_name, 
+      date_create, id_user_create, id_dept, id_user_aplly, event_way, event_contact,
+      event_desc, id_user_accept, date_accept, 
+      event_type, event_service, event_level, 
+      event_priority, accept_desc, id_user_check_center, 
+      date_check_center, center_desc, id_user_check_office, 
+      date_check_office, office_desc,
+      event_status,event_ts, extend_1, 
+      extend_2, extend_3)
+    values (#{id}, #{eventCode}, #{eventName}, 
+      #{dateCreate}, #{idUserCreate}, #{idDept}, #{idUserAplly}, #{eventWay}, #{eventContact},
+      #{eventDesc}, #{idUserAccept}, #{dateAccept}, 
+      #{eventType}, #{eventService}, #{eventLevel}, 
+      #{eventPriority}, #{acceptDesc}, #{idUserCheckCenter}, 
+      #{dateCheckCenter}, #{centerDesc}, #{idUserCheckOffice}, 
+      #{dateCheckOffice}, #{officeDesc},
+      #{eventStatus}, #{eventTs}, #{extend1}, 
+      #{extend2}, #{extend3})
+  </insert>
+  <!-- 查询总条数 -->
+  <select id="countByExample" parameterType="map" resultType="java.lang.Integer" >
+    SELECT
+     COUNT(*)
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id
+      <if test="eventStatus">
+     	AND ei.event_status != #{eventStatus}
+     </if>
+     <if test="userId != null">
+       and  ei.id_user_aplly = #{userId}
+    </if>
+     <if test="startTime != null">
+       and  date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   date_create &lt; #{endTime}
+    </if>
+    <if test="tel != null">
+       and  event_contact LIKE CONCAT('%',#{tel},'%')
+    </if>
+    <if test="idDept != null">
+       and   ei.id_dept = #{idDept}
+    </if>
+    <if test="statusList != null">
+       and   event_status in
+       <foreach collection="statusList" item="item"  index="index" open="(" separator="," close=")">
+       		${item}
+       </foreach>
+    </if>
+    <if test="eventContact != null">
+       and   event_contact = #{eventContact}
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.event.entity.EventInfo" >
+    update event_info
+    set
+      <if test="eventName != null" >
+        event_name = #{eventName},
+      </if>
+      <if test="idDept != null" >
+        id_dept = #{idDept},
+      </if>
+      <if test="eventWay != null" >
+        event_way = #{eventWay},
+      </if>
+      <if test="idUserAplly != null" >
+        id_user_aplly = #{idUserAplly},
+      </if>
+      <if test="eventContact != null" >
+        event_contact = #{eventContact},
+      </if>
+      <if test="eventDesc != null" >
+        event_desc = #{eventDesc},
+      </if>
+      <if test="idUserAccept != null" >
+        id_user_accept = #{idUserAccept},
+      </if>
+      <if test="dateAccept != null" >
+        date_accept = #{dateAccept},
+      </if>
+      <if test="eventService != null" >
+        event_service = #{eventService},
+      </if>
+      <if test="eventLevel != null" >
+        event_level = #{eventLevel},
+      </if>
+      <if test="eventStatus != null" >
+        event_status = #{eventStatus},
+      </if>
+      <if test="idUserDeal != null" >
+        id_user_deal = #{idUserDeal},
+      </if>
+      <if test="eventPriority != null" >
+        event_priority = #{eventPriority},
+      </if>
+      <if test="acceptDesc != null" >
+        accept_desc = #{acceptDesc}
+      </if>
+      <if test="idUserCheckCenter != null" >
+        id_user_check_center = #{idUserCheckCenter},
+      </if>
+      <if test="dateCheckCenter != null" >
+        date_check_center = #{dateCheckCenter},
+      </if>
+      <if test="centerDesc != null" >
+        center_desc = #{centerDesc}
+      </if>
+      where id = #{id}
+  </update>
+  <!-- 查询处理页面的未接单信息 -->
+  <select id="selectDealNot" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+     eid.id, event_code, 
+     event_name, 
+     date_create, 
+     sd.name AS extend_1, 
+     su.name AS extend_2, 
+     event_desc,
+     event_contact,
+     event_level,
+     event_priority
+     FROM event_info ei,sys_user su,sys_dept sd , event_info_deal eid
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id AND eid.id_event = ei.id
+     AND deal_status = 1
+     <if test="startTime != null">
+       and  date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   date_create &lt; #{endTime}
+    </if>
+    <if test="tel != null">
+       and   ei.event_contact LIKE CONCAT('%',#{tel},'%')
+    </if>
+    <if test="idDept != null">
+       and   ei.id_dept = #{idDept}
+    </if>
+    <if test="eventStatus != null">
+       and   event_status = #{eventStatus}
+    </if>
+    <if test="eventContact != null">
+       and   event_contact = #{eventContact}
+    </if>
+     <if test="eventPriority != null" >
+        event_priority = #{eventPriority}
+      </if>
+      ORDER BY ei.id desc
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <!-- 查询处理页面的已接单信息 -->
+  <select id="selectDealEnd" resultType="hashmap" parameterType="map">
+    SELECT 
+	     ei.id AS id, event_code AS eventCode, 
+	     event_name AS eventName, 
+	     date_create AS dateCreate, 
+	     sd.name AS deptName, 
+	     su.name AS userName, 
+	     event_desc AS eventDesc,
+	     event_contact AS eventContact,
+	     event_priority AS eventPriority,
+	     event_level AS eventLevel,
+	     eid.date_respon as dateRespon
+      FROM event_info_deal eid
+      LEFT JOIN sys_user su ON su.id = eid.id_user_deal
+      LEFT JOIN event_info ei ON eid.id_event = ei.id
+      LEFT JOIN	 sys_dept sd ON sd.id = ei.id_dept
+      WHERE ei.event_status IN (62,50)
+      AND eid.deal_status = 0
+     <if test="startTime != null">
+       and  date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   date_create &lt; #{endTime}
+    </if>
+    <if test="eventLevel != null">
+       and   event_level = #{eventLevel}
+    </if>
+    <if test="idDept != null">
+       and   ei.id_dept = #{idDept}
+    </if>
+     <if test="eventPriority != null">
+       and   event_priority = #{eventPriority}
+    </if>
+    <if test="userId != null">
+       AND  eid.id_user_deal = #{userId}
+    </if>
+      ORDER BY eid.date_respon desc
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <select id="countDealAll" resultType="int" parameterType="map">
+  SELECT 
+	  count(*)
+      FROM event_info_deal eid
+      LEFT JOIN sys_user su ON su.id = eid.id_user_deal
+      LEFT JOIN event_info ei ON eid.id_event = ei.id
+      LEFT JOIN	 sys_dept sd ON sd.id = ei.id_dept
+      WHERE ei.event_status IN (62,50)
+      AND eid.deal_status = 0
+       <if test="userId != null">
+       AND  eid.id_user_deal = #{userId}
+    </if>
+  </select>
+  <select id="countDealNot" resultType="int" parameterType="map">
+    SELECT count(*)
+     FROM event_info ei,sys_user su,sys_dept sd , event_info_deal eid
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id AND eid.id_event = ei.id
+     AND deal_status = 1 
+     <if test="startTime != null">
+       and  date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   date_create &lt; #{endTime}
+    </if>
+    <if test="tel != null">
+       and   ei.event_contact LIKE CONCAT('%',#{tel},'%')
+    </if>
+    <if test="idDept != null">
+       and   ei.id_dept = #{idDept}
+    </if>
+    <if test="eventStatus != null">
+       and   event_status = #{eventStatus}
+    </if>
+    <if test="eventContact != null">
+       and   event_contact = #{eventContact}
+    </if>
+  </select>
+  <select id="countDealEnd" resultType="int" parameterType="map">
+ SELECT COUNT(DISTINCT ei.id)
+      FROM event_info_deal eid
+      LEFT JOIN sys_user su ON su.id = eid.id_user_deal
+      LEFT JOIN event_info ei ON eid.id_event = ei.id
+      LEFT JOIN	 sys_dept sd ON sd.id = ei.id_dept
+      WHERE ei.event_status IN (62,50)
+      AND eid.deal_status = 0
+     <if test="startTime != null">
+       and  date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   date_create &lt; #{endTime}
+    </if>
+    <if test="eventLevel != null">
+       and   event_level = #{eventLevel}
+    </if>
+    <if test="idDept != null">
+       and   ei.id_dept = #{idDept}
+    </if>
+     <if test="eventPriority != null">
+       and   event_priority = #{eventPriority}
+    </if>
+    <if test="userId != null">
+       and   eid.id_user_deal = #{userId}
+    </if>
+  </select>
+  <!-- 查询审核信息列表 -->
+  <select id="selectCheckList" resultMap="BaseResultMap" parameterType="map"> 
+  	SELECT
+     ei.id, event_code, 
+     event_name, 
+     date_create, 
+     sd.name AS extend_1, 
+     su.name AS extend_2, 
+     event_desc,
+     event_contact,
+     event_status,
+     event_level,ei.event_priority,ei.date_accept
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id AND ei.event_level!=4
+      <if test="startTime != null">
+       and  ei.date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   ei.date_create &lt; #{endTime}
+    </if>
+    <if test="eventLevel != null">
+       and   ei.event_level = #{eventLevel}
+    </if>
+    <if test="eventPriority != null">
+       and   ei.event_priority = #{eventPriority}
+    </if>
+    <if test="eventService != null">
+       and   ei.event_service = #{eventService}
+    </if>
+    ORDER BY ei.date_accept desc
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+   <!-- 查询三级以上未审核总条数 -->
+  <select id="countNotCheck" parameterType="map" resultType="java.lang.Integer" >
+   SELECT
+     count(ei.id)
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id AND ei.event_level!=4
+    <if test="startTime != null">
+       and  date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   date_create &lt; #{endTime}
+    </if>
+    <if test="tel != null">
+       and  ei.event_contact LIKE CONCAT('%',#{tel},'%')
+    </if>
+    <if test="idDept != null">
+       and   id_dept LIKE CONCAT('%',#{idDept},'%')
+    </if>
+    <if test="eventStatus != null">
+       and   event_status = #{eventStatus}
+    </if>
+    <if test="eventLevel != null">
+       and   event_level = #{eventLevel}
+    </if>
+    <if test="eventPriority != null">
+       and   event_priority = #{eventPriority}
+    </if>
+    <if test="eventService != null">
+       and   event_service = #{eventService}
+    </if>
+  </select>
+  <!-- 查看 -->
+  <select id="selectExamine" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+SELECT 
+   ei.id,
+   ei.id_dept,
+   ei.id_user_aplly,
+   event_contact,
+   date_create,
+   event_desc,
+   event_name,
+   ei.id_user_accept,
+   date_accept,
+   event_level,
+   event_service
+ FROM event_info ei,sys_user su,sys_dept sd
+   WHERE ei.id_user_aplly = su.id AND ei.id_dept=sd.id AND ei.id = #{id}
+ </select>
+ <update id="updateEventStatus" parameterType="com.qkby.event.entity.EventInfo" >
+    update event_info
+    set
+      <if test="eventStatus != null" >
+        event_status = #{eventStatus}
+      </if>
+      where id = #{id}
+  </update>
+  <select id="selectAsses" resultType="hashmap">
+SELECT 
+   ei.id AS id,
+   event_code AS eventCode,
+   event_name AS enevtName,
+   sd.name AS deptName,
+   date_create AS dateCreate,
+   date_accept AS dateAccept,
+   event_priority AS eventPriority,
+   event_level AS eventLevel
+   FROM event_info ei,sys_dept sd,event_info_check eic
+   WHERE ei.id_dept = sd.id AND ei.id = eic.id_event
+    AND eic.check_status = 45
+  </select>
+  <!-- 待确定列表信息查询 -->
+  <select id="selectNotSureList" resultType="hashmap" parameterType="map">
+  	SELECT 
+	ei.id,
+	ei.event_code,
+	ei.event_name,
+	(SELECT NAME FROM sys_user su WHERE su.id=ei.id_user_aplly) extend_1,
+	(SELECT NAME FROM sys_dept sd WHERE sd.id=ei.id_dept) extend_2,
+	ei.date_create,
+	ei.event_contact,
+	(SELECT NAME FROM sys_user su WHERE su.id=eid.id_user_deal) extend_3,
+	eid.deal_status
+	FROM event_info ei,
+	event_info_check eic,
+	event_info_deal eid
+	WHERE ei.id = eic.id_event
+	AND eic.id_adu=eid.id
+	AND eic.check_status = 67
+	<if test="startTime != null">
+       and  ei.date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   ei.date_create &lt; #{endTime}
+    </if>
+    <if test="idDept != null">
+       and   ei.id_dept = #{idDept}
+    </if>
+    <if test="eventPer != null">
+       and   ei.id_user_aplly = #{eventPer}
+    </if>
+    <if test="eventStatus != null">
+       and   eid.deal_status = #{eventStatus}
+    </if>
+       ORDER BY eid.date_deal DESC 
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <!-- 待确定总数 -->
+  <select id="countNotSure" resultType="java.lang.Integer" parameterType="map">
+  	SELECT 
+	COUNT(ei.id)
+	FROM event_info ei,
+	event_info_check eic,
+	event_info_deal eid
+	WHERE ei.id = eic.id_event 
+	AND eic.id_adu=eid.id
+	AND eic.check_status = 67
+	<if test="startTime != null">
+       and  ei.date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   ei.date_create &lt; #{endTime}
+    </if>
+    <if test="idDept != null">
+       and   ei.id_dept = #{idDept}
+    </if>
+    <if test="eventPer != null">
+       and   ei.id_user_aplly = #{eventPer}
+    </if>
+    <if test="eventStatus != null">
+       and   eid.deal_status = #{eventStatus}
+    </if>
+  </select>
+  <!-- 添加受理信息 -->
+  <update id="updateAcceptByPrimaryKeySelective" parameterType="com.qkby.event.entity.EventInfo" >
+    update event_info
+    set
+      <if test="idUserAccept != null" >
+        id_user_accept = #{idUserAccept},
+      </if>
+      <if test="dateAccept != null" >
+        date_accept = #{dateAccept},
+      </if>
+      <if test="eventService != null" >
+        event_service = #{eventService},
+      </if>
+      <if test="eventLevel != null" >
+        event_level = #{eventLevel},
+      </if>
+      <if test="eventStatus != null" >
+        event_status = #{eventStatus},
+      </if>
+      <if test="eventSource != null" >
+        event_source = #{eventSource},
+      </if>
+      <if test="eventPriority != null" >
+        event_priority = #{eventPriority},
+      </if>
+      <if test="acceptDesc != null" >
+        accept_desc = #{acceptDesc},
+      </if>
+       <if test="eventTs != null" >
+        event_ts = #{eventTs}
+      </if>
+      where id = #{id}
+  </update>
+  <!-- 添加审核信息 -->
+  <update id="updateCheckByPrimaryKeySelective" parameterType="com.qkby.event.entity.EventInfo" >
+    update event_info
+    set
+      <if test="idUserCheckCenter != null" >
+        id_user_check_center = #{idUserCheckCenter},
+      </if>
+      <if test="dateCheckCenter != null" >
+        date_check_center = #{dateCheckCenter},
+      </if>
+      <if test="eventStatus != null" >
+        event_status = #{eventStatus},
+      </if>
+      <if test="centerDesc != null" >
+        center_desc = #{centerDesc}
+      </if>
+      where id = #{id}
+  </update>
+  <update id="updateApply" parameterType="com.qkby.event.entity.EventInfo" >
+    update event_info
+    set
+      <if test="eventName != null" >
+        event_name = #{eventName},
+      </if>
+      <if test="idDept != null" >
+        id_dept = #{idDept},
+      </if>
+      <if test="eventWay != null" >
+        event_way = #{eventWay},
+      </if>
+      <if test="idUserAplly != null" >
+        id_user_aplly = #{idUserAplly},
+      </if>
+      <if test="eventContact != null" >
+        event_contact = #{eventContact},
+      </if>
+      <if test="eventDesc != null" >
+        event_desc = #{eventDesc}
+      </if>
+      where id = #{id}
+  </update>
+  <!-- 事件查询列表的条件查询 -->
+  <select id="selectAnaListByExample" parameterType="map" resultType="hashmap">
+  	SELECT
+     ei.id id, event_code eventCode, 
+     ei.event_name eventName, 
+     sd.name AS extend1,
+     ei.date_create dateCreate,
+     ei.event_service eventService,
+     (SELECT sst.name FROM sys_service_type sst WHERE sst.id=ei.event_service) extend2,
+     (SELECT su.name FROM sys_user su WHERE su.id = ei.id_user_aplly) extend3,
+     (SELECT sat.name FROM sys_assets_type sat WHERE sat.id = ei.event_source) eventSource,
+     ei.event_status eventStatus,
+     ei.event_level eventLevel,
+     ei.event_desc eventDesc
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id AND ei.event_status!=29
+     <if test="startTime != null">
+       and  ei.date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   ei.date_create &lt; #{endTime}
+    </if>
+     <if test="eventContact != null">
+     	and ei.event_contact  LIKE CONCAT('%',#{eventContact},'%')
+     </if>
+     <if test="eventCode != null">
+     	and ei.event_code LIKE CONCAT('%',#{eventCode},'%')
+     </if>
+     <if test="serviceId != null">
+     	and ei.event_service=#{serviceId}
+     </if>
+     <if test="deptId != null">
+     	and ei.id_dept=#{deptId}
+     </if>
+     <if test="eventStatus != null">
+		and ei.event_status IN
+		<foreach collection="eventStatus" open="(" separator="," close=")" index="index" item="item">
+			 #{item}
+		</foreach>
+	</if>
+     <if test="level != null">
+     	and ei.event_level=#{level}
+     </if>
+      ORDER BY ei.id DESC
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <!-- 事件查询: 受理信息 -->
+  <select id="selectEventAccept" parameterType="int" resultMap="BaseResultMap">
+  	SELECT 
+  	ei.id,
+	su.name AS extend_1,
+	ei.date_accept,
+	ei.event_service,
+	(SELECT sst.name FROM sys_service_type sst WHERE sst.id=ei.event_service) extend_2,
+	ei.event_level,
+	(SELECT sat.name FROM sys_assets_type sat WHERE sat.id = ei.event_source) extend_3,
+	ei.event_priority,
+	ei.accept_desc
+	FROM event_info ei,sys_user su WHERE ei.id_user_accept=su.id AND ei.id=#{id}
+  </select>
+ <!-- 事件查询: 审核信息 --> 
+  <select id="selectEventCheck" parameterType="int" resultMap="BaseResultMap">
+  	SELECT 
+	ei.id,
+	su.name AS extend_1,
+	ei.date_check_center,
+	ei.center_desc,
+	ei.event_status
+	FROM event_info ei,sys_user su WHERE ei.id_user_check_center=su.id AND ei.id=#{id}
+  </select>
+  
+  <!-- 事件信息数量 -->
+  <select id="countAnaByExample" parameterType="map" resultType="java.lang.Integer">
+  	SELECT
+     COUNT(ei.id)
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id AND ei.event_status!=29 
+     <if test="startTime != null">
+       and  ei.date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   ei.date_create &lt; #{endTime}
+    </if>
+     <if test="eventContact != null">
+     	and ei.event_contact  LIKE CONCAT('%',#{eventContact},'%')
+     </if>
+     <if test="eventCode != null">
+     	and ei.event_code LIKE CONCAT('%',#{eventCode},'%')
+     </if>
+     <if test="serviceId != null">
+     	and ei.event_service=#{serviceId}
+     </if>
+     <if test="deptId != null">
+     	and ei.id_dept=#{deptId}
+     </if>
+     <if test="eventStatus != null">
+		and ei.event_status IN
+		<foreach collection="eventStatus" open="(" separator="," close=")" index="index" item="item">
+			 #{item}
+		</foreach>
+	</if>
+     <if test="level != null">
+     	and ei.event_level=#{level}
+     </if>
+  </select>
+  <!-- 查询今日新增的事件信息 -->
+  <select id="selectTodayEvent" resultMap="BaseResultMap">
+  	SELECT
+	ei.id,
+	ei.event_code,
+	ei.event_level,
+	ei.event_name,
+	(SELECT
+	`name`
+	FROM sys_dept sd
+	WHERE sd.id = ei.id_dept)    extend_1,
+	ei.date_create,
+	(SELECT
+	`name`
+	FROM sys_service_type sst
+	WHERE sst.id = ei.event_service)    extend_2,
+	ei.event_status
+	FROM event_info ei
+	WHERE DATE_FORMAT(ei.date_create,'%Y-%c-%d') = DATE_FORMAT(NOW(),'%Y-%c-%d')
+	ORDER BY ei.id desc
+  </select>
+  <!-- 新增总数统计 -->
+  <select id="countTodayEvent" resultType="int">
+  	SELECT
+	COUNT(*)
+	FROM event_info ei
+	WHERE DATE_FORMAT(ei.date_create,'%Y-%c-%d') = DATE_FORMAT(NOW(),'%Y-%c-%d')
+  </select>
+  <!-- 查询所有为处理的信息 -->
+  <select id="untreated" resultType="hashmap" parameterType = "map">
+     SELECT 
+	  sp.name,
+		sp.eventId,
+		eid.id dealId,
+		(SELECT su.name FROM sys_user su WHERE su.id = eid.id_user_deal) dealUserName,
+		sp.eventCode,
+		sp.eventName,
+		sp.deptName,
+		sp.eventLevel,
+		sp.eventPriority,
+		sp.dateAccept,
+		sp.dateCreate,
+		sp.eventPriority,	  
+		eid.date_deal dateDeal,
+		sp.eventStatus
+		FROM event_info_deal eid INNER JOIN 
+	  (SELECT su.name,
+		ei.id eventId,
+		ei.date_create dateCreate,
+	  ei.event_code AS eventCode,
+	  ei.event_name AS eventName,
+	  (SELECT sd.name FROM sys_dept sd WHERE sd.id = ei.id_dept) deptName,
+	  ei.event_level eventLevel,
+	  ei.event_priority eventPriority,	  
+	  ei.date_accept AS dateAccept,
+	  ei.event_status AS eventStatus 
+	   FROM event_info ei ,sys_user su WHERE su.id = ei.id_user_aplly AND ei.event_status NOT IN(20,29) ORDER BY ei.date_create DESC) sp ON sp.eventId = eid.id_event AND eid.deal_status = 1 
+	   <if test="id_user_deal != null">
+		  AND eid.id_user_deal = #{id_user_deal}
+	   </if>
+	  AND eid.deal_status = 1 
+	  <if test="eventUser != null">
+	  	and sp.name LIKE CONCAT('%',#{eventUser},'%')
+	  </if>
+  </select>
+  <select id="selectProcessed" resultType="hashmap" parameterType = "map">
+	  SELECT 
+	  sp.name,
+		sp.eventId,
+		eid.id dealId,
+		sp.eventCode,
+		sp.eventName,
+		sp.deptName,
+		sp.dateCreate,
+		sp.dateAccept,
+		sp.eventPriority,	  
+		eid.date_deal dateDeal,
+		eid.date_respon dateRespon,
+		(TIMESTAMPDIFF(MINUTE,sp.dateCreate,eid.date_deal)) AS minsum,
+		sp.eventStatus
+		FROM event_info_deal eid INNER JOIN 
+	  (SELECT su.name,
+		ei.id eventId,
+		ei.event_code AS eventCode,
+		ei.event_name AS eventName,
+		(SELECT sd.name FROM sys_dept sd WHERE sd.id = ei.id_dept) deptName,
+		ei.date_create dateCreate,
+		ei.date_accept AS dateAccept,
+		ei.event_priority eventPriority,
+		ei.event_status AS eventStatus
+	   FROM event_info ei ,sys_user su WHERE su.id = ei.id_user_aplly) sp ON sp.eventId = eid.id_event 
+	    AND eid.deal_status != 1
+		<if test="id_user_deal != null">
+		  AND eid.id_user_deal = #{id_user_deal}
+	   </if>
+	  <if test="eventUser != null">
+	  	and sp.name LIKE CONCAT('%',#{eventUser},'%')
+	  </if>
+   ORDER BY eid.date_deal desc
+  </select>
+  <select id="dealInformation" resultType="hashmap" parameterType = "int">
+SELECT eventWei.wei AS untreated,eventYi.yi AS processed FROM event_info,
+(SELECT COUNT(*) AS wei FROM event_info ei,event_info_deal eid 
+    WHERE eid.id_user_deal = #{id} AND ei.id = eid.id_event
+        AND DATE_FORMAT(eid.date_respon,'%Y-%m')= DATE_FORMAT(NOW(),'%Y-%m')
+         AND ei.event_status in (62,50) AND eid.deal_status = 0) eventWei,
+ (SELECT COUNT(*) AS yi FROM event_info ei,event_info_deal eid 
+    WHERE eid.id_user_deal = #{id} AND ei.id = eid.id_event
+        AND DATE_FORMAT(eid.date_deal,'%Y-%m')= DATE_FORMAT(NOW(),'%Y-%m')
+         AND ei.event_status = 60) eventYi
+         GROUP BY untreated
+  </select>
+  <select id="dealCount" resultMap="BaseResultMap" parameterType = "int">
+SELECT COUNT(*) AS extend_1,DATE_FORMAT(eid.date_deal,'%Y-%m-%d') AS extend_2 FROM event_info ei,event_info_deal eid
+     WHERE eid.id_user_deal = #{id}
+     AND ei.id = eid.id_event 
+     AND DATE_FORMAT(eid.date_deal,'%Y-%m')= DATE_FORMAT(NOW(),'%Y-%m')
+     GROUP BY DATE_FORMAT(eid.date_deal,'%Y-%m-%d')
+  </select>
+  <update id="updateAssets" parameterType="com.qkby.event.entity.EventInfo" >
+    update event_info
+    set
+   		<if test="eventAssess != null" >
+      		event_assess = #{eventAssess},
+     	</if>
+   		<if test="dateAssess != null" >
+      		date_assess = #{dateAssess},
+     	</if>
+    	<if test="assessDesc != null" >
+        	assess_desc = #{assessDesc},
+      	</if>
+      <if test="eventStatus != null" >
+        event_status = #{eventStatus}
+      </if>
+      where id = #{id}
+  </update>
+  <select id="selectAssetsMessage" parameterType="int" resultMap="BaseResultMap">
+  	SELECT (SELECT su.name FROM sys_user su WHERE su.id = id_user_aplly) extend_1,event_assess,date_assess,assess_desc FROM event_info WHERE id=#{id}
+  </select>
+  <select id="countEventDealInfoByUser" resultType="int" parameterType="map">
+   SELECT 
+		count(distinct(e.id))
+	    FROM event_info e
+		LEFT JOIN event_info_deal d ON d.id_event = e.id
+		WHERE e.event_status IN(50) AND d.id_user_deal = #{user_id} AND d.deal_status =1
+	 <if test="startTime != null">
+       and  e.date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   e.date_create &lt; #{endTime}
+    </if>
+    <if test="contact != null">
+    	and e.event_contact LIKE CONCAT('%',#{contact},'%')
+    </if>
+    <if test="idDept != null">
+    	and e.id_dept = #{idDept}
+    </if>
+    <if test="eventStatus != null">
+	   and e.event_status in
+	   <foreach collection="eventStatus" item="item"  index="index" open="(" separator="," close=")">
+			${item}
+	   </foreach>
+	</if>
+  </select>
+  <!-- 查询当天需要受理的信息 -->
+  <select id="selectAcceptDuty" resultType="hashmap">
+      SELECT ei.date_create AS dateCreate,ei.event_name as eventName,ei.id AS id FROM event_info ei
+  WHERE 
+    ei.event_status = 20  
+   GROUP BY ei.id
+   ORDER BY ei.date_create desc
+  </select>
+  <select id="selectAcceptCount" resultType="int" parameterType="int">
+  SELECT COUNT(*) FROM 
+(SELECT ei.date_create AS dateCreate FROM event_info ei,sys_duty sd
+  WHERE 
+    ei.event_status = 20
+    AND sd.id_user = #{id}
+   AND DATE_FORMAT(sd.duty_date,'%Y-%m-%d')= DATE_FORMAT(NOW(),'%Y-%m-%d')    
+   GROUP BY ei.id
+   ORDER BY ei.date_create DESC) AS zong
+  </select>
+    <!-- 提示消息评价信息 -->
+  <select id="selectEvaluate" resultType="hashMap" parameterType="int">
+  SELECT eic.date_check as dateCheck,ei.id as id FROM event_info_deal eid,event_info ei,event_info_check eic WHERE ei.id = eid.id_event AND eid.id = eic.id_adu
+    AND ei.event_status = 70
+    AND ei.id_user_aplly = #{id};
+  </select>
+  <select id="selectEvaluateCount" resultType ="int" parameterType = "int">
+    SELECT COUNT(*) FROM 
+(SELECT eic.date_check FROM event_info_deal eid,event_info ei,event_info_check eic WHERE ei.id = eid.id_event AND eid.id = eic.id_adu
+    AND ei.event_status = 70
+    AND ei.id_user_aplly = #{id}) AS zong
+  </select>
+  <!-- 提示信息处理信息 -->
+  <select id="selectMessageDeal" resultType="hashmap" parameterType="int">
+  SELECT ei.id AS id,eid.date_respon AS dateRespon 
+FROM event_info_deal eid
+      LEFT JOIN event_info ei ON eid.id_event = ei.id
+      WHERE ei.event_status = 50
+      AND eid.id_user_deal = #{id}
+      AND eid.deal_status = 1
+  </select>
+    <select id="selectMessageDealCount" resultType="int" parameterType="int">
+ SELECT COUNT(*) FROM 
+(SELECT ei.id AS id,eid.date_respon AS dateRespon 
+FROM event_info_deal eid
+      LEFT JOIN event_info ei ON eid.id_event = ei.id
+      WHERE ei.event_status = 50
+      AND eid.id_user_deal = #{id}
+      AND eid.deal_status = 1) AS zong
+  </select>
+   <!-- 提示信息确认驳回处理信息 -->
+  <select id="selectMessageAnewDeal" resultType="hashmap" parameterType="int">
+  SELECT ei.id AS id,eid.date_respon AS dateRespon,
+     ei.event_name as eventName
+FROM event_info_deal eid
+      LEFT JOIN event_info ei ON eid.id_event = ei.id
+      WHERE ei.event_status = 61
+      AND eid.id_user_deal = #{id}
+      AND eid.deal_status = 1
+  </select>
+    <select id="selectMessageAnewDealCount" resultType="int" parameterType="int">
+ SELECT COUNT(*) FROM 
+(SELECT ei.id AS id,eid.date_respon AS dateRespon 
+FROM event_info_deal eid
+      LEFT JOIN event_info ei ON eid.id_event = ei.id
+      WHERE ei.event_status = 61
+      AND eid.id_user_deal = #{id}
+      AND eid.deal_status = 1) AS zong
+  </select>
+  <select id="selectEventDealInfoByUser" resultMap="BaseResultMap" parameterType="map">
+    SELECT 
+    e.id,
+	e.event_code,
+	e.event_name,
+	e.id_dept,
+	(SELECT su.name FROM sys_user su WHERE e.id_user_aplly = su.id) extend_1,
+	(SELECT sd.name FROM sys_dept sd WHERE sd.id = e.id_dept) extend_2,
+	(SELECT su.name FROM sys_user su WHERE e.id_user_create = su.id) extend_3,
+	e.event_contact,
+	e.date_create,
+	e.event_desc,
+	e.event_ts,
+	e.event_status 
+    FROM event_info e
+	LEFT JOIN event_info_deal d ON d.id_event = e.id
+	WHERE (e.event_status IN(50) AND d.id_user_deal = #{user_id} AND d.deal_status =1)
+	<if test="startTime != null">
+       and  e.date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   e.date_create &lt; #{endTime}
+    </if>
+    <if test="contact != null">
+    	and e.event_contact LIKE CONCAT('%',#{contact},'%')
+    </if>
+    <if test="idDept != null">
+    	and e.id_dept = #{idDept}
+    </if>
+    <if test="eventStatus != null">
+	   and e.event_status in
+	   <foreach collection="eventStatus" item="item"  index="index" open="(" separator="," close=")">
+			${item}
+	   </foreach>
+	</if>
+	order by e.id DESC
+	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+  	</if>
+  </select>
+  <select id="countEventAcceptInfoByUser" resultType="int" parameterType="map">
+	SELECT count(distinct(e.id))
+		FROM event_info e
+		LEFT JOIN event_info_deal d ON d.id_event = e.id
+		WHERE (e.event_status IN(20) OR (e.event_status IN(50) AND d.id_user_deal = #{user_id} AND d.deal_status =1))
+		<if test="startTime != null">
+	       and  e.date_create &gt;= #{startTime}
+	    </if>
+	     <if test="endTime != null">
+	       and   e.date_create &lt; #{endTime}
+	    </if>
+	    <if test="contact != null">
+	    	and e.event_contact LIKE CONCAT('%',#{contact},'%')
+	    </if>
+	    <if test="idDept != null">
+	    	and e.id_dept = #{idDept}
+	    </if>
+	    <if test="eventStatus != null">
+		   and e.event_status in
+		   <foreach collection="eventStatus" item="item"  index="index" open="(" separator="," close=")">
+				${item}
+		   </foreach>
+		</if>
+  </select>
+  <select id="selectEventAcceptInfoByUser" resultMap="BaseResultMap" parameterType="map">
+    SELECT 
+    distinct(e.id),
+	e.event_code,
+	e.event_name,
+	e.id_dept,
+	(SELECT su.name FROM sys_user su WHERE e.id_user_aplly = su.id) extend_1,
+	(SELECT sd.name FROM sys_dept sd WHERE sd.id = e.id_dept) extend_2,
+	(SELECT su.name FROM sys_user su WHERE e.id_user_create = su.id) extend_3,
+	e.event_contact,
+	e.date_create,
+	e.event_desc,
+	e.event_ts,
+	e.event_status
+	FROM event_info e
+	LEFT JOIN event_info_deal d ON d.id_event = e.id
+	
+	WHERE (e.event_status IN(20) OR (e.event_status IN(50) AND d.id_user_deal = #{user_id} AND d.deal_status =1))
+	<if test="startTime != null">
+       and  e.date_create &gt;= #{startTime}
+    </if>
+     <if test="endTime != null">
+       and   e.date_create &lt; #{endTime}
+    </if>
+    <if test="contact != null">
+    	and e.event_contact LIKE CONCAT('%',#{contact},'%')
+    </if>
+    <if test="idDept != null">
+    	and e.id_dept = #{idDept}
+    </if>
+    <if test="eventStatus != null">
+	   and e.event_status in
+	   <foreach collection="eventStatus" item="item"  index="index" open="(" separator="," close=")">
+			${item}
+	   </foreach>
+	</if>
+	order by e.id DESC
+	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+  	</if>
+  </select>
+  <!-- 审核查看 -->
+  <select id="selectAcceptGiveCheck"  resultType="hashmap" parameterType="int">
+  	SELECT
+     event_way,
+     ei.id, event_code, 
+     event_name, 
+     date_create, 
+	(SELECT su.name FROM sys_user su WHERE su.id = ei.id_user_accept) accept_name,
+	(SELECT su.name FROM sys_user su WHERE su.id = ei.id_user_aplly) aplly_name,
+	(SELECT sd.name FROM sys_dept sd WHERE sd.id = ei.id_dept) dept_name,
+     event_desc,
+     event_contact,
+     event_status,
+     id_user_check_center,
+     date_check_center,
+     center_desc,
+     (SELECT sst.name FROM sys_service_type sst WHERE sst.id = ei.event_service) service_name,
+     (SELECT sat.name FROM sys_assets_type sat WHERE sat.id = ei.event_source) event_source,
+	ei.date_accept,ei.id_user_accept,ei.event_level,ei.accept_desc,ei.event_priority
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id
+     AND ei.id = #{id}
+  </select>
+  <!-- 查询处理数量 -->
+    <select id="selectAcceptNameCount" resultType="hashmap" parameterType="map">
+     SELECT COUNT(eiAcce.idAcce) AS acceptCount,ssun.userN AS userName FROM
+           (SELECT ei.id_user_accept AS idAcce FROM event_info ei WHERE ei.event_status != 29 AND ei.event_status != 20 AND DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= DATE(ei.date_create)
+              <if test="startTime != null || endTime != null">
+					AND ei.date_create BETWEEN #{startTime}
+					AND #{endTime}
+				</if>
+           ) eiAcce RIGHT JOIN
+           (SELECT su.id AS id,su.name AS userN FROM sys_role sr,sys_user_role sur,sys_user su
+		            WHERE sr.id = sur.id_role AND su.id = sur.id_user
+		            AND sr.id = #{role_id} AND su.ds = 0) ssun ON eiAcce.idAcce = ssun.id
+		            GROUP BY userName
+    </select>
+    <select id="selectMonthApplyCount" resultMap="BaseResultMap">
+    	SELECT  DATE_FORMAT(`event_info`.`date_create`,'%Y-%c-%d') AS extend_1,  
+		COUNT(0) AS `extend_2` FROM `event_info` 
+		WHERE (DATE_FORMAT(`event_info`.`date_create`,'%Y-%c-%d')IN(SELECT  DATE_FORMAT(`ef`.`date_create`,'%Y-%c-%d')  
+		FROM `event_info` `ef`  WHERE ((TO_DAYS(NOW()) - TO_DAYS(DATE_FORMAT(`ef`.`date_create`,'%Y-%c-%d'))) &lt;= 30)  
+		GROUP BY DATE_FORMAT(`ef`.`date_create`,'%Y-%c-%d')) AND (`event_info`.`event_status` &lt;&gt; 29)) 
+		GROUP BY DATE_FORMAT(`event_info`.`date_create`,'%Y-%c-%d')
+    </select>
+    <!-- 查询未受理信息 -->
+    <select id="selectNotAcceptList" resultType="hashmap" parameterType="map">
+    SELECT
+     event_name eventName, 
+     date_create dateCreate, 
+     sd.name deptName, 
+     su.name name,
+     ei.event_status eventStatus
+    FROM event_info ei,sys_user su,sys_dept sd
+     WHERE ei.id_user_aplly = su.id AND ei.id_dept = sd.id
+    <if test="statusList != null">
+       and   event_status in
+       <foreach collection="statusList" item="item"  index="index" open="(" separator="," close=")">
+       		${item}
+       </foreach>
+    </if>
+      ORDER BY ei.date_create desc
+  </select>
+  <!-- 查询一段事件内的申告趋势 -->
+  <select id="selectApplyCountByTime" parameterType="map" resultType="map">
+  	SELECT  DATE_FORMAT(`event_info`.`date_create`,'%c-%d') AS `dates`,COUNT(0) AS `amount` FROM event_info
+         WHERE `event_info`.`event_status` != 29
+         <if test="startTime != null || endTime != null">
+			AND `event_info`.`date_create` BETWEEN #{startTime}
+			AND #{endTime}
+		</if>
+         GROUP BY DATE_FORMAT(`event_info`.`date_create`,'%Y-%c-%d')
+  </select>
+  <select id="selectServiceDeptCount" parameterType="map" resultType="hashmap">
+   SELECT COUNT(*) AS coun,sd.name AS deptName,ei.id_dept AS idDept,ss.name AS serviceName
+    FROM event_info ei,sys_dept sd,sys_service_type ss
+    WHERE sd.id = ei.id_dept AND ss.id = ei.event_service AND ei.event_status NOT IN(20,29)
+    <if test="startTime != null || endTime != null">
+			AND ei.date_create BETWEEN #{startTime}
+			AND #{endTime}
+	</if>
+    <if test="deptId != null">
+     AND  ei.id_dept IN 
+     <foreach collection="deptId" index="0" item="item" open="(" separator="," close=")">
+               #{item}       
+     </foreach>   
+    </if>
+    <if test="sourceId != null">
+     AND  ei.event_source IN 
+     <foreach collection="sourceId" index="0" item="item" open="(" separator="," close=")">
+               #{item}       
+     </foreach>   
+    </if>
+    <if test="serviceId != null">
+     AND  ei.event_service IN 
+     <foreach collection="serviceId" index="0" item="item" open="(" separator="," close=")">
+               #{item}       
+     </foreach>   
+    </if>
+    GROUP BY ei.id_dept
+  </select>
+  <select id="exportDeptInform" parameterType="map" resultType="hashmap">
+  	SELECT 
+	ei.id,
+	ei.id_dept AS idDept,
+	sd.name AS deptName,
+	ss.name AS serviceName,
+	(SELECT su.name FROM sys_user su WHERE su.id = ei.id_user_aplly) applyUserName,
+	(SELECT sat.name FROM sys_assets_type sat WHERE sat.id=ei.event_source) sourceName,
+	ei.event_name eventName,
+	ei.date_create dateCreate,
+	(SELECT su.name FROM sys_user su WHERE su.id = eid.id_user_deal) dealUserName,
+	eid.date_deal dateDeal
+    FROM event_info ei,sys_dept sd,sys_service_type ss,event_info_deal eid
+    WHERE sd.id = ei.id_dept AND ss.id = ei.event_service AND eid.id_event = ei.id 
+    <if test="startTime != null || endTime != null">
+			AND ei.date_create BETWEEN #{startTime}
+			AND #{endTime}
+	</if>
+    <if test="deptId != null">
+      AND  ei.id_dept IN 
+     <foreach collection="deptId" index="0" item="item" open="(" separator="," close=")">
+               #{item}       
+     </foreach>   
+    </if>
+    <if test="sourceId != null">
+     AND  ei.event_source IN 
+     <foreach collection="sourceId" index="0" item="item" open="(" separator="," close=")">
+               #{item}       
+     </foreach>   
+    </if>
+    <if test="serviceId != null">
+     AND  ei.event_service IN 
+     <foreach collection="serviceId" index="0" item="item" open="(" separator="," close=")">
+               #{item}       
+       </foreach>   
+    </if>
+    GROUP BY ei.id
+  </select>
+</mapper>

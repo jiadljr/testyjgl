@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysUserPostInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysUserPostInfo" >
+    <id column="id" property="id"  />
+    <result column="id_user" property="idUser" />
+    <result column="id_post" property="idPost" />
+    <result column="extend_1" property="extend1" />
+    <result column="extend_2" property="extend2" />
+    <result column="extend_3" property="extend3" />
+  </resultMap>
+  <!-- 根据postId查询userName -->
+  <select id="selectUserNameById" parameterType="map" resultMap="BaseResultMap">
+  	SELECT
+	su.name extend_1,
+	up.id_user,
+	up.name extend_2,
+	up.id id_post
+	FROM sys_user su
+	RIGHT JOIN (SELECT
+	sup.id_user,
+	sp.name,
+	sp.id
+	FROM sys_user_post sup
+	INNER JOIN sys_post sp
+	ON sup.id_post = sp.id) up
+	ON su.id = up.id_user
+	WHERE su.ds != 1
+	<if test="userId != null">
+		AND su.id = #{userId}
+	</if>
+	<if test="postId != null">
+		AND up.id = #{postId}
+	</if>
+	ORDER BY extend_1 DESC
+  </select>
+  <!-- 查询数量 -->
+  <select id="countByExample" parameterType="com.qkby.sysmanage.entity.SysUserPostInfo" resultType="java.lang.Integer" >
+    select count(*) from sys_user_post
+	where 1=1
+	<if test="id != null">
+		AND id=#{id}
+	</if>
+	<if test="idUser != null">
+		AND id_user=#{idUser}
+	</if>
+	<if test="idPost != null">
+		AND id_post=#{idPost}
+	</if>
+	<if test="extend1 != null">
+		AND extend_1=#{extend1}
+	</if>
+	<if test="extend2 != null">
+		AND extend_2=#{extend2}
+	</if>
+	<if test="extend3 != null">
+		AND extend_3=#{extend3}
+	</if>
+  </select>
+  <!-- 查询岗位id -->
+  <select id="selectPostId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  	SELECT sup.id_post,sp.name AS extend_1,sup.id_user FROM sys_post sp INNER JOIN sys_user_post sup ON sp.id=sup.id_post
+  </select>
+  <!--  -->
+  <select id="selectPostByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	SELECT 
+    id, id_user, id_post, extend_1, extend_2, extend_3
+    FROM sys_user_post
+    WHERE id_user = #{id}
+  </select>
+  <!-- 根据条件删除 -->
+  <delete id="deleteByExample" parameterType="com.qkby.sysmanage.entity.SysUserPostInfo" >
+    delete from sys_user_post
+    where 1=1
+	<if test="id != null">
+		AND id=#{id}
+	</if>
+	<if test="idUser != null">
+		AND id_user=#{idUser}
+	</if>
+	<if test="idPost != null">
+		AND id_post=#{idPost}
+	</if>
+	<if test="extend1 != null">
+		AND extend_1=#{extend1}
+	</if>
+	<if test="extend2 != null">
+		AND extend_2=#{extend2}
+	</if>
+	<if test="extend3 != null">
+		AND extend_3=#{extend3}
+	</if>
+  </delete>
+  <!-- 根据Id删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from sys_user_post
+    where id_user in
+	<foreach item="item" index="index" collection="ids" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </delete>
+  <!-- 添加 -->
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysUserPostInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_user_post (id, id_user, id_post, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{idUser}, #{idPost}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <!-- 根据条件查询 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.sysmanage.entity.SysUserPostInfo" >
+    select
+    id, id_user, id_post, extend_1, extend_2, extend_3
+    from sys_user_post
+    where 1=1
+	<if test="id != null">
+		AND id=#{id}
+	</if>
+	<if test="idUser != null">
+		AND id_user=#{idUser}
+	</if>
+	<if test="idPost != null">
+		AND id_post=#{idPost}
+	</if>
+	<if test="extend1 != null">
+		AND extend_1=#{extend1}
+	</if>
+	<if test="extend2 != null">
+		AND extend_2=#{extend2}
+	</if>
+	<if test="extend3 != null">
+		AND extend_3=#{extend3}
+	</if>
+  </select>
+  <!-- 根据Id查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    id, id_user, id_post, extend_1, extend_2, extend_3
+    from sys_user_post
+    where id = #{id}
+  </select>
+  <!-- 根据Id修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysUserPostInfo" >
+    update sys_user_post
+    <set >
+      <if test="idUser != null" >
+        id_user = #{idUser},
+      </if>
+      <if test="idPost != null" >
+        id_post = #{idPost},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+</mapper>

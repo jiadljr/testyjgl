@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.ProjTaskTemplateDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.proj.entity.TaskTemplate" >
+    <id column="id" property="id"/>
+    <result column="template_id" property="templateId" />
+    <result column="task_name" property="taskName" />
+    <result column="phase_remark" property="phaseRemark"  />
+    <result column="phase_show" property="phaseShow"  />
+    <result column="number" property="number"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, template_id, task_name, phase_remark, phase_show, extend_1, extend_2, 
+    extend_3
+  </sql>
+  <select id="selectTemplateTaskById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT  
+	ptt.id,
+	ptt.task_name,
+	ptt.phase_remark,
+	ptt.phase_show
+	FROM proj_task_template ptt
+	WHERE ptt.id = #{phaseId}
+  </select>
+  <select id="selectTemplateTaskNameById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+     SELECT  
+	ptt.id,
+	ptt.task_name,
+	ptt.number,
+	ptt.phase_remark,
+	ptt.phase_show
+	FROM proj_task_template ptt
+	WHERE ptt.template_id = #{templateId}
+	ORDER BY ptt.number
+  </select>
+  <delete id="deleteProjTemplateTask" parameterType="java.lang.Integer" >
+    delete from proj_task_template
+    where id = #{id}
+  </delete>
+  <!-- 删除多个任务 -->
+  <delete id="deleteTemplateTaskByids" parameterType="java.util.List">
+  	delete from proj_task_template
+    where id IN
+   	<foreach collection="list" item="task" open="(" separator="," close=")" index="index">
+   		#{task}
+   	</foreach>
+    
+  </delete>
+  <insert id="insertTemplateTask" parameterType="com.qkby.proj.entity.TaskTemplate" >
+    insert into proj_task_template (id, template_id, task_name, 
+      phase_remark, phase_show, number,
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{templateId}, #{taskName}, 
+       #{phaseRemark}, #{phaseShow}, #{number},
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <update id="updateTemplateTaskById" parameterType="com.qkby.proj.entity.TaskTemplate" >
+    update proj_task_template
+    <set >
+      <if test="templateId != null" >
+        template_id = #{templateId},
+      </if>
+      <if test="phaseRemark != null" >
+        phase_remark = #{phaseRemark},
+      </if>
+      <if test="phaseShow != null" >
+        phase_show = #{phaseShow},
+      </if>
+      <if test="number != null" >
+        number = #{number},
+      </if>
+      <if test="taskName != null" >
+        task_name = #{taskName}
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+  
+</mapper>

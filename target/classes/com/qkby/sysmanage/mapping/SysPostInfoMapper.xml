@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysPostInfoDao">
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysPostInfo" >
+    <id column="id" property="id"  />
+    <result column="code" property="code" />
+    <result column="name" property="name" />
+    <result column="remark" property="remark" />
+    <result column="extend_1" property="extend1" />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3" />
+  </resultMap>
+  <!-- 查询数量 -->
+  <select id="countByExample" parameterType="com.qkby.sysmanage.entity.SysPostInfo" resultType="java.lang.Integer" >
+    select count(*) from sys_post
+    where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="code != null">
+    	AND code=#{code}
+    </if>
+    <if test="name != null">
+    	AND name=#{name}
+    </if>
+    <if test="remark != null">
+    	AND remark=#{remark}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+  </select>
+  <!-- 根据条件删除 -->
+  <delete id="deleteByExample" parameterType="com.qkby.sysmanage.entity.SysPostInfo" >
+    delete from sys_post
+    where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="code != null">
+    	AND code=#{code}
+    </if>
+    <if test="name != null">
+    	AND name=#{name}
+    </if>
+    <if test="remark != null">
+    	AND remark=#{remark}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+  </delete>
+  <!-- 根据Id删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sys_post
+    where id = #{id}
+  </delete>
+  <!-- 添加 -->
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysPostInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_post (id, code, name, 
+      remark, extend_1, extend_2, 
+      extend_3)
+    values (#{id}, #{code}, #{name}, 
+      #{remark}, #{extend1}, #{extend2}, 
+      #{extend3})
+  </insert>
+  <select id="selectPostAll" resultMap="BaseResultMap">
+  	SELECT 
+  	id, code, name, remark, extend_1, extend_2, extend_3 
+  	FROM sys_post
+  	ORDER BY id DESC
+  </select>
+  <!-- 根据条件查询 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.sysmanage.entity.SysPostInfo" >
+    select
+    id, code, name, remark, extend_1, extend_2, extend_3
+    from sys_post
+     where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="code != null">
+    	AND code=#{code}
+    </if>
+    <if test="name != null">
+    	AND name=#{name}
+    </if>
+    <if test="remark != null">
+    	AND remark=#{remark}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+  </select>
+  <!-- 根据Id查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    id, code, name, remark, extend_1, extend_2, extend_3
+    from sys_post
+    where id = #{id}
+  </select>
+  <!-- 根据Id修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysPostInfo" >
+    update sys_post
+    <set >
+      <if test="code != null" >
+        code = #{code},
+      </if>
+      <if test="name != null" >
+        name = #{name},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.contract.dao.ContractFileDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.contract.entity.ContractFile" >
+    <id column="id" property="id"/>
+    <result column="contract_id" property="contractId"/>
+    <result column="file_id" property="fileId"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <!-- 新增文件中间表 -->
+  <insert id="insertContractFile" parameterType="com.qkby.contract.entity.ContractFile">
+  <selectKey resultType="java.lang.String" order="AFTER" keyProperty="id">
+       SELECT LAST_INSERT_ID() as id
+  </selectKey>
+     INSERT INTO contract_file 
+         (id,contract_id,file_id,extend_1,extend_2,extend_3)
+     VALUES
+         (#{id},#{contractId},#{fileId},#{extend1},#{extend2},#{extend3})
+  </insert>
+  <!-- 根据合同ID查询文件ID -->
+  <select id="selectContractFileByContractId" resultType="hashmap" parameterType="java.lang.String">
+     SELECT 
+     sf.id AS sfId,
+     sf.code AS sfCode,
+     sf.name AS sfName,
+     sf.path AS sfPath,
+     cf.id AS contractFileId
+     FROM contract_file cf,sys_file sf WHERE cf.file_id = sf.id
+     AND cf.contract_id = #{contractId}
+  </select>
+  <!-- 根据ID删除文件 -->
+  <delete id="deleteContractFile" parameterType="java.lang.String">
+  DELETE FROM contract_file
+      WHERE id = #{id}
+  </delete>
+</mapper>

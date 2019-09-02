@@ -1,0 +1,11 @@
+  .promptWarp{ width: 100%; height: 100%; position: absolute; left: 0; top: 0;z-index:99999; background: #000; opacity: 0.4;}
+        .promptBox{ width: 300px;height: 105px; opacity: 1; position: absolute; top: 50%;left: 50%;margin-top: -100px; margin-left: -200px; z-index: 100000; background: #fff; border-radius: 5px;box-shadow: 0 0 5px #eee; }
+        .promptBox p{ width: 100px;margin-top:10px;   margin-left: 50px; float: left; height: 30px; line-height: 30px; font-size: 14px; color: #000000;opacity: 1; text-align: center;}
+        .promptBox input{ width: 60px; padding: 0 5px; height: 20px; float: left; border: 1px solid #ccc;margin: 15px 0 5px 0; box-sizing: border-box; border-radius: 3px;display: inline-block; }
+        .promptBox span{ width: 20px; margin-top:10px;text-align: center ; height: 30px; line-height: 30px; display: inline-block; float: left;}
+        .promptBox .btn-list{ width: 300px; height: 40px; float: left; text-align: center;}
+        .promptBox .btn-list a{ font-size: 12px; display: inline-block; padding: 3px 8px; margin: 10px;border-radius: 3px; color: #fff;}
+        .promptBox .btn-list .promptSure{background:#72b960; }
+        .promptBox .btn-list .promptExit{background: #ff0000;}
+        .promptBox #promptTxt{height: 20px;width: 300px; margin:0;color: red; line-height: 20px; float: left; text-align: center;}
+  

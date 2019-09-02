@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.ProjTaskDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.proj.entity.ProjectTask" >
+    <id column="id" property="id"  />
+    <result column="proj_code" property="projCode"  />
+    <result column="code_task" property="codeTask"  />
+    <result column="name_task" property="nameTask"  />
+    <result column="level" property="level"/>
+    <result column="parent_id" property="parentId"  />
+    <result column="date_start" property="dateStart"  />
+    <result column="date_end" property="dateEnd"  />
+    <result column="date_real" property="dateReal"  />
+    <result column="id_task_head" property="idTaskHead"  />
+    <result column="task_status" property="taskStatus"  />
+    <result column="milestone_task" property="milestoneTask"  />
+    <result column="task_speed" property="taskSpeed"  />
+    <result column="task_desc" property="taskDesc"  />
+    <result column="phase_show" property="phaseShow"  />
+    <result column="pf" property="pf"  />
+    <result column="ds" property="ds"  />
+    <result column="vs" property="vs"  />
+    <result column="task_path" property="taskPath"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <!-- 根据ID进行查询 -->
+  <select id="selectProjTaskInfoById" resultMap="BaseResultMap" parameterType="int" >
+  	SELECT 
+  		pt.id,
+		pt.code_task,
+		pt.level,
+		pt.parent_id,
+		pt.name_task,
+  		pt.proj_code,
+  		(SELECT su.name FROM sys_user su WHERE su.id = pt.id_task_head) extend_1,
+  		pt.date_start,
+  		pt.task_speed,
+  		pt.id_task_head,
+  		pt.date_end,
+  		pt.task_status,
+  		pt.milestone_task,
+  		pt.task_desc,
+  		pt.phase_show,
+  		pt.vs,
+  		pt.task_path,
+  		pt.pf
+	FROM proj_task pt
+  	WHERE pt.id = #{id} 
+  </select>
+  <!-- 根据条件查询总数 -->
+  <select id="selectProjTaskCountByMap" parameterType="map" resultType="int">
+  	SELECT 
+  		count(*)
+	FROM proj_task pt,proj_info pif
+  	WHERE pt.proj_code = pif.proj_code
+  	<if test="freezeTask != null"><!-- 如果不是null，证明我在我的任务界面，只显示正常的任务 -->
+	  	AND pif.proj_status = 91
+  	</if>
+  	<if test="id_user != null">
+  		AND pt.id_task_head = #{id_user} 
+  	</if>
+  	<if test="projCode != null">
+  		and pt.proj_code = #{projCode}
+  	</if>
+  	<if test="codeTask != null">
+  		and pt.code_task = #{codeTask}
+  	</if>
+  	<if test="taskName != null">
+  		and pt.name_task LIKE CONCAT('%',#{taskName},'%')
+  	</if>
+  	<if test="idTaskHead != null">
+  		and pt.id_task_head = #{idTaskHead}
+  	</if>
+  	<if test="milestoneTask != null">
+  		and pt.milestone_task = #{milestoneTask}
+  	</if>
+  	<if test="dateStart != null">
+  		and pt.date_start &gt;= #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pt.ate_end &lt;= #{dateEnd} 
+  	</if>
+  	<if test="pf != null">
+  		and pt.pf = #{pf} 
+  	</if>
+  	<if test="statusList != null">
+  		and pt.task_status in 
+  		<foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+  			#{item}
+  		</foreach>
+  	</if>
+  </select>
+  <!-- 根据条件进行查询 -->
+  <select id="selectProjTaskInfoByMap" resultMap="BaseResultMap" parameterType="map">
+  	SELECT 
+  		pt.id,
+		pt.code_task,
+		pt.level,
+		pt.parent_id,
+		pt.name_task,
+  		pif.proj_name extend_3,
+  		(SELECT su.name FROM sys_user su WHERE su.id = pif.id_proj_manager) extend_1,
+  		(SELECT su.name FROM sys_user su WHERE su.id = pt.id_task_head) extend_2,
+  		pt.date_start,
+  		pt.task_speed,
+  		pt.date_end,
+  		pt.pf,
+  		pt.task_status,
+  		pt.milestone_task,
+  		pt.task_desc,
+  		pt.phase_show
+	FROM proj_task pt,proj_info pif
+  	WHERE pt.proj_code = pif.proj_code
+  	<if test="freezeTask != null"><!-- 如果不是null，证明我在我的任务界面，只显示正常的任务 -->
+	  	AND pif.proj_status = 91
+  	</if>
+  	<if test="idTask != null">
+  		AND pt.id != #{idTask} 
+  	</if>
+  	<if test="id_user != null">
+  		AND pt.id_task_head = #{id_user} 
+  	</if>
+  	<if test="projCode != null">
+  		and pt.proj_code = #{projCode}
+  	</if>
+  	<if test="codeTask != null">
+  		and pt.code_task = #{codeTask}
+  	</if>
+  	<if test="parentId != null">
+  		and pt.parent_id = #{parentId}
+  	</if>
+  	<if test="taskName != null">
+  		and pt.name_task LIKE CONCAT('%',#{taskName},'%')
+  	</if>
+  	<if test="idTaskHead != null">
+  		and pt.id_task_head = #{idTaskHead}
+  	</if>
+  	<if test="milestoneTask != null">
+  		and pt.milestone_task = #{milestoneTask}
+  	</if>
+  	<if test="dateStart != null">
+  		and pt.date_start &gt;= #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pt.ate_end &lt;= #{dateEnd} 
+  	</if>
+  	<if test="pf != null">
+  		and pt.pf = #{pf} 
+  	</if>
+  	<if test="statusList != null">
+  		and pt.task_status in 
+  		<foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+  			#{item}
+  		</foreach>
+  	</if>
+  	order by pt.date_start DESC
+  	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+  </select>
+  <!-- 插入项目任务信息 -->
+  <insert id="insertProjTask" parameterType="com.qkby.proj.entity.ProjectTask" >
+    insert into proj_task (proj_code, 
+      code_task, level, parent_id, name_task,date_start,date_end,date_create, date_update, id_task_head,task_speed, pf, task_status,milestone_task,task_desc, phase_show, vs, task_path, 
+      extend_1, extend_2, extend_3)
+      values ( #{projCode}, #{codeTask}, #{level}, #{parentId}, #{nameTask}, #{dateStart},#{dateEnd}, #{dateCreate}, #{dateUpdate}, #{idTaskHead},#{taskSpeed}, #{pf}, #{taskStatus},#{milestoneTask},#{taskDesc}, #{phaseShow},#{vs}, #{taskPath}, #{extend1},#{extend2}, #{extend3})
+  </insert>
+  <!-- 修改项目任务信息 -->
+  <update id="updateProjTask" parameterType="com.qkby.proj.entity.ProjectTask">
+	  update proj_task set
+	  <trim suffixOverrides=",">
+	      <if test="projCode != null" >
+	        proj_code = #{projCode},
+	      </if>
+	      <if test="codeTask != null" >
+	        code_task = #{codeTask},
+	      </if>
+	      <if test="level != null" >
+	        level = #{level},
+	      </if>
+	       parent_id = #{parentId},
+	      <if test="nameTask != null" >
+	        name_task = #{nameTask},
+	      </if>
+	      <if test="idTaskHead != null" >
+	        id_task_head = #{idTaskHead},
+	      </if>
+	      <if test="dateStart != null" >
+	        date_start = #{dateStart},
+	      </if>
+	      <if test="dateEnd != null" >
+	        date_end = #{dateEnd},
+	      </if>
+	      <if test="dateUpdate != null" >
+	        date_update = #{dateUpdate},
+	      </if>
+	      date_real = #{dateReal},
+	      <if test="taskStatus != null" >
+	        task_status = #{taskStatus},
+	      </if>
+	      <if test="milestoneTask != null" >
+	        milestone_task = #{milestoneTask},
+	      </if>
+	      <if test="taskDesc != null" >
+	        task_desc = #{taskDesc},
+	      </if>
+	      <if test="phaseShow != null" >
+	        phase_show = #{phaseShow},
+	      </if>
+	      <if test="pf != null" >
+	        pf = #{pf},
+	      </if>
+	      <if test="vs != null" >
+	        vs = #{vs},
+	      </if>
+	      <if test="taskPath != null" >
+	        task_path = #{taskPath},
+	      </if>
+	      <if test="taskSpeed != null" >
+	        task_speed = #{taskSpeed}
+	      </if>
+	    </trim>
+	    where id = #{id}
+  </update>
+  <!-- 删除项目任务信息 -->
+  <delete id="delectProjTask" parameterType="int">
+  	delete from proj_task where id = #{id}
+  </delete>
+  <!-- 查询不同状态下的任务数量 -->
+  <select id="selectTaskStatusCount" parameterType="map" resultType="map">
+  	SELECT 
+		COUNT(CASE pt.task_status WHEN 80 THEN 1 END) normal ,
+		COUNT(CASE pt.pf WHEN 1 THEN 1 END) overTime,
+		COUNT(CASE pt.task_status WHEN 85 THEN 1 END) finish
+	
+	FROM proj_task pt,proj_info pif WHERE pt.proj_code = pif.proj_code
+	<if test="freezeTask != null"><!-- 如果不是null，证明我在我的任务界面，只显示正常的任务 -->
+	  	AND pif.proj_status = 91
+  	</if>
+	<if test="id_user != null">
+  		AND pt.id_task_head = #{id_user} 
+  	</if>
+  	<if test="projCode != null">
+  		and pt.proj_code = #{projCode}
+  	</if>
+  	<if test="codeTask != null">
+  		and pt.code_task = #{codeTask}
+  	</if>
+  	<if test="taskName != null">
+  		and pt.name_task LIKE CONCAT('%',#{taskName},'%')
+  	</if>
+  	<if test="idTaskHead != null">
+  		and pt.id_task_head = #{idTaskHead}
+  	</if>
+  	<if test="milestoneTask != null">
+  		and pt.milestone_task = #{milestoneTask}
+  	</if>
+  	<if test="dateStart != null">
+  		and pt.date_start &gt;= #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pt.ate_end &lt;= #{dateEnd} 
+  	</if>
+  </select>
+  <update id="updateTaskPf" parameterType="com.qkby.proj.entity.ProjectTask">
+  	 UPDATE proj_task SET pf = #{pf} WHERE id = #{id}
+  </update>
+  <select id="selectTaskWarnList" parameterType="int" resultMap="BaseResultMap">
+    SELECT
+    (SELECT proj.proj_name FROM proj_info proj WHERE proj.proj_code=pt.proj_code) extend_1,
+	  pt.name_task,
+	  pt.date_start,
+	  pt.date_end,
+	  pt.task_speed,
+	  pt.pf
+	FROM proj_task pt,proj_info pin
+	WHERE pt.date_start &lt;= DATE_FORMAT(NOW(),"%Y-%m-%d")
+	    AND pt.date_end &gt;= DATE_FORMAT(NOW(),"%Y-%m-%d")
+	    AND pt.id_task_head = #{idTaskHead}
+	    AND pt.proj_code = pin.proj_code
+	    AND pin.proj_status = 91
+	    ORDER BY date_end 
+    	LIMIT 0,5
+  </select>
+  
+  <!-- 查询任务监控列表 -->
+  <select id="selectProjTaskControlList" parameterType="map" resultType="map">
+  	SELECT  
+	proj.proj_code extend1,
+	proj.proj_name extend2,
+	proj.pf projPf,
+	pt.id,
+	pt.name_task nameTask,
+	(SELECT su.name FROM sys_user su WHERE su.id = pt.id_task_head) extend3,
+	pt.date_start dateStart,
+	pt.date_end dateEnd,
+	pt.task_speed taskSpeed,
+	pt.pf taskPf
+	FROM proj_info proj,proj_task pt WHERE proj.proj_code = pt.proj_code
+	AND proj.proj_status = 91
+	AND (pt.task_status = 80 
+	<if test="startTime != null">
+		AND pt.date_end &gt;= #{startTime}
+	</if>
+	OR pt.pf = 1 AND pt.task_status = 80)
+	<if test="projName != null">
+		AND proj.proj_name LIKE CONCAT('%',#{projName},'%') 
+	</if>
+	<if test="taskName != null">
+		AND pt.name_task LIKE CONCAT('%',#{taskName},'%') 
+	</if>
+	<if test="idManager != null">
+		AND proj.id_proj_manager = #{idManager}
+	</if>
+	<if test="idTaskHead != null">
+		AND pt.id_task_head = #{idTaskHead}
+	</if>
+	<if test="projCode != null">
+		AND pt.proj_code = #{projCode}
+	</if>
+	ORDER BY pt.date_create
+  	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+  </select>
+  <!-- 查询任务监控数量 -->
+  <select id="countProjTaskControlList" parameterType="map" resultType="int">
+  	SELECT  COUNT(*)
+	FROM proj_info proj,proj_task pt WHERE proj.proj_code = pt.proj_code
+	AND proj.proj_status = 91
+	AND (pt.task_status = 80 
+	<if test="startTime != null">
+		AND pt.date_end &gt;= #{startTime}
+	</if>
+	OR pt.pf = 1 AND pt.task_status = 80)
+	<if test="projName != null">
+		AND proj.proj_name = #{projName}
+	</if>
+	<if test="taskName != null">
+		AND pt.name_task = #{taskName}
+	</if>
+	<if test="idManager != null">
+		AND proj.id_proj_manager = #{idManager}
+	</if>
+	<if test="idTaskHead != null">
+		AND pt.id_task_head = #{idTaskHead}
+	</if>
+	<if test="projCode != null">
+		AND pt.proj_code = #{projCode}
+	</if>
+  </select>
+  <!-- 项目监控导出 -->
+  <select id="selectTaskCotrolReportList" parameterType="map" resultType="map">
+  		SELECT  
+			proj.proj_name projName,
+			(SELECT su.name FROM sys_user su WHERE su.id = proj.id_proj_manager) projManagerName,
+			(SELECT pe.name FROM proj_type pe WHERE pe.id = proj.proj_type) projTypeName, 
+			proj.date_start projStart,
+			proj.date_end projEnd,
+			pt.id taskId,<!-- 根据id查询任务记录，循环拼接[记录1 2018-03-21 今天的记录] -->
+			pt.name_task taskName,
+			(SELECT su.name FROM sys_user su WHERE su.id = pt.id_task_head) taskHeadName,
+			pt.milestone_task milestoneTask,
+			pt.pf,
+			pt.date_start taskStart,
+			pt.date_start taskEnd,
+			pt.task_speed taskSpeed,
+			pt.date_real taskReal
+			FROM proj_info proj,proj_task pt WHERE proj.proj_code = pt.proj_code
+			AND proj.proj_status = 91
+			AND (pt.task_status = 80 
+			<if test="startTime != null">
+				AND pt.date_end &gt;= #{startTime}
+			</if>
+			OR pt.pf = 1 AND pt.task_status = 80)
+			<if test="projName != null">
+				AND proj.proj_name = #{projName}
+			</if>
+			<if test="taskName != null">
+				AND pt.name_task = #{taskName}
+			</if>
+			<if test="idManager != null">
+				AND proj.id_proj_manager = #{idManager}
+			</if>
+			<if test="idTaskHead != null">
+				AND pt.id_task_head = #{idTaskHead}
+			</if>
+			<if test="projCode != null">
+				AND proj.proj_code = #{projCode}
+			</if>
+			ORDER BY pt.date_create
+  </select>
+  <!-- 查询父节点下的所有子节点 -->
+  <select id="selectChildrenTaskByParentId" parameterType="map" resultType="String">
+  	SELECT name_task FROM proj_task WHERE 1=1
+  	<if test="pId != null">
+	  	and parent_id = #{pId}
+  	</if>
+  	<if test="pCode != null">
+  		and proj_code = #{pCode}
+  	</if>
+  	<if test="taskId != null">
+  		and id != #{taskId}
+  	</if>
+  </select>
+</mapper>

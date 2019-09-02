@@ -1,0 +1,53 @@
+.fixTableHeader .copy_box{width:15px; height:100%; float:left; box-sizing: border-box; border:1px solid #ccc; }
+.fixTableHeader table{ float:left;}
+.relTableBody { overflow-y:scroll; overflow-x:hidden;}
+.mRnewbot{ height:100%; float:left; width:100%;
+	 .mRtabs{  border-bottom: 1px solid #ccc;  width: 100%; height: 32px;
+	 	li{ position: relative; float:left; margin: 0 10px;
+	 		span{ height: 32px; display: block; line-height:32px; color:#ccc; cursor: pointer;}
+	 	}
+	 	.nav_on{
+	 		span{  border-bottom: 1px solid #3eabe7; color:#3eabe7; }
+	 		i{border:4px solid #3eabe7; margin-left:-4px; border-left-color:#fff;border-right-color:#fff;border-bottom-color:#fff;  width:4px;position:absolute ; left: 50%; bottom: -8px; height:4px; display: block;  box-sizing: border-box; }
+	 	}
+	 }
+	 .mRtablist { height:80%; position:relative;
+ 		.showBlock{ opacity:1;z-index:2;}
+ 		.tabItem{ opacity:0; height:100%; position:absolute;width:100%;z-index:-1;
+ 			.border_blue{border: 1px solid #00FFFF; }
+ 			.title_bgk{background:#fbfbfb;color:#86b3e4; height:30px; border-bottom: 1px solid #e8e8e8; line-height:30px; margin:0;}
+ 			.tab_form{
+ 				.btn_sm{ width:44px; text-align:center;display: inline-block; font-size: 12px;font-weight: normal;line-height: 26px;height:26px;text-align: center;white-space: nowrap;vertical-align: middle;cursor: pointer;border: 1px solid transparent;border-radius: 4px;background:#3f90e6;color:#fff;}  
+ 				.dateStart{ padding: 0 8px; height:40px; line-height:40px; font-size:12px;color:#5f5f5f;}
+ 				input,select{border:1px solid #474747; height:24px; line-height:24px;}
+ 				.tab_l_box{ width:40%; height:90%; float:left; margin:1%;
+ 					.tab_fix{ height:39px; width:96%; margin: 0 auto;
+ 						 .table{margin-bottom:0;
+ 						 	th{ text-align:center;}
+ 						 	thead{
+ 						 		tr{
+ 						 			th:nth-child(1),th:nth-child(2),th:nth-child(6){width:50px;}
+ 						 		}
+ 						 	}
+ 						 	tbody{
+ 						 		tr{
+ 						 			td:nth-child(1),td:nth-child(2),td:nth-child(6){ width:50px; }
+ 						 		}
+ 						 	}
+ 						 }
+ 					}
+ 					.tab_rel{width:96%; height:60%; margin:0 auto;}
+ 				}
+ 			}
+ 			.handle_box,.accept_box{width: 56%; height:43%; float:left; margin:1%; 
+ 				#accept{width:100%; height:100%;}
+ 				#deal{ width:100%; height:100%;}
+ 			}
+ 			.full_box{width:100%; height:100%;}
+ 			.by_time_box,.ser_count_box{
+ 				 width:48% ;float:left; height:40%; margin:1%;
+ 			}
+ 			 .ech_box{ width:98%; height:48%; margin: 1%; float:left;}
+ 		}s	
+	 }
+}

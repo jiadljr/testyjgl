@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysDutyInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysDutyInfo" >
+    <id column="id" property="id"/>
+    <result column="duty_date" property="dutyDate"/>
+    <result column="duty_order" property="dutyOrder"/>
+    <result column="id_user" property="idUser"/>
+    <result column="remark" property="remark"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, duty_date, duty_order, id_user, remark, extend_1, extend_2, extend_3
+  </sql>
+  <select id="selectDuty" resultMap="BaseResultMap" parameterType="map" >
+    select
+    sd.id as id,
+    sd.duty_date as duty_date, 
+    sd.duty_order as duty_order, 
+    GROUP_CONCAT(su.name SEPARATOR ',') as extend_2,
+    sd.remark as remark, 
+    sd.extend_1 as extend_1, 
+    sd.extend_3 as extend_3
+    from sys_duty sd,sys_user su
+    where 1=1 and sd.id_user = su.id
+    <trim suffixOverrides="and">
+		<if test="duty_order != null">
+			 and sd.duty_order = #{duty_order}
+		</if>
+		<if test="duty_orde != null">
+			 and sd.duty_order = #{duty_orde}
+		</if>
+	</trim>
+	group by sd.duty_date	
+  </select>
+  <select id="selectByMap" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_duty
+    where 1=1
+    <if test="id != null">
+		and id = #{id}
+	</if>
+	<if test="duty_date != null">
+		and duty_date = #{duty_date}
+	</if>
+	<if test="duty_order != null">
+		and duty_order = #{duty_order}
+	</if>
+	<if test="id_user != null">
+		and id_user = #{id_user}
+	</if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sys_duty
+    where id = #{id}
+  </delete>
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysDutyInfo" >
+   <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_duty (id, duty_date, duty_order, 
+      id_user, remark, extend_1, 
+      extend_2, extend_3)
+    values (#{id}, #{dutyDate}, #{dutyOrder}, 
+      #{idUser}, #{remark}, #{extend1}, 
+      #{extend2}, #{extend3})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysDutyInfo" >
+    update sys_duty
+    <set >
+      <if test="dutyDate != null" >
+        duty_date = #{dutyDate},
+      </if>
+      <if test="dutyOrder != null" >
+        duty_order = #{dutyOrder},
+      </if>
+      <if test="idUser != null" >
+        id_user = #{idUser},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+    <!-- 我的排班表 -->
+  <select id="findDutyArrangeByName" parameterType="int" resultMap="BaseResultMap">
+		 SELECT 
+		    sd.id,
+		    sd.id_user,
+		    duty_date
+		FROM 
+			sys_duty sd,
+			sys_user su
+		WHERE 
+		        sd.id_user = su.id
+			AND sd.id_user=#{id}
+			GROUP BY sd.duty_date
+	</select>
+	<select id="selectDutyDate" resultType="hashmap" parameterType="int">
+	SELECT sd.duty_order AS dutyOrder,sd.duty_date AS dutyDate FROM sys_duty sd 
+    WHERE  DATE_FORMAT(sd.duty_date,'%Y-%m-%d')= DATE_FORMAT(NOW(),'%Y-%m-%d')
+     AND sd.id_user = #{id}
+     GROUP BY sd.duty_order
+	</select>
+</mapper>

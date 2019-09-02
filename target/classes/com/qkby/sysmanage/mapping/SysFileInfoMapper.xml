@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://mybatis.apache.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qkby.sysmanage.dao.SysFileInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysFileInfo" >
+    <id column="id" property="id"  />
+    <result column="code" property="code"  />
+    <result column="name" property="name"  />
+    <result column="name_depost" property="nameDepost"/>
+    <result column="id_file_type" property="idFileType"  />
+    <result column="path" property="path"  />
+    <result column="create_date" property="createDate"  />
+    <result column="create_user" property="createUser"  />
+    <result column="remark" property="remark" />
+    <result column="ds" property="ds" />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <!-- 下载文件-->
+  <select id="downloadDealFile" parameterType="int" resultMap="BaseResultMap">
+	 SELECT
+		sf.id,
+		sf.name,
+		sf.name_depost,
+		sf.path
+		FROM sys_file sf
+		WHERE 1=1
+		and sf.id = #{fileId}
+  </select>
+  <!-- 查询处理上传的文件 -->
+  <select id="selectDealFile" parameterType="int" resultMap="BaseResultMap">
+  	SELECT
+		sf.id,
+		sf.name,
+		sf.name_depost,
+		sf.path
+		FROM sys_file sf
+		INNER JOIN (SELECT
+		efm.id_file
+		FROM event_file_manage efm
+		INNER JOIN event_info_deal eid
+		ON efm.id_deal = eid.id
+		AND eid.id = #{id}
+		) em
+		ON sf.id = em.id_file
+	
+
+  </select>
+  <!-- 查询全部文件 -->
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+    SELECT 
+      sf.id, sf.code, sf.name,sf.name_depost, 
+      sft.name AS extend1, path, sf.create_date, 
+      su.name as extend2, sf.remark, sf.ds, 
+      sf.extend_2, sf.extend_3
+      FROM sys_file sf,sys_file_type sft,sys_user su
+      WHERE sf.id_file_type = sft.id AND su.id = sf.create_user
+      <if test="id != null">
+    	AND sf.id=#{id}
+    </if>
+    <if test="code != null">
+    	AND sf.code LIKE CONCAT('%',#{code} ,'%')
+    </if>
+    <if test="name != null">
+    	AND sf.name LIKE CONCAT('%',#{name} ,'%')
+    </if>
+    <if test="id_file_type != null">
+    	AND sf.id_file_type=#{id_file_type}
+    </if>
+    <if test="path != null">
+    	AND sf.path=#{path}
+    </if>
+    <if test="create_date != null">
+    	AND sf.create_date LIKE CONCAT('%',#{create_date},'%')
+    </if>
+    <if test="create_user != 0">
+    	AND sf.create_user=#{create_user}
+    </if>
+    <if test="remark != null">
+    	AND sf.remark=#{remark}
+    </if>
+    <if test="ds != null">
+    	AND sf.ds=#{ds}
+    </if>
+    <if test="extend1 != null">
+    	AND sf.extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND sf.extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND sf.extend_3=#{extend3}
+    </if>
+    ORDER BY sf.id DESC 
+     <if test="startPos !=null">
+ 		    limit #{startPos}
+	 	  <if test="pageSize != null">
+	 	  	 , #{pageSize}
+	 	  </if>
+ 		</if>
+  </select>
+  
+  <!-- 查询数量 -->
+   <select id="countByExample" parameterType="map" resultType="java.lang.Integer" >
+   SELECT count(*) 
+       FROM sys_file sf,sys_file_type sft,sys_user su
+      WHERE sf.id_file_type = sft.id AND su.id = sf.create_user
+      <if test="id != null">
+    	AND sf.id=#{id}
+    </if>
+    <if test="code != null">
+    	AND sf.code LIKE CONCAT('%',#{code} ,'%')
+    </if>
+    <if test="name != null">
+    	AND sf.name LIKE CONCAT('%',#{name} ,'%')
+    </if>
+    <if test="id_file_type != null">
+    	AND sf.id_file_type=#{id_file_type}
+    </if>
+    <if test="path != null">
+    	AND sf.path=#{path}
+    </if>
+    <if test="create_date != null">
+    	AND sf.create_date=#{create_date}
+    </if>
+    <if test="create_user != 0">
+    	AND sf.create_user=#{create_user}
+    </if>
+    <if test="remark != null">
+    	AND sf.remark=#{remark}
+    </if>
+    <if test="ds != null">
+    	AND sf.ds=#{ds}
+    </if>
+    <if test="extend1 != null">
+    	AND sf.extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND sf.extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND sf.extend_3=#{extend3}
+    </if>
+  </select>
+ <!-- 根据条件删除 -->
+  <delete id="deleteByExample" parameterType="com.qkby.sysmanage.entity.SysFileInfo" >
+    delete from sys_file
+    where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="code != null">
+    	AND code=#{code}
+    </if>
+    <if test="idFileType != null">
+    	AND id_file_type=#{idFileType}
+    </if>
+    <if test="path != null">
+    	AND path=#{path}
+    </if>
+    <if test="createDate != null">
+    	AND create_date=#{createDate}
+    </if>
+    <if test="createUser != null">
+    	AND create_user=#{createUser}
+    </if>
+    <if test="remark != null">
+    	AND remark=#{remark}
+    </if>
+    <if test="ds != null">
+    	AND ds=#{ds}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+  </delete>
+  <!-- 根据Id删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from sys_file
+    where id in
+    <foreach item="item" index="index" collection="id" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </delete>
+  <!-- 添加 -->
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysFileInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+    </selectKey>
+    insert into sys_file (id, code, name, name_depost,
+      id_file_type, path, create_date, 
+      create_user, remark, ds, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{code}, #{name}, #{nameDepost,}, 
+      #{idFileType}, #{path}, #{createDate}, 
+      #{createUser}, #{remark}, #{ds}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <!-- 根据条件查询 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="map" >
+    select
+    id, 
+    code, 
+    name,
+	name_depost, 
+    id_file_type, 
+    path, create_date, 
+    create_user, 
+    remark, ds, 
+    extend_1, 
+    extend_2, 
+    extend_3
+    from sys_file
+    where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="code != null">
+    	AND code=#{code}
+    </if>
+    <if test="idFileType != null">
+    	AND id_file_type=#{idFileType}
+    </if>
+    <if test="path != null">
+    	AND path=#{path}
+    </if>
+    <if test="createDate != null">
+    	AND create_date=#{createDate}
+    </if>
+    <if test="createUser != 0">
+    	AND create_user=#{createUser}
+    </if>
+    <if test="remark != null">
+    	AND remark=#{remark}
+    </if>
+    <if test="ds != null">
+    	AND ds=#{ds}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+    ORDER BY id DESC 
+  </select>
+  <!-- 根据Id查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT 
+      sf.id, sf.code, sf.name, sf.id_file_type, sf.name_depost,
+      sft.name AS extend1, path, sf.create_date, 
+      su.name as extend2, sf.remark, sf.ds, 
+      sf.extend_2, sf.extend_3
+      FROM sys_file sf,sys_file_type sft,sys_user su
+      WHERE sf.id_file_type = sft.id AND su.id = sf.create_user
+   	  AND sf.id = #{id}
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysFileInfo" >
+    update sys_file
+    <set >
+      <if test="code != null" >
+        code = #{code},
+      </if>
+      <if test="name != null" >
+        name = #{name},
+      </if>
+      <if test="nameDepost != null" >
+        name_depost = #{nameDepost},
+      </if>
+      <if test="idFileType != null" >
+        id_file_type = #{idFileType},
+      </if>
+      <if test="path != null" >
+        path = #{path},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="ds != null" >
+        ds = #{ds},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+  <select id="selectByIdAll" parameterType="map" resultMap="BaseResultMap"> 
+     select * from sys_file
+    where id in 
+    <foreach item="item" index="index" collection="id" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </select>
+  <!-- 查询项目和任务下的文件 -->
+  <select id="selectFileByProjCode" parameterType="map" resultMap="BaseResultMap">
+  	SELECT 
+		sf.id,
+		sf.code,
+		sf.name,
+		sf.path,
+		pf.id extend_1
+	FROM
+		proj_file pf,sys_file sf 
+	WHERE pf.id_file = sf.id 
+	<if test="projCode != null">
+		AND pf.proj_code = #{projCode}
+	</if>
+	<if test="idTask != null">
+		AND pf.id_task = #{idTask}
+	</if>
+  </select>
+  <!-- 根据idList查询删除本地文件的 信息-->
+  <select id="selectDeleteLocalFileList" parameterType="java.util.List" resultType="java.lang.String">
+  	SELECT 
+		path
+	FROM
+		sys_file 
+	WHERE id in 
+		<foreach collection="list" item="employeeId" index="index"
+		    open="(" close=")" separator=",">
+		    #{employeeId}
+		  </foreach>
+  </select>
+</mapper>

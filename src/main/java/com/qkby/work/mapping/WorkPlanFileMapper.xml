@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.work.dao.WorkPlanFileDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.work.entity.WorkPlanFileInfo" >
+    <id column="id" property="id" />
+    <result column="plan_id" property="planId"  />
+    <result column="file_id" property="fileId"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <insert id="insertPlanFile" parameterType="com.qkby.work.entity.WorkPlanFileInfo">
+     insert into work_plan_file(id,plan_id,file_id,extend_1,extend_2,extend_3)
+       values(#{id},#{planId},#{fileId},#{extend1},#{extend2},#{extend3})
+  </insert>
+  <select id="selectPlanFile" parameterType="java.lang.Integer" resultType="hashmap">
+ SELECT 
+    sf.id AS sfId,
+    sf.code AS sfCode,
+    sf.name AS sfName,
+    sf.path AS sfPath,
+    wpf.id AS plaFileId
+ FROM work_plan_file wpf,sys_file sf WHERE wpf.file_id = sf.id
+      AND wpf.plan_id = #{id}
+  </select>
+  <delete id="deletePlanFile" parameterType="java.lang.Integer">
+     delete from work_plan_file where id = #{id}
+  </delete>
+</mapper>

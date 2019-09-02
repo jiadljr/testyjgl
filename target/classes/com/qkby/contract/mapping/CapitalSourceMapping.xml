@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.contract.dao.CapitalSoureDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.contract.entity.CapitalSource" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="extend_1" property="extend1" jdbcType="VARCHAR" />
+    <result column="extend_2" property="extend2" jdbcType="VARCHAR" />
+    <result column="extend_3" property="extend3" jdbcType="VARCHAR" />
+  </resultMap>
+  <!-- 查询所有资金来源信息（带条件） -->
+  <select id="selectCapitalSourceAllByCondition" resultMap="BaseResultMap">
+    SELECT 
+    cs.code AS code, 
+    cs.id AS id,
+    cs.name AS name, 
+    cs.extend_1 AS extend1,
+    cs.extend_2 AS extend2,
+    cs.extend_3 AS extend3 
+    FROM capital_source cs 
+    WHERE 1=1
+    <if test="code != null">
+       AND cs.code = #{code}
+    </if>
+    <if test="name != null">
+       AND cs.name = #{name}
+    </if>
+    <if test="id != null">
+       AND cs.id = #{id}
+    </if>
+  </select>
+  <select id="selectCapitalSourceAll" resultMap="BaseResultMap">
+     select * from capital_source
+  </select>
+  <!-- 根据ID查询资金来源 -->
+  <select id="selectCapitalSourceById" parameterType="java.lang.String" resultMap="BaseResultMap">
+   SELECT 
+    cs.code AS code, 
+    cs.id AS id,
+    cs.name AS name, 
+    cs.extend_1 AS extend1,
+    cs.extend_2 AS extend2,
+    cs.extend_3 AS extend3 
+    FROM capital_source cs 
+    WHERE 1=1
+    <if test="id != null">
+       AND cs.id = #{id}
+    </if>
+  </select>
+  <!-- 新增资金来源 -->
+  <insert id="insertCapitalSource" parameterType="com.qkby.contract.entity.CapitalSource">
+     INSERT INTO capital_source 
+     		(id,code,name,extend_1,extend_2,extend_3)
+     VALUES (#{id},#{code},#{name},#{extend1},#{extend2},#{extend3})
+  </insert>
+  <!-- 修改资金来源 -->
+  <update id="updateCapitalSource" parameterType="com.qkby.contract.entity.CapitalSource">
+     UPDATE capital_source SET
+     <if test="code != null">
+        code = #{code},
+     </if>
+     <if test="name != null">
+        name = #{name}
+     </if>
+     WHERE id = #{id}
+  </update>
+  <!-- 删除资金来源 -->
+  <delete id="deleteCapitalSource" parameterType="java.lang.String">
+    DELETE FROM capital_source
+    WHERE id = #{id}
+  </delete>
+</mapper>

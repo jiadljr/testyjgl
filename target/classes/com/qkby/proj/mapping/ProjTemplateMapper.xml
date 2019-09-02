@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.ProjTemplateDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.proj.entity.ProjectTemplate" >
+    <id column="id" property="id" />
+    <result column="template_name" property="templateName"/>
+    <result column="id_create_user" property="idCreateUser"/>
+    <result column="id_update_user" property="idUpdateUser"/>
+    <result column="date_create" property="dateCreate"  />
+    <result column="date_update" property="dateUpdate"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2" />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, template_name, id_create_user, id_update_user, date_create, date_update, extend_1, 
+    extend_2, extend_3
+  </sql>
+  <select id="selectTemplateInfo" resultMap="BaseResultMap">
+    SELECT id,template_name FROM proj_template
+  </select>
+  <!-- 根据id查询模板名称 -->
+  <select id="selectTemplateById" resultMap="BaseResultMap" parameterType="int">
+    SELECT id,template_name FROM proj_template where id=#{id}
+  </select>
+  
+  <delete id="deleteTemplateById" parameterType="java.lang.Integer" >
+    delete from proj_template
+    where id = #{id}
+  </delete>
+  <insert id="insertTemplate" parameterType="com.qkby.proj.entity.ProjectTemplate" >
+	  <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+	          SELECT LAST_INSERT_ID() as id
+	    </selectKey>
+    insert into proj_template (id, template_name, id_create_user, 
+      id_update_user, date_create, date_update, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{templateName}, #{idCreateUser}, 
+      #{idUpdateUser}, #{dateCreate}, #{dateUpdate}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <update id="updateTemplateInfo" parameterType="com.qkby.proj.entity.ProjectTemplate" >
+    update proj_template
+    <set >
+      <if test="templateName != null" >
+        template_name = #{templateName},
+      </if>
+      <if test="idCreateUser != null" >
+        id_create_user = #{idCreateUser},
+      </if>
+      <if test="idUpdateUser != null" >
+        id_update_user = #{idUpdateUser},
+      </if>
+      <if test="dateCreate != null" >
+        date_create = #{dateCreate},
+      </if>
+      <if test="dateUpdate != null" >
+        date_update = #{dateUpdate},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+</mapper>

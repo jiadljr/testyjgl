@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://mybatis.apache.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qkby.sysmanage.dao.SysServiceTypeDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysServiceType" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="extend_1" property="extend1" jdbcType="VARCHAR" />
+    <result column="extend_2" property="extend2" jdbcType="VARCHAR" />
+    <result column="extend_3" property="extend3" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, code, name, level, parent_id, remark, extend_1, extend_2, extend_3
+  </sql>
+  <!-- 大屏展示: 服务类型申告统计 -->
+  <select id="selectSerApply" resultMap="BaseResultMap">
+  	SELECT
+	sst.name,
+	COUNT(ei.id) extend_1
+	FROM event_info ei
+	RIGHT JOIN sys_service_type sst
+	ON ei.event_service = sst.id
+	GROUP BY sst.id
+	ORDER BY extend_1
+  </select>
+  <!-- 查询处理人处理的服务类型总数 -->
+  <select id="selectDealCountBySer" parameterType="map" resultMap="BaseResultMap">
+	SELECT sst.name,COUNT(eidSer.eventService) AS extend_1 FROM
+	(SELECT ei.event_service AS eventService FROM event_info_deal eid LEFT JOIN event_info ei ON eid.id_event = ei.id 
+	    WHERE eid.deal_status = 2 AND ei.event_status IN (70,77)
+	    <if test="dealId != null">
+		    AND eid.id_user_deal = #{dealId}
+		</if>
+		<if test="startTime != null || endTime != null">
+			AND eid.date_deal BETWEEN #{startTime}
+			AND #{endTime}
+		</if>
+	    )eidSer LEFT JOIN sys_service_type sst ON eidSer.eventService = sst.id
+	    GROUP BY sst.name
+  </select>
+  <!-- 当月服务类型统计 -->
+  <select id="selectCountByMonth" resultType="hashmap">
+  	SELECT `sst`.`name` AS `ser_name`,COUNT(`ei`.`id`) AS `ser_count` FROM (`sys_service_type` `sst` LEFT JOIN `event_info` `ei` 
+	ON(((`ei`.`event_service` = `sst`.`id`) AND DATE_FORMAT(`ei`.`date_accept`,'%Y-%c-%d') IN (SELECT DATE_FORMAT(`ei`.`date_accept`,'%Y-%c-%d') 
+	FROM `event_info` `ei` WHERE ((TO_DAYS(NOW()) - TO_DAYS(DATE_FORMAT(`ei`.`date_accept`,'%Y-%c-%d'))) &lt;= 30) 
+	GROUP BY DATE_FORMAT(`ei`.`date_accept`,'%Y-%c-%d'))))) GROUP BY `sst`.`id`
+  </select>
+  <!-- 服务类型统计 -->
+  <select id="selectServiceApply" resultMap="BaseResultMap" parameterType="map">
+  	SELECT
+	sst.name,
+	COUNT(ei.id) AS extend_1
+	FROM event_info ei
+	RIGHT JOIN sys_service_type sst
+	ON ei.event_service = sst.id
+	WHERE sst.id in
+	 <foreach item="item" index="index" collection="pIdList" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+	<if test="startTime != null || endTime != null">
+		AND ei.date_create BETWEEN #{startTime}
+		AND #{endTime}
+	</if>
+  </select>
+  <select id="selectServiceApplyByTime" resultMap="BaseResultMap" parameterType="map">
+  	SELECT
+	sst.name,
+	COUNT(ei.id) AS extend_1
+	FROM event_info ei
+	RIGHT JOIN sys_service_type sst
+	ON ei.event_service = sst.id
+	WHERE sst.id in
+	 <foreach item="item" index="index" collection="pIdList" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+	AND DATE_SUB(CURDATE(),INTERVAL 30 DAY) &lt;=DATE(ei.date_create)
+  </select>
+  <select id="selectServiceTypeApplyAll" resultType="hashmap" parameterType="map">
+  SELECT sst.name as name,COUNT(ei.id) as count FROM sys_service_type sst,event_info ei 
+    WHERE sst.id = ei.event_service
+    <if test="startTime != null || endTime != null">
+		AND ei.date_create BETWEEN #{startTime}
+		AND #{endTime}
+	</if>
+    GROUP BY sst.name
+    ORDER BY count DESC
+  </select>
+  <select id="selectServiceTypeApplyTime" resultType="hashmap" parameterType="map">
+  SELECT sst.name as name,(TIMESTAMPDIFF(MINUTE,eid.date_respon,eid.date_deal)) AS serviceTime FROM sys_service_type sst,event_info ei,event_info_deal eid
+    WHERE sst.id = ei.event_service AND ei.id = eid.id_event
+		AND eid.deal_status != 0
+		<if test="startTime != null || endTime != null">
+			AND ei.date_create BETWEEN #{startTime}
+			AND #{endTime}
+	    </if>
+	    <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+    GROUP BY sst.name
+    ORDER BY serviceTime DESC
+  </select>
+  <!-- 服务类型百分比top5 -->
+  <select id="selectServicePercentByTime" resultMap="BaseResultMap" parameterType="map">
+ SELECT 
+		s.name,
+		COUNT(s.id) extend_1
+		FROM event_info e,sys_service_type s 
+		WHERE e.event_service = s.id 
+		<if test="startTime != null || endTime != null">
+			AND e.date_create BETWEEN #{startTime}
+			AND #{endTime}
+	    </if>
+		GROUP BY s.id 
+		ORDER BY extend_1 DESC 
+		LIMIT 0,5
+  </select>
+  <!-- 服务类型统计 -->
+  <select id="selectServiceApplyAll" resultMap="BaseResultMap" parameterType="map">
+  	SELECT
+	sst.name,
+	COUNT(ei.id) AS extend_1
+	FROM event_info ei
+	RIGHT JOIN sys_service_type sst
+	ON ei.event_service = sst.id
+	<if test="startTime != null || endTime != null">
+		AND ei.date_create BETWEEN #{startTime}
+		AND #{endTime}
+	</if>
+	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+    <!-- 个人的服务类型统计 -->
+  <select id="selectCountByService" parameterType="int" resultType="int">
+	SELECT COUNT(ei.id) FROM event1_info ei RIGHT JOIN sys_service_type sst 
+	ON ei.event_service=sst.id AND sst.id=#{id}
+  </select>
+  <!-- 查询所有一级服务类型的ID -->
+  <select id="selectSerId" resultMap="BaseResultMap">
+		SELECT id FROM sys_service_type WHERE LEVEL = 1
+  </select>
+  <!-- 查询所有pId -->
+  <select id="selectPidAll" resultMap="BaseResultMap">
+  SELECT parent_id FROM sys_service_type
+  </select>
+  <!-- 根据pId查询所有的二级服务类型的Id -->
+  <select id="selectpIdBySerId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  SELECT id FROM sys_service_type WHERE parent_id = #{id}
+  </select>
+  <!-- 查询所有服务类型 -->
+  <select id="selectServiceTypeAll" resultMap="BaseResultMap" >
+  	SELECT 
+	sst.id,
+	sst.code,
+	sst.name,
+	sst.level,
+	sst.parent_id,
+	(SELECT NAME FROM sys_service_type ss WHERE sst.parent_id=ss.id) AS extend_1,
+	extend_2
+	FROM sys_service_type sst
+	ORDER BY id DESC
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.sysmanage.entity.SysServiceType" >
+    select
+   	id, code, name, level, parent_id, remark
+    from sys_service_type
+    <if test="code != null" >
+      AND code=#{code}
+    </if>
+    <if test="name != null" >
+      AND name=#{name}
+    </if>
+    <if test="level != null" >
+      AND level=#{level}
+    </if>
+    <if test="parentId != null" >
+      AND parent_id=#{parentId}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+   	id, code, name, level, parent_id, remark
+    from sys_service_type
+    where id = #{id}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sys_service_type
+    where id = #{id}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.qkby.sysmanage.entity.SysServiceType" >
+    delete from sys_service_type
+    <if test="code != null" >
+      AND code=#{code}
+    </if>
+    <if test="name != null" >
+      AND name=#{name}
+    </if>
+    <if test="level != null" >
+      AND level=#{level}
+    </if>
+    <if test="parentId != null" >
+      AND parent_id=#{parentId}
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysServiceType" >
+   <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_service_type (id, code, name, 
+      level, parent_id, remark, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{code}, #{name}, 
+      #{level}, #{parentId}, #{remark}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.qkby.sysmanage.entity.SysServiceType" >
+    insert into sys_service_type
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="extend1 != null" >
+        extend_1,
+      </if>
+      <if test="extend2 != null" >
+        extend_2,
+      </if>
+      <if test="extend3 != null" >
+        extend_3,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id},
+      </if>
+      <if test="code != null" >
+        #{code},
+      </if>
+      <if test="name != null" >
+        #{name},
+      </if>
+      <if test="level != null" >
+        #{level},
+      </if>
+      <if test="parentId != null" >
+        #{parentId},
+      </if>
+      <if test="remark != null" >
+        #{remark},
+      </if>
+      <if test="extend1 != null" >
+        #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        #{extend3},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.qkby.sysmanage.entity.SysServiceType" resultType="java.lang.Integer" >
+    select count(*) from sys_service_type
+	   <if test="code != null" >
+	      AND code=#{code}
+	    </if>
+	    <if test="name != null" >
+	      AND name=#{name}
+	    </if>
+	    <if test="level != null" >
+	      AND level=#{level}
+	    </if>
+	    <if test="parentId != null" >
+	      AND parent_id=#{parentId}
+	    </if>
+  </select>
+  <!-- 查询服务类型处理时长 -->
+  <select id="selectSerCounAll" resultMap="BaseResultMap" parameterType="map">
+	 SELECT
+		sst.name,
+		sst.id,
+		IFNULL(SUM(eed.minsum),0) extend_1
+		FROM sys_service_type sst
+		RIGHT JOIN (SELECT ei.event_service AS eventService,ei.event_service,(TIMESTAMPDIFF(MINUTE,eid.date_respon,eid.date_deal)) AS minsum
+                  FROM event_info_deal eid LEFT JOIN event_info ei ON eid.id_event = ei.id 
+		     WHERE eid.deal_status = 2 AND ei.event_status IN (70,77)
+		     <if test="dealId != null">
+			    AND eid.id_user_deal = #{dealId}
+			</if>
+			<if test="startTime != null || endTime!=null">
+				AND eid.date_deal BETWEEN #{startTime}
+				AND #{endTime}
+			</if>
+		     ) eed
+			ON sst.id = eed.eventService
+			GROUP BY sst.name
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysServiceType" >
+    update sys_service_type
+    <set >
+      <if test="code != null" >
+        code = #{code},
+      </if>
+      <if test="name != null" >
+        name = #{name},
+      </if>
+      <if test="level != null" >
+        level = #{level},
+      </if>
+      <if test="parentId != null" >
+        parent_id = #{parentId},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+  <select id="selectServiceTypePareateId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+     SELECT * FROM sys_service_type sst WHERE sst.parent_id = #{id} OR sst.id = #{id}
+  </select>
+</mapper>

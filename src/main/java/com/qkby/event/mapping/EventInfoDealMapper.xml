@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.event.dao.EventInfoDealDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.event.entity.EventInfoDeal" >
+    <id column="id" property="id"  />
+    <result column="id_event" property="idEvent"  />
+    <result column="id_post" property="idPost"  />
+    <result column="id_user_deal" property="idUserDeal"  />
+    <result column="id_rede_rein" property="idRedeRein"  />
+    <result column="date_respon" property="dateRespon"  />
+    <result column="asset_number" property="assetNumber"  />
+    <result column="date_deal" property="dateDeal"  />
+    <result column="deal_status" property="dealStatus"  />
+    <result column="event_cause" property="eventCause"  />
+    <result column="deal_desc" property="dealDesc"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, id_event, id_post, id_user_deal, id_rede_rein, asset_number, date_respon, date_deal, deal_status, deal_desc, extend_1, extend_2, 
+    extend_3
+  </sql>
+  <!-- 查询确定信息 -->
+  <select id="selectSureList" resultType="hashmap" parameterType="map">
+  	SELECT
+		eid.id,
+		eid.id_event,
+		eid.asset_number,
+		(SELECT
+		NAME
+		FROM sys_user su
+		WHERE eid.id_user_deal = su.id) AS dealName,
+		date_deal AS dateDeal,
+		event_cause eventCause,
+		deal_desc AS dealDesc,
+		eid.id_rede_rein AS idRedeRein,
+		(SELECT
+		NAME
+		FROM sys_user su
+		WHERE eid.id_rede_rein = su.id) AS reinName,
+		eid.deal_status AS dealStatus
+		FROM event_info_deal eid INNER JOIN event_info ei ON eid.id_event = ei.id
+		<if test="startTime != null || endTime != null">
+			AND ei.date_create BETWEEN #{startTime}
+			AND #{endTime}
+		</if>
+  </select>
+  <!-- 查询全部 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.event.entity.EventInfoDeal" >
+    select
+    <include refid="Base_Column_List" />
+    from event_info_deal
+      order by id desc
+  </select>
+  <!-- 根据ID进行查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from event_info_deal
+    where id = #{id}
+  </select>
+  <!-- 删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from event_info_deal
+    where id = #{id}
+  </delete>
+ <!-- 新增 -->
+  <insert id="insert" parameterType="com.qkby.event.entity.EventInfoDeal" >
+    insert into event_info_deal (id, id_event, id_post, 
+      id_user_deal, id_rede_rein, asset_number, date_respon, date_deal, deal_status, deal_desc, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{idEvent}, #{idPost}, 
+      #{idUserDeal},#{idRedeRein}, #{assetNumber},
+      #{dateRespon},#{dateDeal}, #{dealStatus}, #{dealDesc}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <!-- 查询总条数 -->
+  <select id="countByExample" parameterType="com.qkby.event.entity.EventInfoDeal" resultType="java.lang.Integer" >
+    select count(*) from event_info_deal
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.event.entity.EventInfoDeal" >
+    update event_info_deal
+    set
+      <if test="idPost != null" >
+        id_post = #{idPost},
+      </if>
+      <if test="idRedeRein != null" >
+        id_rede_rein = #{idRedeRein},
+      </if>
+      <if test="assetNumber != null" >
+        asset_number = #{assetNumber},
+      </if>
+       <if test="dateRespon != null" >
+        date_respon = #{dateRespon},
+      </if>
+      <if test="dateDeal != null" >
+        date_deal = #{dateDeal},
+      </if>
+      <if test="eventCause != null" >
+        event_cause = #{eventCause},
+      </if>
+      <if test="dealStatus != null" >
+        deal_status = #{dealStatus},
+      </if>
+      <if test="dealDesc != null" >
+        deal_desc = #{dealDesc}
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    where id = #{id}
+  </update>
+  
+  <update id="update" parameterType="com.qkby.event.entity.EventInfoDeal" >
+    update event_info_deal
+    set
+      <if test="idPost != null" >
+        id_post = #{idPost},
+      </if>
+      <if test="idUserDeal != null" >
+        id_user_deal = #{idUserDeal},
+      </if>
+       <if test="dateRespon != null" >
+        date_respon = #{dateRespon},
+      </if>
+      <if test="dateDeal != null" >
+        date_deal = #{dateDeal},
+      </if>
+      <if test="dealStatus != null" >
+        deal_status = #{dealStatus}
+      </if>
+      <if test="dealDesc != null" >
+        deal_desc = #{dealDesc},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    where id = #{id}
+  </update>
+  <select id="selectAssess" resultType="hashmap" parameterType="java.lang.Integer">
+  SELECT 
+   eid.id_event AS eventId,
+   su.id AS userId,
+   (SELECT
+	spu.name
+	FROM (SELECT
+	sup.id_user,
+	sp.name
+	FROM sys_post sp,
+	sys_user su,
+	sys_user_post sup
+	WHERE sup.id_user = su.id
+	AND sp.id = sup.id_post) spu
+	WHERE spu.id_user = eid.id_user_deal) postName,
+   su.name AS userName,
+   ei.event_name AS eventName 
+   FROM event_info_deal eid,event_info ei,sys_user su
+    WHERE eid.id_user_deal = su.id AND eid.id_event = ei.id AND ei.event_status = 70
+     AND eid.id_event = #{idEvent}
+  </select>
+  <select id="selectDealList" parameterType="int" resultMap="BaseResultMap">
+  	SELECT 
+	eid.id,
+	(SELECT su.code FROM sys_user su WHERE su.id=eid.id_user_deal) extend_3,
+	eid.id_event,
+	eid.deal_status,
+	(SELECT su.name FROM sys_user su WHERE su.id=eid.id_user_deal) extend_2,
+	(SELECT su.name FROM sys_user su WHERE su.id=ei.id_user_aplly) extend_1
+	FROM event_info ei,
+	event_info_deal eid
+	WHERE ei.id = eid.id_event
+	AND eid.deal_status !=3
+	AND eid.id_event=#{id_event}
+	<if test="e_id != null">
+		AND eid.id != #{e_id}
+	</if>
+  </select>
+  <!-- 查询超时事件的信息 -->
+  <select id="selectOverTimeList" parameterType="int" resultType="hashmap">
+  	SELECT
+		eid.id,
+		eid.id_event,
+		eid.asset_number,
+		(SELECT
+		NAME
+		FROM sys_user su
+		WHERE eid.id_user_deal = su.id) AS dealName,
+		eid.event_cause eventCause,
+		(SELECT
+		spu.name
+		FROM (SELECT
+		sup.id_user,
+		sp.name
+		FROM sys_post sp,
+		sys_user su,
+		sys_user_post sup
+		WHERE sup.id_user = su.id
+		AND sp.id = sup.id_post) spu
+		WHERE spu.id_user = eid.id_user_deal) AS dealPost,
+		date_deal AS dateDeal,
+		deal_desc AS dealDesc,
+		eid.id_rede_rein AS idRedeRein,
+		(SELECT
+		NAME
+		FROM sys_user su
+		WHERE eid.id_rede_rein = su.id) AS reinName,
+		(SELECT
+		spu.name
+		FROM (SELECT
+		sup.id_user,
+		sp.name
+		FROM sys_post sp,
+		sys_user su,
+		sys_user_post sup
+		WHERE sup.id_user = su.id
+		AND sp.id = sup.id_post) spu
+		WHERE spu.id_user = eid.id_rede_rein) AS reinPost,
+		eid.deal_status AS dealStatus
+		FROM event_info_deal eid
+		WHERE 1=1
+		AND eid.id_event = #{id}
+  </select>
+  <!--  -->
+  <!-- 一段时间内某个人处理的数量 -->
+  <select id="selectDealCountByDate" parameterType="map" resultType="hashmap">
+  	SELECT DATE_FORMAT(eid.date_respon,'%Y-%c-%d') dates,COUNT(eid.id) coun FROM event_info_deal eid WHERE eid.deal_status!=0
+  	
+  	<if test="dealId != null">
+		AND eid.id_user_deal=#{dealId}
+  	</if>  
+	<if test="startTime != null || endTime != null">
+		AND eid.date_deal BETWEEN #{startTime}
+		AND #{endTime}
+	</if>
+	GROUP BY dates
+  </select>
+  <select id="selectDealUserAll" parameterType="int" resultMap="BaseResultMap">
+  SELECT 
+	(SELECT su.name FROM sys_user su WHERE su.id = eid.id_user_deal) extend_1
+	FROM event_info_deal eid WHERE 1=1 AND eid.deal_status = 1 AND eid.id_event=#{id}
+  </select>
+  <select id="selectDealNot" parameterType="int" resultType="int">
+  	SELECT COUNT(*) FROM event_info_deal WHERE DATE_FORMAT(`date_respon`, '%Y%m') = DATE_FORMAT(CURDATE() , '%Y%m') 
+  	AND deal_status = 1 AND id_user_deal=#{id}
+  </select>
+  <select id="selectDealEndOrNot" parameterType="int" resultType="map">
+  	   SELECT COUNT(CASE deal_status WHEN 1 THEN 1 END) dealNot,COUNT(CASE deal_status WHEN 2 THEN 1 END) dealEnd FROM event_info_deal WHERE DATE_FORMAT(`date_respon`, '%Y%m') = DATE_FORMAT(CURDATE() , '%Y%m')
+  AND id_user_deal=#{id}
+  </select>
+  <!-- 查询处理数量统计 -->
+  <select id="selectDealCount" resultType="hashmap" parameterType="map">
+    SELECT COUNT(eidS.eidId) AS dealCount,ssun.userN AS userName FROM
+          (SELECT eid.id AS eidId,eid.id_user_deal AS idUserDeal FROM event_info_deal eid LEFT JOIN event_info ei ON eid.id_event = ei.id   
+           WHERE eid.deal_status = 2 AND ei.event_status IN (70,77) 
+             AND DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= DATE(ei.date_create)
+             <if test="startTime != null || endTime != null">
+					AND ei.date_create BETWEEN #{startTime}
+					AND #{endTime}
+				</if>
+             ) eidS RIGHT JOIN 
+           (SELECT su.id AS id,su.name AS userN FROM sys_role sr,sys_user_role sur,sys_user su
+		            WHERE sr.id = sur.id_role AND su.id = sur.id_user
+		            AND sr.id = #{role_id} AND su.ds = 0) ssun  ON eidS.idUserDeal = ssun.id
+		           GROUP BY userName
+  </select>
+  <select id="selectOneself" parameterType="int" resultType="hashmap">
+  		SELECT 
+		(SELECT su.name FROM sys_user su WHERE su.id = eid.id_user_deal) dealName,
+		spu.name dealPost, 
+		eid.date_deal dateDeal,
+		eid.deal_desc dealDesc,
+		eid.deal_status dealStatus,
+		eid.event_cause eventCause,
+		(SELECT su.name FROM sys_user su WHERE su.id = eid.id_rede_rein) reinName,
+			(SELECT spu.name FROM (SELECT
+			sup.id_user,
+			sp.name
+			FROM sys_post sp,
+			sys_user su,
+			sys_user_post sup
+			WHERE sup.id_user = su.id
+			AND sp.id = sup.id_post) spu WHERE spu.id_user = eid.id_rede_rein) reinPost
+		FROM 
+		event_info_deal eid INNER JOIN 
+			(SELECT
+			sup.id_user,
+			sp.name
+			FROM sys_post sp,
+			sys_user su,
+			sys_user_post sup
+			WHERE sup.id_user = su.id
+			AND sp.id = sup.id_post) spu ON spu.id_user = eid.id_user_deal WHERE eid.id=#{id}
+  </select>
+  <select id="selectAcceptAfterDeal" parameterType="int" resultType="hashmap">
+  	SELECT
+		eid.id,
+		eid.id_event,
+		eid.asset_number,
+		(SELECT
+		NAME
+		FROM sys_user su
+		WHERE eid.id_user_deal = su.id) AS dealName,
+		(SELECT
+		spu.name
+		FROM (SELECT
+		sup.id_user,
+		sp.name
+		FROM sys_post sp,
+		sys_user su,
+		sys_user_post sup
+		WHERE sup.id_user = su.id
+		AND sp.id = sup.id_post) spu
+		WHERE spu.id_user = eid.id_user_deal) AS dealPost,
+		date_deal AS dateDeal,
+		event_cause eventCause,
+		deal_desc AS dealDesc,
+		eid.id_rede_rein AS idRedeRein,
+		(SELECT
+		NAME
+		FROM sys_user su
+		WHERE eid.id_rede_rein = su.id) AS reinName,
+		(SELECT
+		spu.name
+		FROM (SELECT
+		sup.id_user,
+		sp.name
+		FROM sys_post sp,
+		sys_user su,
+		sys_user_post sup
+		WHERE sup.id_user = su.id
+		AND sp.id = sup.id_post) spu
+		WHERE spu.id_user = eid.id_rede_rein) AS reinPost,
+		eid.deal_status AS dealStatus
+		FROM event_info_deal eid WHERE
+		1=1
+		AND eid.id_event = #{event_id}
+  </select>
+  <select id="selectDatedealById" parameterType="int" resultMap="BaseResultMap">
+  	SELECT eid.date_deal FROM event_info ei,event_info_deal eid WHERE ei.id=eid.id_event 
+	AND ei.event_status = 70 
+	AND ei.id = #{id} ORDER BY eid.date_deal
+  </select>
+  <!-- 查询转派原因 -->
+  <select id="selectDealDescByRedeReinId" parameterType="map" resultMap="BaseResultMap">
+  	SELECT 
+	  	eid.id_rede_rein,
+	  	eid.deal_desc,
+	  	(SELECT su.name FROM sys_user su WHERE su.id=eid.id_user_deal) extend_1,
+	  	eid.date_deal
+  	FROM event_info_deal eid 
+  	WHERE 
+	  	eid.id_rede_rein = #{rede_rein_id} 
+	  	AND eid.id_event = #{event_id}
+	  	GROUP BY eid.id 
+  </select>
+  
+  <select id="selectDealDesc" parameterType="int" resultMap="BaseResultMap">
+    SELECT * FROM event_info_deal eid WHERE eid.id_event = #{idEvent}
+  </select>
+  
+</mapper>

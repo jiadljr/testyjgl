@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.work.dao.WorkUserPlanDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.work.entity.WorkUserPlanInfo" >
+    <id column="id" property="id" />
+    <result column="user_id" property="userId"  />
+    <result column="plan_id" property="planId"  />
+    <result column="ds" property="ds"  />
+    <result column="examine" property="examine"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <insert id="insertUserPlan" parameterType="com.qkby.work.entity.WorkUserPlanInfo">
+     insert into work_user_plan(id,user_id,plan_id,ds,examine,extend_1,extend_2,extend_3)
+       values(#{id},#{userId},#{planId},#{ds},#{examine},#{extend1},#{extend2},#{extend3})
+  </insert>
+  <update id="updateUserPlanDs" parameterType="com.qkby.work.entity.WorkUserPlanInfo">
+    UPDATE work_user_plan SET 
+	   		<if test="ds != null">
+	   		ds = #{ds}
+	   		</if>
+   		  where user_id = #{userId} AND plan_id = #{planId}
+  </update>
+  <update id="updateUserPlanExamine" parameterType="com.qkby.work.entity.WorkUserPlanInfo">
+    UPDATE work_user_plan SET 
+	   		<if test="examine != null">
+	   		examine = #{examine}
+	   		</if>
+   		  where user_id = #{userId} AND plan_id = #{planId}
+  </update>
+  <select id="selectPlanUserById" parameterType="java.lang.Integer" resultType="hashmap">
+     SELECT wup.user_id AS userId,wup.id AS id,wup.plan_id AS planId FROM work_user_plan wup WHERE wup.plan_id = #{id}
+  </select>
+</mapper>

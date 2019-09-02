@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.work.dao.WorkPlanDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.work.entity.WorkPlanInfo" >
+    <id column="id" property="id" />
+    <result column="plan_headline" property="planHeadline"  />
+    <result column="plan_type" property="planType"  />
+    <result column="plan_state" property="planState"  />
+    <result column="recent_update" property="recentUpdate"  />
+    <result column="found_time" property="foundTime"  />
+    <result column="plan_time" property="planTime"  />
+    <result column="planner" property="planner"  />
+    <result column="plan_begin_time" property="planBeginTime"  />
+    <result column="plan_finish_time" property="planFinishTime"  />
+    <result column="work_type" property="workType"  />
+    <result column="remind" property="remind"  />
+    <result column="remind_time" property="remindTime"  />
+    <result column="content" property="content"  />
+    <result column="push_staff" property="pushStaff"  />
+    <result column="push_staff_name" property="pushStaffName"  />
+    <result column="principal" property="principal"  />
+    <result column="participant" property="participant"  />
+    <result column="participant_name" property="participantName"  />
+    <result column="ds" property="ds"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <!-- 查询个人计划 -->
+   <select id="selectWorkPlanAll" resultType="hashmap" parameterType="map">
+    SELECT  
+    wp.id AS id,
+    wp.plan_headline AS planHeadline,
+    wp.plan_type AS planType,
+    wp.plan_begin_time AS planBeginTime,
+    wp.content AS content,
+    wp.participant AS participant,
+    wp.plan_finish_time AS planFinishTime,
+    wp.plan_state AS planState,
+    wp.plan_time AS planTime,
+    su.name AS planner,
+    sId.sName AS principal,
+    wp.push_staff AS pushStaff,
+    wp.push_staff_name AS pushStaffName,
+    wp.recent_update AS recentUpdate,
+    wp.remind AS remind,
+    wp.remind_time AS remindTime,
+    wp.ds AS ds,
+    wp.work_type AS workType
+ FROM work_plan wp LEFT JOIN sys_user su ON su.id = wp.planner LEFT JOIN (SELECT s.id AS id,s.name AS sName FROM sys_user s) sId ON sid.id = wp.principal
+      WHERE wp.ds != 1 AND wp.work_type = 1 AND wp.planner = #{userId}
+      ORDER BY wp.id DESC
+        <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+   </select>
+   <!-- 查询个人计划的总数-->
+   <select id="selectWorkCount" resultType="java.lang.Integer" parameterType="map">
+   		select count(*) from work_plan where ds != 1 AND work_type = 1 AND planner = #{userId}
+   </select>
+   <!-- 查询部门计划 -->
+   <select id="sectionWorkPlanAll" resultType="hashmap" parameterType="map">
+SELECT  
+    wp.id AS id,
+    wp.plan_headline AS planHeadline,
+    wp.plan_type AS planType,
+    wp.plan_begin_time AS planBeginTime,
+    wp.content AS content,
+    wp.participant AS participant,
+    wp.plan_finish_time AS planFinishTime,
+    wp.plan_state AS planState,
+    wp.plan_time AS planTime,
+    su.name AS planner,
+    sId.sName AS principal,
+    wp.push_staff AS pushStaff,
+    wp.push_staff_name AS pushStaffName,
+    wp.recent_update AS recentUpdate,
+    wp.remind AS remind,
+    wp.remind_time AS remindTime,
+    wp.ds AS ds,
+    wp.work_type AS workType
+ FROM work_plan wp LEFT JOIN sys_user su ON su.id = wp.planner LEFT JOIN (SELECT s.id AS id,s.name AS sName FROM sys_user s) sId ON sid.id = wp.principal
+    where wp.ds != 1 AND wp.principal = #{userId} OR FIND_IN_SET(#{userId},wp.participant) AND wp.work_type = 2
+        ORDER BY wp.id DESC
+        <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+   </select>
+   <!-- 查询部门计划的总数-->
+   <select id="sectionWorkCount" resultType="java.lang.Integer" parameterType="map">
+   		select count(*) from work_plan where ds != 1 AND principal = #{userId} OR FIND_IN_SET(#{userId},participant) AND work_type = 2 
+   </select>
+   <!-- 新增 -->
+   <insert id="insertWorkPlan" parameterType="com.qkby.work.entity.WorkPlanInfo">
+	   <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+	          SELECT LAST_INSERT_ID() as id
+	    </selectKey>
+   		insert into work_plan (id,
+		plan_headline, plan_type,
+		plan_state, recent_update, planner,found_time, plan_time,
+		plan_begin_time, plan_finish_time, work_type, remind,
+		remind_time,content, push_staff,push_staff_name,
+		principal, participant,participant_name, ds,
+		extend_1, extend_2, extend_3
+		)
+		values (#{id},
+		#{planHeadline}, #{planType},
+		#{planState}, #{recentUpdate}, #{planner},#{foundTime}, #{planTime},
+		#{planBeginTime}, #{planFinishTime},
+		#{workType}, #{remind},
+		#{remindTime}, #{content}, #{pushStaff},#{pushStaffName},
+		#{principal},#{participant},#{participantName}, #{ds},
+		#{extend1}, #{extend2}, #{extend3}
+		)
+   </insert>
+   <!-- 修改状态 -->
+   <update id="updatePlanState" parameterType="map">
+   		UPDATE work_plan wp SET 
+	   		<if test="planState != null">
+	   		wp.plan_state = #{planState}
+	   		</if>
+   		  where id = #{id}
+   </update>
+   <!-- 逻辑删除 -->
+   <update id="deleteWorkPlan" parameterType="map">
+   		UPDATE work_plan wp SET 
+	   		<if test="ds != null">
+	   		wp.ds = #{ds}
+	   		</if>
+   		  where id = #{id}
+   </update>
+   <select id="selectCheckById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT wp.id AS id,wp.work_type AS workType,wp.plan_type AS planType,wp.plan_state AS planState,
+	  wp.found_time AS foundTime,wp.plan_begin_time AS planBeginTime,wp.plan_finish_time AS planFinishTime,
+	   wp.content AS content,wp.plan_headline AS planHeadline,wp.planner AS planner,wp.plan_time AS planTime,wp.remind AS remind,
+	   wp.remind_time AS remindTime,wp.push_staff AS pushStaff,wp.push_staff_name AS pushStaffName, wp.participant AS participant,su.name AS extend2,
+	   wp.participant_name AS participantName,wp.principal AS principal
+	 FROM work_plan wp,sys_user su WHERE wp.id = #{id} AND wp.principal = su.id
+   </select>
+   <select id="selectCheckPlanById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT wp.id AS id,wp.work_type AS workType,wp.plan_type AS planType,wp.plan_state AS planState,
+	  wp.found_time AS foundTime,wp.plan_begin_time AS planBeginTime,wp.plan_finish_time AS planFinishTime,
+	   wp.content AS content,wp.plan_headline AS planHeadline,wp.planner AS planner,wp.plan_time AS planTime,wp.remind AS remind,
+	   wp.remind_time AS remindTime,wp.push_staff AS pushStaff,wp.push_staff_name AS pushStaffName, wp.participant AS participant,
+	   wp.participant_name AS participantName,wp.principal AS principal
+	 FROM work_plan wp WHERE wp.id = #{id}
+   </select>
+   <update id="updateWorkPlan" parameterType="com.qkby.work.entity.WorkPlanInfo">
+      update work_plan wp set
+        <if test="planType != null">
+        wp.plan_type = #{planType},
+        </if>
+        <if test="planState != null">
+        wp.plan_state = #{planState},
+        </if>
+        <if test="recentUpdate != null">
+        wp.recent_update = #{recentUpdate},
+        </if>
+        <if test="planTime != null">
+        wp.plan_time = #{planTime},
+        </if>
+        <if test="planBeginTime != null">
+        wp.plan_begin_time = #{planBeginTime},
+        </if>
+        <if test="planFinishTime != null">
+        wp.plan_finish_time = #{planFinishTime},
+        </if>
+        <if test="workType != null">
+        wp.work_type = #{workType},
+        </if>
+        <if test="remind != null">
+        wp.remind = #{remind},
+        </if>
+        <if test="remindTime != null">
+        wp.remind_time = #{remindTime},
+        </if>
+        <if test="content != null">
+        wp.content = #{content},
+        </if>
+        <if test="pushStaff != null">
+        wp.push_staff = #{pushStaff},
+        </if>
+        <if test="pushStaffName != null">
+        wp.push_staff_name = #{pushStaffName},
+        </if>
+        <if test="principal != null">
+        wp.principal = #{principal},
+        </if>
+        <if test="participant != null">
+        wp.participant = #{participant},
+        </if>
+        <if test="participantName != null">
+        wp.participant_name = #{participantName},
+        </if>
+        <if test="planHeadline != null">
+        wp.plan_headline = #{planHeadline}
+        </if>
+        where id=#{id}
+   </update>
+   <select id="selectLookUpAll" parameterType="map" resultType="hashmap">
+    SELECT 
+     wp.id AS id,
+     wp.plan_headline AS planHeadline,
+     wp.content AS content,
+     wp.work_type AS workType,
+     su.name AS planner,
+     wp.plan_type AS planType,
+     wp.found_time AS foundTime
+   FROM work_plan wp,sys_user su,work_user_plan wup WHERE wp.planner = su.id AND wp.id = wup.plan_id AND wup.user_id = #{pushStaff}
+    AND wp.ds != 1	AND wup.ds != 1
+    ORDER BY wp.id DESC
+	 <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	   </if>
+   </select>
+   <select id="selectLookUpCount" parameterType="map" resultType="java.lang.Integer">
+      SELECT 
+     count(*)
+	  FROM work_plan wp,sys_user su,work_user_plan wup WHERE wp.planner = su.id AND wp.id = wup.plan_id AND wup.user_id = #{pushStaff}
+    AND wp.ds != 1	AND wup.ds != 1
+   </select>
+   <!-- 查询每天提醒 -->
+   <select id="selectRemindDay" resultType="hashmap" parameterType="java.lang.Integer">
+      SELECT wp.plan_headline AS planHeadline,
+      wp.work_type AS workType,
+      wp.plan_type AS planType,
+      wp.plan_begin_time AS planBeginTime,
+      wp.plan_finish_time AS planFinishTime 
+      FROM work_plan wp
+      WHERE 1=1
+      AND (wp.planner = #{userId}
+      OR wp.principal = #{userId}
+      OR FIND_IN_SET(#{userId},wp.participant))
+      AND wp.remind = 2
+      AND wp.plan_state != 3
+      AND wp.plan_begin_time &lt;= DATE_FORMAT(NOW(),'%Y-%m-%d') 
+      AND wp.plan_finish_time &gt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+      group by wp.id
+      
+   </select>
+   <!-- 查询每周提醒 -->
+   <select id="selectRemindWeek" resultType="hashmap" parameterType="java.lang.Integer">
+      SELECT wp.plan_headline AS planHeadline,
+      wp.work_type AS workType,
+       wp.plan_type AS planType,
+      wp.plan_begin_time AS planBeginTime,
+      wp.plan_finish_time AS planFinishTime 
+      FROM work_plan wp,work_user_plan wup 
+      WHERE 1=1
+      AND (wp.planner = #{userId}
+      OR wp.principal = #{userId}
+      OR FIND_IN_SET(#{userId},wp.participant))
+      AND wp.remind = 3
+      AND wp.plan_state != 3
+      AND wp.remind_time = DAYOFWEEK(DATE_FORMAT(NOW(),'%Y-%m-%d')) 
+      AND wp.plan_begin_time &lt;= DATE_FORMAT(NOW(),'%Y-%m-%d') 
+      AND wp.plan_finish_time &gt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+      group by wp.id
+   </select>
+   <!-- 查询自定义提醒 -->
+   <select id="selectRemindCustom" resultType="hashmap" parameterType="java.lang.Integer">
+      SELECT wp.plan_headline AS planHeadline,
+      wp.work_type AS workType,
+       wp.plan_type AS planType,
+      wp.plan_begin_time AS planBeginTime,
+      wp.plan_finish_time AS planFinishTime  
+      FROM work_plan wp,work_user_plan wup 
+      WHERE 1=1
+      AND (wp.planner = #{userId}
+      OR wp.principal = #{userId}
+      OR FIND_IN_SET(#{userId},wp.participant))
+      AND wp.remind = 5
+      AND wp.plan_state != 3
+      AND wp.remind_time = DATE_FORMAT(NOW(),'%Y-%m-%d') 
+      AND wp.plan_begin_time &lt;= DATE_FORMAT(NOW(),'%Y-%m-%d') 
+      AND wp.plan_finish_time &gt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+      group by wp.id
+   </select>
+   <!-- 查询每月提醒 -->
+   <select id="selectRemindMonth" resultType="hashmap" parameterType="java.lang.Integer">
+      SELECT wp.plan_headline AS planHeadline,
+      wp.work_type AS workType,
+      wp.plan_type AS planType,
+      wp.plan_begin_time AS planBeginTime,
+      wp.plan_finish_time AS planFinishTime 
+      FROM work_plan wp,work_user_plan wup 
+      WHERE 1=1
+      AND (wp.planner = #{userId}
+      OR wp.principal = #{userId}
+      OR FIND_IN_SET(#{userId},wp.participant))
+      AND wp.remind = 4
+      AND wp.plan_state != 3
+      AND wp.remind_time = DAY(CURRENT_DATE) 
+      AND wp.plan_begin_time &lt;= DATE_FORMAT(NOW(),'%Y-%m-%d') 
+      AND wp.plan_finish_time &gt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+      group by wp.id
+   </select>
+   <select id="selectPushMessage" parameterType="java.lang.Integer" resultType="hashmap">
+     SELECT wp.id AS id,
+     wp.content AS content,
+     wp.work_type AS workType,
+     wp.plan_time AS subTime
+     FROM work_plan wp,work_user_plan wup 
+     WHERE wup.plan_id = wp.id 
+     AND wup.ds != 1 
+     AND wup.examine != 1 
+     AND wup.user_id = #{userId}
+ 	 GROUP BY wp.id
+   </select>
+   <select id="selectTimePlanType" resultMap="BaseResultMap">
+     SELECT wp.plan_begin_time AS planBeginTime,
+     wp.plan_finish_time AS planFinishTime,
+     wp.plan_state AS planState,
+     wp.id AS id 
+     FROM work_plan wp
+   </select>
+   <update id="updatePlanType" parameterType="com.qkby.work.entity.WorkPlanInfo">
+      update work_plan wp set
+        wp.plan_state = #{planState}
+      where wp.id = #{id}
+   </update>
+</mapper>

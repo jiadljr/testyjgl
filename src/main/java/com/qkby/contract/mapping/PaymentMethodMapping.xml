@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.contract.dao.PaymentMethodDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.contract.entity.PaymentMethod" >
+    <id column="id" property="id"/>
+    <result column="code" property="code"/>
+    <result column="name" property="name"/>
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2"/>
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <!-- 查询所有的付款方式 -->
+  <select id="selectPaymentMethodByCondition" parameterType="map" resultMap="BaseResultMap">
+     SELECT 
+     pm.id,
+     pm.code,
+     pm.name 
+     FROM payment_method pm
+     WHERE 1=1
+     <if test="code != null">
+       AND pm.code = #{code}
+     </if>
+     <if test="name != null">
+       AND pm.name = #{name}
+     </if>
+     <if test="id != null">
+       AND pm.id = #{id}
+     </if>
+  </select>
+  <!-- 查询付款方式不带条件 -->
+  <select id="selectPaymentMethodAll" resultMap="BaseResultMap">
+     SELECT * FROM payment_method
+  </select>
+   <!-- 根据ID查询付款方式 -->
+   <select id="selectPaymentMethodById" parameterType="java.lang.String" resultMap="BaseResultMap">
+     SELECT 
+     pm.id,
+     pm.code,
+     pm.name 
+     FROM payment_method pm
+     WHERE 1=1
+     <if test="id != null">
+       AND pm.id = #{id}
+     </if>
+  </select>
+  <insert id="">
+     INSERT INTO payment_method 
+         ()
+  </insert>
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.analysis.dao.EventInfoSkyDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.analysis.entity.EventInfoSky" >
+    <result column="zero_point" property="zeroPoint" jdbcType="DECIMAL" />
+    <result column="one_point" property="onePoint" jdbcType="DECIMAL" />
+    <result column="two_point" property="twoPoint" jdbcType="DECIMAL" />
+    <result column="three_point" property="threePoint" jdbcType="DECIMAL" />
+    <result column="four_point" property="fourPoint" jdbcType="DECIMAL" />
+    <result column="five_point" property="fivePoint" jdbcType="DECIMAL" />
+    <result column="six_point" property="sixPoint" jdbcType="DECIMAL" />
+    <result column="save_point" property="savePoint" jdbcType="DECIMAL" />
+    <result column="eight_point" property="eightPoint" jdbcType="DECIMAL" />
+    <result column="nine_point" property="ninePoint" jdbcType="DECIMAL" />
+    <result column="ten_point" property="tenPoint" jdbcType="DECIMAL" />
+    <result column="eleven_point" property="elevenPoint" jdbcType="DECIMAL" />
+    <result column="twelve_point" property="twelvePoint" jdbcType="DECIMAL" />
+    <result column="thirteen_point" property="thirteenPoint" jdbcType="DECIMAL" />
+    <result column="fourteen_point" property="fourteenPoint" jdbcType="DECIMAL" />
+    <result column="fifteen_point" property="fifteenPoint" jdbcType="DECIMAL" />
+    <result column="sixteen_point" property="sixteenPoint" jdbcType="DECIMAL" />
+    <result column="seventeen_point" property="seventeenPoint" jdbcType="DECIMAL" />
+    <result column="eighteen_point" property="eighteenPoint" jdbcType="DECIMAL" />
+    <result column="nineteen_point" property="nineteenPoint" jdbcType="DECIMAL" />
+    <result column="twenty_point" property="twentyPoint" jdbcType="DECIMAL" />
+    <result column="twenty_one_point" property="twentyOnePoint" jdbcType="DECIMAL" />
+    <result column="twenty_two_point" property="twentyTwoPoint" jdbcType="DECIMAL" />
+    <result column="twenty_three_point" property="twentyThreePoint" jdbcType="DECIMAL" />
+  </resultMap>
+   <select id="selectSky" resultMap="BaseResultMap">
+     select * from event_info_sky
+   </select>
+</mapper>

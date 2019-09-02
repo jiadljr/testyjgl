@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysconfig.dao.SysMenuInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysconfig.entity.SysMenuInfo">
+    <id column="id" property="id"/>
+    <result column="code" property="code"/>
+    <result column="name" property="name" />
+    <result column="parent_id" property="parentId"/>
+    <result column="menu_level" property="menuLevel" />
+    <result column="menu_url" property="menuUrl"/>
+    <result column="menu_img" property="menuImg"/>
+    <result column="remark" property="remark" />
+    <result column="create_user" property="createUser" />
+    <result column="create_date" property="createDate"/>
+    <result column="update_user" property="updateUser" />
+    <result column="update_date" property="updateDate"/>
+    <result column="ds" property="ds" />
+    <result column="extend_1" property="extend1"/>
+    <result column="extend_2" property="extend2" />
+    <result column="extend_3" property="extend3"/>
+  </resultMap>
+  <!-- 根据等级查询菜单 -->
+  <select id="selectMenuByLevel" parameterType="map" resultMap="BaseResultMap">
+  	SELECT
+		NAME,
+		id
+		FROM sys_menu
+		WHERE menu_level = #{levelId}
+		<if test="menuId != null">
+			AND id != #{menuId}
+		</if>
+  </select>
+ <!-- 根据父id查询 -->
+ <select id="selectMenuByParentId" parameterType="int" resultMap="BaseResultMap">
+ 	select 
+    id, CODE, NAME, menu_level,parent_id,(SELECT NAME FROM sys_menu s WHERE sys.parent_id=s.id) AS extend_1, menu_url, menu_img, remark, create_user, create_date, 
+    update_user, update_date, ds, extend_2, extend_3
+    from sys_menu sys
+    where parent_id = #{pId}
+    ORDER BY id DESC
+ </select>
+  <sql id="Base_Column_List" >
+    id, code, name, parent_id, menu_level, menu_url, menu_img, remark, create_user, create_date, 
+    update_user, update_date, ds, extend_1, extend_2, extend_3
+  </sql>
+  <!-- 查询总条数 -->
+  <select id="selectCount" resultType="java.lang.Integer" parameterType="map">
+  	SELECT COUNT(*) FROM sys_menu sys
+  	where 1=1
+  	<if test="id != null">
+  		AND sys.id=#{id}
+  	</if>
+  	<if test="code != null">
+  		AND sys.code=#{code}
+  	</if>
+  	<if test="name != null">
+  		AND sys.name LIKE CONCAT('%',#{name},'%')
+  	</if>
+  	<if test="parentId != null">
+  		AND sys.parent_id = #{parentId}
+  	</if>
+  	<if test="menuLevel != null">
+  		AND sys.menu_level = #{menuLevel}
+  	</if>
+  	<if test="menuUrl != null">
+  		AND sys.menu_url=#{menuUrl}
+  	</if>
+  	<if test="menuImg != null">
+  		AND sys.menu_img=#{menuImg}
+  	</if>
+  	<if test="remark != null">
+  		AND sys.remark=#{remark}
+  	</if>
+  	<if test="createUser != null">
+  		AND sys.create_user=#{createUser}
+  	</if>
+  	<if test="createDate != null">
+  		AND sys.create_date=#{createDate}
+  	</if>
+  	<if test="updateUser != null">
+  		AND sys.update_user=#{updateUser}
+  	</if>
+  	<if test="updateDate != null">
+  		AND sys.update_date=#{updateDate}
+  	</if>
+  	<if test="ds != null">
+  		AND sys.ds=#{ds}
+  	</if>
+  	<if test="extend1 != null">
+  		AND sys.extend_1=#{extend1}
+  	</if>
+  	<if test="extend2 != null">
+  		AND sys.extend_2=#{extend2}
+  	</if>
+  	<if test="extend3 != null">
+  		AND sys.extend_3=#{extend3}
+  	</if>
+  </select>
+   <!-- 查询所有 -->
+  <select id="selectByExampleAll" resultMap="BaseResultMap">
+  	select
+    id, code, name, menu_level,parent_id,(SELECT NAME FROM sys_menu s WHERE sys.parent_id=s.id) AS extend_1, menu_url, menu_img, remark, create_user, create_date, 
+    update_user, update_date, ds, extend_2, extend_3
+    from sys_menu sys
+    order by id desc
+  </select>
+  
+  <!-- 条件查询-->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="map" >
+    select
+    id, code, name, menu_level,parent_id,(SELECT NAME FROM sys_menu s WHERE sys.parent_id=s.id) AS extend_1, menu_url, menu_img, remark, create_user, create_date, 
+    update_user, update_date, ds, extend_2, extend_3
+    from sys_menu sys
+  	where 1=1 
+  	<if test="id != null">
+  		AND sys.id=#{id}
+  	</if>
+  	<if test="code != null">
+  		AND sys.code=#{code}
+  	</if>
+  	<if test="name != null">
+  		AND sys.name LIKE CONCAT('%',#{name},'%')
+  	</if>
+  	<if test="parentId != null">
+  		AND sys.parent_id = #{parentId}
+  	</if>
+  	<if test="menuLevel != null">
+  		AND sys.menu_level = #{menuLevel}
+  	</if>
+  	<if test="menuUrl != null">
+  		AND sys.menu_url=#{menuUrl}
+  	</if>
+  	<if test="menuImg != null">
+  		AND sys.menu_img=#{menuImg}
+  	</if>
+  	<if test="remark != null">
+  		AND sys.remark=#{remark}
+  	</if>
+  	<if test="createUser != null">
+  		AND sys.create_user=#{createUser}
+  	</if>
+  	<if test="createDate != null">
+  		AND sys.create_date=#{createDate}
+  	</if>
+  	<if test="updateUser != null">
+  		AND sys.update_user=#{updateUser}
+  	</if>
+  	<if test="updateDate != null">
+  		AND sys.update_date=#{updateDate}
+  	</if>
+  	<if test="ds != null">
+  		AND sys.ds=#{ds}
+  	</if>
+  	<if test="extend1 != null">
+  		AND sys.extend_1=#{extend1}
+  	</if>
+  	<if test="extend2 != null">
+  		AND sys.extend_2=#{extend2}
+  	</if>
+  	<if test="extend3 != null">
+  		AND sys.extend_3=#{extend3}
+  	</if>
+  	ORDER BY id DESC 
+  	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+  </select>
+  <!-- 根据ID进行查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    id, CODE, NAME, menu_level,parent_id,(SELECT NAME FROM sys_menu s WHERE sys.parent_id=s.id) AS extend_1, menu_url, menu_img, remark, create_user, create_date, 
+    update_user, update_date, ds, extend_2, extend_3
+    from sys_menu sys
+    where id = #{id}
+    ORDER BY id DESC 
+  </select>
+  <!-- 查询上级菜单 -->
+  <select id="selectParName" resultMap="BaseResultMap">
+ 	 SELECT id,NAME FROM sys_menu WHERE menu_level=1
+  </select>
+  
+  <!-- 根据ID进行删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from sys_menu
+    where id in 
+    <foreach item="item" index="index" collection="ids" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+	ORDER BY id DESC 
+  </delete>
+  <insert id="insertSysMenu" parameterType="com.qkby.sysconfig.entity.SysMenuInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_menu (code, name, 
+      parent_id, menu_level, menu_url, 
+      menu_img, remark, create_user, 
+      create_date, update_user, update_date, 
+      ds, extend_1, extend_2, 
+      extend_3)
+      values ( #{code}, #{name},#{parentId}, #{menuLevel}, #{menuUrl},#{menuImg}, 
+      #{remark}, #{createUser},#{createDate}, #{updateUser}, #{updateDate}, #{ds}, 
+      #{extend1},#{extend2}, #{extend3})
+  </insert>
+  <!-- 根据ID进行修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysconfig.entity.SysMenuInfo" >
+    update sys_menu
+      set
+      <trim suffixOverrides=",">
+      <if test="code != null" >
+        code = #{code},
+      </if>
+      <if test="name != null" >
+        name = #{name},
+      </if>
+      <if test="parentId != null" >
+        parent_id = #{parentId},
+      </if>
+      <if test="menuLevel != null" >
+        menu_level = #{menuLevel},
+      </if>
+      <if test="menuUrl != null" >
+        menu_url = #{menuUrl},
+      </if>
+      <if test="menuImg != null" >
+        menu_img = #{menuImg},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate},
+      </if>
+      <if test="updateUser != null" >
+        update_user = #{updateUser},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate},
+      </if>
+      <if test="ds != null" >
+        ds = #{ds},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </trim>
+    where id = #{id}
+  </update>
+  <!-- 关联查询-->
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT DISTINCT(s.id_menu) as id, m.code, m.name, m.menu_level,m.parent_id,m.menu_url, m.menu_img
+	FROM sys_menu m,sys_user_role r,sys_role_menu s
+	WHERE m.id = s.id_menu AND s.id_role = r.id_role
+	AND r.id_user = #{userId} ORDER BY id;
+  </select>
+</mapper>

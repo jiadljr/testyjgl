@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.event.dao.EventDealAssetsDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.event.entity.EventDealAssets" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="id_deal" property="idDeal" jdbcType="INTEGER" />
+    <result column="id_assets" property="idAssets" jdbcType="INTEGER" />
+    <result column="extend_1" property="extend1" jdbcType="VARCHAR" />
+    <result column="extend_2" property="extend2" jdbcType="VARCHAR" />
+    <result column="extend_3" property="extend3" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, id_deal, id_assets, extend_1, extend_2, extend_3
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    id, id_deal, id_assets, extend_1, extend_2, extend_3
+    from event_deal_assets
+    where id = #{id}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from event_deal_assets
+    where id = #{id}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.qkby.event.entity.EventDealAssets" >
+    delete from event_deal_assets
+  </delete>
+  <insert id="insert" parameterType="com.qkby.event.entity.EventDealAssets" >
+    insert into event_deal_assets (id, id_deal, id_assets, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{idDeal}, #{idAssets}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <select id="countByExample" parameterType="com.qkby.event.entity.EventDealAssets" resultType="java.lang.Integer" >
+    select count(*) from event_deal_assets
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.event.entity.EventDealAssets" >
+    update event_deal_assets
+    <set >
+      <if test="idDeal != null" >
+        id_deal = #{idDeal},
+      </if>
+      <if test="idAssets != null" >
+        id_assets = #{idAssets},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+</mapper>

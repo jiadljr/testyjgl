@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.event.dao.EventLogInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.event.entity.EventLogInfo" >
+    <id column="id" property="id"  />
+    <result column="event_id" property="eventId"  />
+    <result column="event_code" property="eventCode"  />
+    <result column="event_name" property="eventName"  />
+    <result column="id_oper_user" property="idOperUser"  />
+    <result column="id_oper_type" property="idOperType"  />
+    <result column="date_oper" property="dateOper"  />
+    <result column="event_status" property="eventStatus"  />
+    <result column="from_id" property="fromId"  />
+    <result column="to_id" property="toId"  />
+    <result column="remark" property="remark"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, event_id, event_code, event_name, id_oper_user, id_oper_type, date_oper, event_status, 
+    from_id, to_id, remark, extend_1, extend_2, extend_3
+  </sql>
+  <!-- 查询全部 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.event.entity.EventLogInfo" >
+    select
+    <include refid="Base_Column_List" />
+    from event_log
+      order by id desc
+  </select>
+  <!-- 根据ID进行查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from event_log
+    where id = #{id}
+  </select>
+  <!-- 删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from event_log
+    where id = #{id}
+  </delete>
+  <!-- 新增 -->
+  <insert id="insert" parameterType="com.qkby.event.entity.EventLogInfo" >
+    insert into event_log (id, event_id, event_code, 
+      event_name, id_oper_user, id_oper_type, 
+      date_oper, event_status, from_id, 
+      to_id, remark, extend_1, 
+      extend_2, extend_3)
+    values (#{id}, #{eventId}, #{eventCode}, 
+      #{eventName}, #{idOperUser}, #{idOperType}, 
+      #{dateOper}, #{eventStatus}, #{fromId}, 
+      #{toId}, #{remark}, #{extend1}, 
+      #{extend2}, #{extend3})
+  </insert>
+  <!-- 查询总条数 -->
+  <select id="countByExample" parameterType="com.qkby.event.entity.EventLogInfo" resultType="java.lang.Integer" >
+    select count(*) from event_log
+  </select>
+  <!-- 修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.event.entity.EventLogInfo" >
+    update event_log
+    set
+      <if test="eventId != null" >
+        event_id = #{eventId},
+      </if>
+      <if test="eventCode != null" >
+        event_code = #{eventCode},
+      </if>
+      <if test="eventName != null" >
+        event_name = #{eventName},
+      </if>
+      <if test="idOperUser != null" >
+        id_oper_user = #{idOperUser},
+      </if>
+      <if test="idOperType != null" >
+        id_oper_type = #{idOperType},
+      </if>
+      <if test="dateOper != null" >
+        date_oper = #{dateOper},
+      </if>
+      <if test="eventStatus != null" >
+        event_status = #{eventStatus},
+      </if>
+      <if test="fromId != null" >
+        from_id = #{fromId},
+      </if>
+      <if test="toId != null" >
+        to_id = #{toId},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    where id = #{id}
+  </update>
+  <select id="selectApply" resultType="hashmap" parameterType="java.lang.Integer">
+ SELECT 
+ su.name,
+ date_oper 
+ FROM event_log el,
+ sys_user su 
+  WHERE su.id = el.id_oper_user AND event_status = 20
+  AND event_id = #{id}
+  </select>
+ <select id="selectAccept" resultType="hashmap" parameterType="java.lang.Integer">
+ SELECT 
+ su.name,
+ date_oper 
+ FROM event_log el,
+ sys_user su 
+  WHERE su.id = el.id_oper_user AND event_status = 50
+  AND event_id = #{id}
+  </select>
+   <select id="selectDeal" resultType="hashmap" parameterType="java.lang.Integer">
+ SELECT 
+ su.name,
+ date_oper 
+ FROM event_log el,
+ sys_user su 
+  WHERE su.id = el.id_oper_user AND event_status = 60
+  AND event_id = #{id}
+  </select>
+ <select id="selectSure" resultType="hashmap" parameterType="java.lang.Integer">
+ SELECT 
+ su.name,
+ date_oper 
+ FROM event_log el,
+ sys_user su 
+  WHERE su.id = el.id_oper_user AND event_status = 70
+  AND event_id = #{id}
+  </select>
+  <select id="selectAsses" resultType="hashmap" parameterType="java.lang.Integer">
+ SELECT 
+ su.name,
+ date_oper 
+ FROM event_log el,
+ sys_user su,event_info ei 
+  WHERE su.id = ei.id_user_aplly AND ei.id=el.event_id AND el.event_status = 77
+  AND event_id = #{id}
+  </select>
+  <select id="selectAnewAsses" resultType="hashmap" parameterType="java.lang.Integer">
+   SELECT 
+ su.name,
+ date_oper 
+ FROM event_log el,
+ sys_user su 
+  WHERE su.id = el.id_oper_user AND event_status =61
+  AND event_id = #{id}
+  </select>
+  
+  <select id="selectAnewDeal" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  SELECT * FROM event_log  WHERE 
+  event_status = 62 AND event_id = #{id}
+  group by event_name
+  </select>
+  <select id="selectLogStatus" parameterType="int" resultMap="BaseResultMap">
+  	SELECT 
+	 su.name extend_1,
+	 date_oper,
+	 event_status
+	 FROM event_log el,
+	 sys_user su 
+	  WHERE su.id = el.id_oper_user 
+	  AND event_id = #{id}
+	  ORDER BY date_oper
+  </select>
+  <select id="selectNotAssessTime" resultMap="BaseResultMap">
+  SELECT el.id, el.event_id, el.event_code, el.event_name, el.id_oper_user, el.id_oper_type, el.date_oper, el.event_status, 
+    el.from_id, el.to_id, el.remark,ei.id_user_create extend_1 FROM event_info ei,event_log el WHERE ei.id = el.event_id AND ei.event_status = 70 AND el.event_status = 70
+  </select>
+</mapper>

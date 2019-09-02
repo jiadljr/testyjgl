@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.event.dao.KbEventInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.event.entity.KbEventInfo" >
+    <id column="id" property="id"  />
+    <result column="kb_code" property="kbCode"  />
+    <result column="event_code" property="eventCode"  />
+    <result column="event_name" property="eventName"  />
+    <result column="asset_type" property="assetType"  />
+    <result column="event_type" property="eventType"  />
+    <result column="event_level" property="eventLevel"  />
+    <result column="event_causes" property="eventCauses"  />
+    <result column="event_desc" property="eventDesc"  />
+    <result column="event_resolvent" property="eventResolvent" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <select id="selectKbEventAll" resultType="hashmap" parameterType="map">
+      select * from kb_event
+      <if test="eventCode != null" >
+        event_code = #{eventCode},
+      </if>
+	  ORDER BY id DESC 
+      <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <select id="selectKbEventCount" resultType="int" parameterType="map">
+      select count(*) from kb_event
+      <if test="eventCode != null" >
+        event_code = #{eventCode},
+      </if>
+  </select>
+  <!-- 新增 -->
+  <insert id="insert" parameterType="com.qkby.event.entity.KbEventInfo">
+      <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+      insert into kb_event (id, kb_code, event_code, event_name, 
+      asset_type, event_type, event_level, 
+      event_causes, event_desc, event_resolvent
+      )
+    values (#{id}, #{kbCode}, #{eventCode}, #{eventName}, 
+      #{assetType}, #{eventType}, #{eventLevel}, 
+      #{eventCauses}, #{eventDesc}, #{eventResolvent}
+      )
+  </insert>
+  <!-- 根据关键字检索 -->
+  <select id="selectKbEventCondition" resultType="hashmap" parameterType="map">
+   SELECT *,sa.name AS assetsName FROM kb_event ke
+          LEFT JOIN 
+	  sys_assets_type sa ON ke.asset_type = sa.id WHERE 1=1
+  <if test="kbEventCondition != null">
+  and ke.kb_code  LIKE CONCAT('%',#{kbEventCondition},'%') OR 
+  ke.event_code  LIKE CONCAT('%',#{kbEventCondition},'%') OR
+  ke.event_name  LIKE CONCAT('%',#{kbEventCondition},'%') OR
+  ke.event_causes  LIKE CONCAT('%',#{kbEventCondition},'%') OR
+  ke.event_desc  LIKE CONCAT('%',#{kbEventCondition},'%') OR 
+  ke.event_resolvent  LIKE CONCAT('%',#{kbEventCondition},'%')
+  </if>
+  <if test="sourceId != null">
+     and ke.asset_type = #{sourceId}
+  </if>
+  </select>
+  <!-- 根据ID查询 -->
+  <select id="selectKbEventById" resultMap="BaseResultMap" parameterType="int">
+ SELECT
+  ke.id,
+  ke.asset_type,
+  ke.event_causes,
+  ke.event_code,
+  ke.event_desc,
+  ke.event_level,
+  ke.event_type,
+  ke.kb_code, 
+  ke.event_name,
+  ke.id,
+  ke.event_resolvent 
+  FROM kb_event ke
+  WHERE ke.id = #{id}
+  </select>
+  <!-- 删除 -->
+  <delete id="deleteKbEvent" parameterType="int">
+      DELETE FROM kb_event
+        WHERE id = #{id}
+  </delete>
+  <!-- 修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.event.entity.KbEventInfo" >
+    update kb_event
+    set
+      <if test="eventCode != null">
+      event_code = #{eventCode},
+      </if>
+      <if test="eventName != null">
+      event_name = #{eventName},
+      </if>
+      <if test="assetType != null">
+      asset_type = #{assetType},
+      </if>
+      <if test="eventLevel != null">
+      event_level = #{eventLevel},
+      </if>
+      <if test="eventCauses != null">
+      event_causes = #{eventCauses},
+      </if>
+      <if test="eventDesc != null">
+      event_desc = #{eventDesc},
+      </if>
+      <if test="eventResolvent != null">
+      event_resolvent = #{eventResolvent}
+      </if>
+      where id = #{id}
+  </update>
+  <select id="selectIdByCode" parameterType="map" resultType="java.lang.Integer">
+     SELECT id FROM kb_event ke
+   WHERE ke.event_code = #{eventCode}
+  </select>
+</mapper>

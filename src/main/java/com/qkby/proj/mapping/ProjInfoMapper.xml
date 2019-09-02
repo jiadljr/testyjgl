@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://mybatis.apache.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qkby.proj.dao.ProjInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.proj.entity.ProjectInformation" >
+    <id column="id" property="id"  />
+    <result column="proj_code" property="projCode"  />
+    <result column="proj_name" property="projName"  />
+    <result column="proj_type" property="projType"  />
+    <result column="cont_code" property="contCode"  />
+    <result column="amt_from" property="amtFrom"  />
+    <result column="proj_amt" property="projAmt"  />
+    <result column="date_start" property="dateStart"  />
+    <result column="date_end" property="dateEnd"  />
+    <result column="date_real" property="dateReal"  />
+    <result column="id_user_create" property="idUserCreate"  />
+    <result column="date_create" property="dateCreate"  />
+    <result column="id_proj_manager" property="idProjManager"  />
+    <result column="id_user_update" property="idUserUpdate"  />
+    <result column="date_update" property="dateUpdate"  />
+    <result column="proj_speed" property="projSpeed" />
+    <result column="proj_status" property="projStatus"  />
+    <result column="proj_explain" property="projExplain"  />
+    <result column="pf" property="pf"  />
+    <result column="ds" property="ds"  />
+    <result column="vs" property="vs"  />
+    <result column="proj_path" property="projPath"  />
+    <result column="id_dept" property="idDept"/>
+    <result column="proj_board" property="projBoard"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <!-- 根据ID进行查询 -->
+  <select id="selectProjInfoById" resultMap="BaseResultMap" parameterType="string" >
+  	SELECT pro.id,
+	pro.proj_code,
+	pro.proj_name,
+	pro.proj_type,
+	(SELECT pt.name FROM proj_type pt WHERE pt.id = pro.proj_type) extend_2,
+	pro.cont_code,
+	pro.amt_from,
+	pro.proj_amt,
+	pro.date_start,
+	pro.date_end,
+	pro.id_proj_manager,
+	(SELECT su.name FROM sys_user su WHERE su.id = pro.id_proj_manager) extend_1,
+	pro.date_create,
+	pro.proj_speed,
+	pro.proj_status,
+	pro.vs,
+	pro.proj_path,
+	pro.proj_explain,
+	pro.pf,
+	pro.id_dept,
+	(SELECT sd.name FROM sys_dept sd WHERE sd.id = pro.id_dept) extend_3,
+	pro.proj_board
+	FROM proj_info pro
+  	where pro.proj_code = #{projCode}
+  </select>
+  <!-- 查询项目数量 -->
+  <select id="selectProjCountByMap" resultType="int" parameterType="map">
+  	SELECT 	count(*) 
+     FROM proj_info pro 
+     WHERE 1=1 
+  	<if test="projCode != null">
+  		and pro.proj_code LIKE CONCAT('%',#{projCode},'%')
+  	</if>
+  	<if test="projName != null">
+  		and pro.proj_name LIKE CONCAT('%',#{projName},'%') 
+  	</if>
+  	<if test="projType != null">
+  		and pro.proj_type = #{projType} 
+  	</if>
+  	<if test="contCode != null">
+  		and pro.cont_code = #{contCode} 
+  	</if>
+  	<if test="dateStart != null">
+  		and pro.date_start = #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pro.date_end = #{dateEnd} 
+  	</if>
+  	<if test="idUserCreate != null">
+  		and pro.id_user_create = #{idUserCreate} 
+  	</if>
+  	<if test="amtFrom != null">
+  		and pro.amt_from = #{amtFrom} 
+  	</if>
+  	<if test="idDept != null">
+  		and pro.id_dept = #{idDept} 
+  	</if>
+  	<if test="dateCreate != null">
+  		and pro.date_create = #{dateCreate} 
+  	</if>
+  	<if test="idUserUpdate != null">
+  		and pro.id_user_update = #{idUserUpdate} 
+  	</if>
+  	<if test="dateUpdate != null">
+  		and pro.date_update = #{dateUpdate} 
+  	</if>
+  	<if test="pf != null">
+  		and pro.pf = #{pf} 
+  	</if>
+  	<if test="ifTell != null"><!-- 是否需要提醒 -->
+  		and pt.date_start &lt;= DATE_FORMAT(NOW(),'%Y-%c-%d') AND pt.date_end &gt;= DATE_FORMAT(NOW(),'%Y-%c-%d')
+  	</if>
+  	<if test="statusList != null">
+  		and pro.proj_status in 
+  		<foreach collection="statusList" item="item" open="(" separator="," close=")" index="index">
+	  		#{item}
+	  	</foreach>
+  	</if>
+  	<if test="id_user != null">
+  		and pro.id_proj_manager = #{id_user} 
+  	</if>
+  </select>
+  <sql id = "proj_columns">
+  	pro.id,
+	pro.proj_code,
+	pro.proj_name,
+	pro.cont_code,
+	pro.amt_from,
+	pro.proj_amt,
+	pro.date_start,
+	pro.date_end,
+	pro.date_create,
+	pro.proj_speed,
+	pro.proj_status,
+	pro.proj_explain,
+	pro.proj_board,
+	pro.pf
+  </sql>
+  <select id="selectAllProjectInformation"  resultMap="BaseResultMap">
+  	SELECT
+  	<include refid="proj_columns"/>,
+  	(select pt.name from proj_type pt where pt.id = pro.proj_type) extend_2,
+  	(SELECT su.name FROM sys_user su WHERE su.id = pro.id_proj_manager) extend_1
+     FROM proj_info pro pt
+     WHERE 1=1
+  <if test="projCode != null">
+  		and pro.proj_code LIKE CONCAT('%',#{projCode},'%')
+  	</if>
+  	<if test="projName != null">
+  		and pro.proj_name LIKE CONCAT('%',#{projName},'%') 
+  	</if>
+  	<if test="projType != null">
+  		and pro.proj_type = #{projType} 
+  	</if>
+  	<if test="contCode != null">
+  		and pro.cont_code = #{contCode} 
+  	</if>
+  	<if test="amtFrom != null">
+  		and pro.amt_from = #{amtFrom} 
+  	</if>
+  	<if test="idDept != null">
+  		and pro.id_dept = #{idDept} 
+  	</if>
+  	<if test="dateStart != null">
+  		and pro.date_start = #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pro.date_end = #{dateEnd} 
+  	</if>
+  	<if test="idUserCreate != null">
+  		and pro.id_user_create = #{idUserCreate} 
+  	</if>
+  	<if test="dateCreate != null">
+  		and pro.date_create = #{dateCreate} 
+  	</if>
+  	<if test="idUserUpdate != null">
+  		and pro.id_user_update = #{idUserUpdate} 
+  	</if>
+  	<if test="dateUpdate != null">
+  		and pro.date_update = #{dateUpdate} 
+  	</if>
+  	<if test="pf != null">
+  		and pro.pf = #{pf} 
+  	</if>
+  	<if test="ifTell != null"><!-- 是否需要提醒 -->
+  		and pt.date_start &lt;= DATE_FORMAT(NOW(),'%Y-%c-%d') AND pt.date_end &gt;= DATE_FORMAT(NOW(),'%Y-%c-%d')
+  	</if>
+  	<if test="projStatus != null">
+  		and pro.proj_status = #{projStatus}
+  	</if>
+  	<if test="statusList != null">
+  		and pro.proj_status in 
+  		<foreach collection="statusList" item="item" open="(" separator="," close=")" index="index">
+	  		#{item}
+	  	</foreach>
+  	</if>
+  	<if test="id_user != null">
+  		and pro.id_proj_manager = #{id_user} 
+  	</if>
+  	order by pro.proj_type,pro.id DESC
+  </select>
+  
+  <!-- 根据条件进行查询 -->
+  <select id="selectProjInfoByMap" resultMap="BaseResultMap" parameterType="map">
+  	SELECT 
+  		(select pt.name from proj_type pt where pt.id = pro.proj_type) extend_2,
+  		(select pt.color from proj_type pt where pt.id = pro.proj_type) extend_3,
+	<include refid="proj_columns"/>,
+	(SELECT su.name FROM sys_user su WHERE su.id = pro.id_proj_manager) extend_1
+     FROM proj_info pro
+     WHERE 1=1
+  	<if test="projCode != null">
+  		and pro.proj_code LIKE CONCAT('%',#{projCode},'%')
+  	</if>
+  	<if test="projName != null">
+  		and pro.proj_name LIKE CONCAT('%',#{projName},'%') 
+  	</if>
+  	<if test="projType != null">
+  		and pro.proj_type = #{projType} 
+  	</if>
+  	<if test="contCode != null">
+  		and pro.cont_code = #{contCode} 
+  	</if>
+  	<if test="amtFrom != null">
+  		and pro.amt_from = #{amtFrom} 
+  	</if>
+  	<if test="idDept != null">
+  		and pro.id_dept = #{idDept} 
+  	</if>
+  	<if test="dateStart != null">
+  		and pro.date_start = #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pro.date_end = #{dateEnd} 
+  	</if>
+  	<if test="idUserCreate != null">
+  		and pro.id_user_create = #{idUserCreate} 
+  	</if>
+  	<if test="dateCreate != null">
+  		and pro.date_create = #{dateCreate} 
+  	</if>
+  	<if test="idUserUpdate != null">
+  		and pro.id_user_update = #{idUserUpdate} 
+  	</if>
+  	<if test="dateUpdate != null">
+  		and pro.date_update = #{dateUpdate} 
+  	</if>
+  	<if test="pf != null">
+  		and pro.pf = #{pf} 
+  	</if>
+  	<if test="ifTell != null"><!-- 是否需要提醒 -->
+  		and pt.date_start &lt;= DATE_FORMAT(NOW(),'%Y-%c-%d') AND pt.date_end &gt;= DATE_FORMAT(NOW(),'%Y-%c-%d')
+  	</if>
+  	<if test="projStatus != null">
+  		and pro.proj_status = #{projStatus}
+  	</if>
+  	<if test="statusList != null">
+  		and pro.proj_status in 
+  		<foreach collection="statusList" item="item" open="(" separator="," close=")" index="index">
+	  		#{item}
+	  	</foreach>
+  	</if>
+  	<if test="id_user != null">
+  		and pro.id_proj_manager = #{id_user} 
+  	</if>
+  	order by pro.proj_type,pro.id DESC
+  	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+  </select>
+  <!-- 筛查出监控列表 -->
+  <select id="fromProjInfoSelectControlCountByMap" parameterType="map" resultType="int">
+ SELECT COUNT(prk.con) from (SELECT 	count(*) con 
+     FROM proj_info pro,proj_type pt,proj_task pk
+     WHERE pro.proj_type = pt.id AND pro.proj_code = pk.proj_code
+    AND pro.proj_status = 91
+	AND (pk.task_status = 80 
+		AND pk.date_end >= DATE_FORMAT(NOW(),'%Y-%c-%d')
+	OR pk.pf = 1 AND pk.task_status = 80)
+	<if test="projCode != null">
+  		and pro.proj_code LIKE CONCAT('%',#{projCode},'%')
+  	</if>
+  	<if test="projName != null">
+  		and pro.proj_name LIKE CONCAT('%',#{projName},'%') 
+  	</if>
+  	<if test="projType != null">
+  		and pro.proj_type = #{projType} 
+  	</if>
+  	<if test="contCode != null">
+  		and pro.cont_code = #{contCode} 
+  	</if>
+  	<if test="dateStart != null">
+  		and pro.date_start = #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pro.date_end = #{dateEnd} 
+  	</if>
+  	<if test="idUserCreate != null">
+  		and pro.id_user_create = #{idUserCreate} 
+  	</if>
+  	<if test="dateCreate != null">
+  		and pro.date_create = #{dateCreate} 
+  	</if>
+  	<if test="idUserUpdate != null">
+  		and pro.id_user_update = #{idUserUpdate} 
+  	</if>
+  	<if test="dateUpdate != null">
+  		and pro.date_update = #{dateUpdate} 
+  	</if>
+  	<if test="pf != null">
+  		and pro.pf = #{pf} 
+  	</if>
+  	<if test="ifTell != null"><!-- 是否需要提醒 -->
+  		and pt.date_start &lt;= DATE_FORMAT(NOW(),'%Y-%c-%d') AND pt.date_end &gt;= DATE_FORMAT(NOW(),'%Y-%c-%d')
+  	</if>
+  	<if test="statusList != null">
+  		and pro.proj_status in 
+  		<foreach collection="statusList" item="item" open="(" separator="," close=")" index="index">
+	  		#{item}
+	  	</foreach>
+  	</if>
+  	<if test="id_user != null">
+  		and pro.id_proj_manager = #{id_user} 
+  	</if>
+  	GROUP BY pro.id
+  	) prk
+  </select>
+  <!-- 筛查出监控列表 -->
+  <select id="fromProjInfoSelectControlInfoByMap" parameterType="map" resultMap="BaseResultMap">
+  	SELECT 	pro.id,
+	pro.proj_code,
+	pro.proj_name,
+	pt.name extend_2,
+	pt.color extend_3,
+	pro.cont_code,
+	pro.amt_from,
+	pro.proj_amt,
+	pro.date_start,
+	pro.date_end,
+	(SELECT su.name FROM sys_user su WHERE su.id = pro.id_proj_manager) extend_1,
+	pro.date_create,
+	pro.proj_speed,
+	pro.proj_status,
+	pro.proj_explain,
+	pro.pf
+     FROM proj_info pro,proj_type pt,proj_task pk
+     WHERE pro.proj_type = pt.id AND pro.proj_code = pk.proj_code
+    AND pro.proj_status = 91
+	AND (pk.task_status = 80 
+		AND pk.date_end >= DATE_FORMAT(NOW(),'%Y-%c-%d')
+	OR pk.pf = 1 AND pk.task_status = 80)
+	<if test="projCode != null">
+  		and pro.proj_code LIKE CONCAT('%',#{projCode},'%')
+  	</if>
+  	<if test="projName != null">
+  		and pro.proj_name LIKE CONCAT('%',#{projName},'%') 
+  	</if>
+  	<if test="projType != null">
+  		and pro.proj_type = #{projType} 
+  	</if>
+  	<if test="contCode != null">
+  		and pro.cont_code = #{contCode} 
+  	</if>
+  	<if test="dateStart != null">
+  		and pro.date_start = #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pro.date_end = #{dateEnd} 
+  	</if>
+  	<if test="idUserCreate != null">
+  		and pro.id_user_create = #{idUserCreate} 
+  	</if>
+  	<if test="dateCreate != null">
+  		and pro.date_create = #{dateCreate} 
+  	</if>
+  	<if test="idUserUpdate != null">
+  		and pro.id_user_update = #{idUserUpdate} 
+  	</if>
+  	<if test="dateUpdate != null">
+  		and pro.date_update = #{dateUpdate} 
+  	</if>
+  	<if test="pf != null">
+  		and pro.pf = #{pf} 
+  	</if>
+  	<if test="ifTell != null"><!-- 是否需要提醒 -->
+  		and pt.date_start &lt;= DATE_FORMAT(NOW(),'%Y-%c-%d') AND pt.date_end &gt;= DATE_FORMAT(NOW(),'%Y-%c-%d')
+  	</if>
+  	<if test="statusList != null">
+  		and pro.proj_status in 
+  		<foreach collection="statusList" item="item" open="(" separator="," close=")" index="index">
+	  		#{item}
+	  	</foreach>
+  	</if>
+  	<if test="id_user != null">
+  		and pro.id_proj_manager = #{id_user} 
+  	</if>
+  	GROUP BY pro.id
+  	order by pro.proj_type
+  	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+  </select>
+  <!-- 插入项目信息 -->
+  <insert id="insertProjInfo" parameterType="com.qkby.proj.entity.ProjectInformation" >
+ 	<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+	          SELECT LAST_INSERT_ID() as id
+	    </selectKey>
+    insert into proj_info (proj_code, proj_name, 
+      proj_type, cont_code, amt_from, proj_amt, 
+      date_start, date_end, id_user_create, 
+      date_create, id_user_update, date_update, 
+      proj_speed,id_proj_manager,pf, proj_status, proj_explain, vs, proj_path,id_dept, proj_board, extend_1, extend_2, 
+      extend_3)
+      values ( #{projCode}, #{projName},#{projType}, #{contCode}, #{amtFrom}, #{projAmt},#{dateStart}, 
+      #{dateEnd}, #{idUserCreate},#{dateCreate}, #{idUserUpdate}, #{dateUpdate}, #{projSpeed},#{idProjManager}, #{pf}, #{projStatus}, 
+      #{projExplain}, #{vs}, #{projPath}, #{idDept}, #{projBoard}, #{extend1},#{extend2}, #{extend3})
+  </insert>
+  <!-- 修改项目信息 -->
+  <update id="updateProjInfo" parameterType="com.qkby.proj.entity.ProjectInformation">
+	  update proj_info set
+	  <trim suffixOverrides=",">
+	      <if test="projCode != null" >
+	        proj_code = #{projCode},
+	      </if>
+	      <if test="projName != null" >
+	        proj_name = #{projName},
+	      </if>
+	      <if test="projType != null" >
+	        proj_type = #{projType},
+	      </if>
+	      <if test="contCode != null" >
+	        cont_code = #{contCode},
+	      </if>
+	      <if test="amtFrom != null" >
+	        amt_from = #{amtFrom},
+	      </if>
+	      <if test="projAmt != null &amp;&amp; projAmt!=0" >
+	        proj_amt = #{projAmt},
+	      </if>
+	      <if test="idProjManager != null" >
+	        id_proj_manager = #{idProjManager},
+	      </if>
+	      <if test="dateStart != null" >
+	        date_start = #{dateStart},
+	      </if>
+	      <if test="dateEnd != null" >
+	        date_end = #{dateEnd},
+	      </if>
+	        date_real = #{dateReal},
+	      <if test="idUserCreate != null" >
+	        id_user_create = #{idUserCreate},
+	      </if>
+	      <if test="dateUpdate != null" >
+	        date_update = #{dateUpdate},
+	      </if>
+	      <if test="projExplain != null" >
+	        proj_explain = #{projExplain},
+	      </if>
+	      <if test="projStatus != null" >
+	        proj_status = #{projStatus},
+	      </if>
+	      <if test="pf != null" >
+	        pf = #{pf},
+	      </if>
+	      <if test="vs != null" >
+	        vs = #{vs},
+	      </if>
+	      <if test="projPath != null" >
+	        proj_path = #{projPath},
+	      </if>
+	      <if test="idDept != null &amp;&amp; idDept != 0" >
+	        id_dept = #{idDept},
+	      </if>
+	      <if test="projSpeed != null &amp;&amp; projSpeed != 0">
+			proj_speed = #{projSpeed}
+	      </if>
+	    </trim>
+	    where id = #{id}
+  </update>
+  <update id="updateProjStatus" parameterType="com.qkby.proj.entity.ProjectInformation">
+  	 update proj_info set proj_status = #{projStatus} where id = #{id}
+  </update>
+  <update id="updateProjPf" parameterType="com.qkby.proj.entity.ProjectInformation">
+  	 UPDATE proj_info SET pf = #{pf} WHERE id = #{id}
+  </update>
+  <!-- 批量删除项目信息 -->
+  <delete id="delectProjByProjCode" parameterType="String">
+  	delete from proj_info where proj_code = #{projCode}
+  </delete>
+  <!-- 计算每种状态各多少 -->
+  <select id="selectEveryProjStatusCount" parameterType="map" resultType="map">
+  	SELECT 
+		COUNT(CASE pro.proj_status WHEN 91 THEN 1 END) notFinish,
+		COUNT(CASE pro.proj_status WHEN 90 THEN 1 END) draft,
+		COUNT(CASE pro.proj_status WHEN 96 THEN 1 END) freeze,
+		COUNT(CASE pro.proj_status WHEN 97 THEN 1 END) finish,
+		COUNT(CASE WHEN pro.proj_status =91 AND pro.pf = 1  THEN 1 END) overTime
+	
+	FROM proj_info pro WHERE 1=1
+	<if test="projCode != null">
+  		and pro.proj_code LIKE CONCAT('%',#{projCode},'%') 
+  	</if>
+  	<if test="projName != null">
+  		and pro.proj_name LIKE CONCAT('%',#{projName},'%') 
+  	</if>
+  	<if test="projType != null">
+  		and pro.proj_type = #{projType} 
+  	</if>
+  	<if test="contCode != null">
+  		and pro.cont_code = #{contCode}
+  	</if>
+  	<if test="dateStart != null">
+  		and pro.date_start = #{dateStart} 
+  	</if>
+  	<if test="dateEnd != null">
+  		and pro.date_end = #{dateEnd} 
+  	</if>
+  	<if test="idUserCreate != null">
+  		and pro.id_user_create = #{idUserCreate} 
+  	</if>
+  	<if test="dateCreate != null">
+  		and pro.date_create = #{dateCreate} 
+  	</if>
+  	<if test="idUserUpdate != null">
+  		and pro.id_user_update = #{idUserUpdate} 
+  	</if>
+  	<if test="dateUpdate != null">
+  		and pro.date_update = #{dateUpdate} 
+  	</if>
+  	<if test="id_user != null">
+  		and pro.id_proj_manager = #{id_user} 
+  	</if>
+  </select>
+  <select id="fromProjInfoSelectProjControlEveryStatusCount" parameterType="map" resultType="map">
+  	SELECT 
+		COUNT(CASE prk.projStatus WHEN 91 THEN 1 END) notFinish ,
+		COUNT(CASE prk.projStatus WHEN 96 THEN 1 END) freeze,
+		COUNT(CASE prk.projStatus WHEN 97 THEN 1 END) finish,
+		COUNT(CASE prk.projStatus WHEN 90 THEN 1 END) draft,
+		COUNT(CASE WHEN prk.projStatus =91 AND prk.pf = 1  THEN 1 END) overTime
+	FROM 
+		(SELECT 
+			pro.proj_status projStatus,
+			pro.pf pf
+		FROM proj_info pro,proj_task pk WHERE pk.proj_code = pro.proj_code
+		AND pro.proj_status = 91
+		AND (pk.task_status = 80 
+			AND pk.date_end >= DATE_FORMAT(NOW(),'%Y-%c-%d')
+		OR pk.pf = 1 AND pk.task_status = 80)
+		<if test="projCode != null">
+	  		and pro.proj_code LIKE CONCAT('%',#{projCode},'%') 
+	  	</if>
+	  	<if test="projName != null">
+	  		and pro.proj_name LIKE CONCAT('%',#{projName},'%') 
+	  	</if>
+	  	<if test="projType != null">
+	  		and pro.proj_type = #{projType} 
+	  	</if>
+	  	<if test="contCode != null">
+	  		and pro.cont_code = #{contCode}
+	  	</if>
+	  	<if test="dateStart != null">
+	  		and pro.date_start = #{dateStart} 
+	  	</if>
+	  	<if test="dateEnd != null">
+	  		and pro.date_end = #{dateEnd} 
+	  	</if>
+	  	<if test="idUserCreate != null">
+	  		and pro.id_user_create = #{idUserCreate} 
+	  	</if>
+	  	<if test="dateCreate != null">
+	  		and pro.date_create = #{dateCreate} 
+	  	</if>
+	  	<if test="idUserUpdate != null">
+	  		and pro.id_user_update = #{idUserUpdate} 
+	  	</if>
+	  	<if test="dateUpdate != null">
+	  		and pro.date_update = #{dateUpdate} 
+	  	</if>
+	  	<if test="id_user != null">
+	  		and pro.id_proj_manager = #{id_user} 
+	  	</if>
+	  	GROUP BY pro.id
+	  	) prk
+  </select>
+  <!-- ============================= -->
+  <!-- 查询项目监控列表 -->
+  <select id="selectProjControlInfo" parameterType="map" resultMap="BaseResultMap">
+  	SELECT  
+  	proj.proj_code,
+	proj.proj_name,
+	(SELECT su.name FROM sys_user su WHERE su.id = proj.id_proj_manager) extend1,
+	proj.date_start,
+	proj.date_end,
+	proj.proj_speed,
+	proj.pf
+	FROM proj_info proj,proj_task pt WHERE proj.proj_code = pt.proj_code
+	AND proj.proj_status = 91
+	AND (pt.task_status = 80 
+	<if test="startTime != null">
+		AND pt.date_end &gt;= #{startTime}
+	</if>
+	OR pt.pf = 1 AND pt.task_status = 80)
+	<if test="projName != null">
+		AND proj.proj_name LIKE CONCAT('%',#{projName},'%') 
+	</if>
+	<if test="idManager != null">
+		AND proj.id_proj_manager = #{idManager}
+	</if>
+	GROUP BY proj.id
+	ORDER BY proj.date_create,proj.id DESC
+  	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+  </select>
+  <!-- 查询项目监控数量 -->
+  <select id="selectProjControlCount" parameterType="map" resultType="int">
+  SELECT COUNT(pk.con) FROM (
+  	SELECT  
+  		COUNT(*) con
+  	FROM proj_info proj,proj_task pt WHERE proj.proj_code = pt.proj_code
+	AND proj.proj_status = 91
+	AND (pt.task_status = 80 
+	<if test="startTime != null">
+		AND pt.date_end &gt;= #{startTime}
+	</if>
+	OR pt.pf = 1 AND pt.task_status = 80)
+	<if test="projName != null">
+		AND proj.proj_name LIKE CONCAT('%',#{projName},'%') 
+	</if>
+	<if test="idManager != null">
+		AND proj.id_proj_manager = #{idManager}
+	</if>
+	GROUP BY proj.id) pk
+  </select>
+  <!-- 查询项目类型资金类型项目状态 -->
+  <select id="selectProjectTypeStatus" resultType="hashmap">
+SELECT 
+    pt.name AS projTypeName,
+    pir.amt_from AS amtFrom, 
+    pir.proj_status AS projStatus 
+    FROM proj_info pir LEFT JOIN proj_type pt ON pir.proj_type = pt.id GROUP BY pir.id
+  </select>
+  <!-- 项目看板页面的项目查询 -->
+  <select id="selectProjectBoardProjectQuery" resultType="hashmap">
+SELECT 
+   pir.id AS id,
+   pir.proj_code AS projCode,
+   pir.proj_name AS projName,
+   pir.date_start AS dateStart,
+   pty.name AS proj_Type,
+   pir.date_end AS dateEnd,
+   su.name AS projManager,
+   pir.proj_status AS projStatus,
+   pir.amt_from AS amtFrom,
+   pir.proj_speed AS projSpeed,
+   COUNT(pt.id) AS projTaskCount
+ FROM proj_info pir LEFT JOIN sys_user su ON pir.id_proj_manager = su.id LEFT JOIN  proj_task pt ON pt.proj_code = pir.proj_code LEFT JOIN proj_type pty ON pty.id = pir.proj_type
+ WHERE pir.proj_board = 1
+ GROUP BY pir.id
+  </select>
+  <!-- 项目看板根据项目查询对应的任务 -->
+  <select id="selectProjectBoardQueryTask" parameterType="java.lang.String" resultType="hashmap">
+    SELECT 
+    pt.id AS id,
+    pt.parent_id AS parentId,
+    pt.level AS level,
+    pt.name_task AS nameTask,
+    su.name AS taskHead,
+    pt.date_start AS dateStart,
+    pt.date_end AS dateEnd,
+    pt.task_speed AS taskSpeed,
+    pt.task_status AS taskStatus,
+    pt.milestone_task AS milestoneTask
+	 FROM proj_info pir 
+	 LEFT JOIN 
+	 proj_task pt 
+	 ON pir.proj_code = pt.proj_code
+	 LEFT JOIN 
+	 sys_user su
+	 ON su.id = pt.id_task_head
+	 WHERE pir.proj_code = #{projCode}
+  </select>
+  <!-- 项目看板里程碑任务 -->
+  <select id="selectProjectBoardMilestoneTask" parameterType="java.lang.String" resultType="hashmap">
+  SELECT 
+  pt.name_task AS nameTask,
+  pt.task_status AS taskStatus,
+  pt.date_real AS dateReal
+ FROM proj_info pir 
+ LEFT JOIN 
+ proj_task pt 
+ ON pir.proj_code = pt.proj_code
+ WHERE pir.proj_code = #{projCode}
+ AND pt.milestone_task = 1;
+  </select>
+   <!-- 修改看板状态 0：不是 1：是 -->
+  <update id="updateProjectBoardIsNo" parameterType="map">
+  	 UPDATE proj_info SET proj_board = 0 WHERE id IN 
+  	 <foreach collection="delArray" open="(" separator="," close=")" item="del">
+  	 	#{del}
+  	 </foreach>
+  </update>
+  <update id="updateProjectBoardIsYes" parameterType="map">
+  	 UPDATE proj_info SET proj_board = 1 WHERE id IN 
+  	 <foreach collection="addArray" open="(" separator="," close=")" item="add">
+  	 	#{add}
+  	 </foreach>
+  </update>
+</mapper>

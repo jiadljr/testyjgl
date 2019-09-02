@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.ProjAssetsDao" >
+  <resultMap id="ProjectAssets" type="com.qkby.proj.entity.ProjectAssets" >
+    <id column="id" property="id"  />
+    <result column="proj_code" property="projCode"  />
+    <result column="id_asset" property="idAsset"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <!-- 根据ID进行查询 -->
+  <select id="selectProjectAssetsInformationById" resultMap="ProjectAssets" parameterType="java.lang.Integer" >
+  	SELECT * FROM proj_assets
+  	where id = #{id}
+  </select>
+  <!-- 根据条件进行查询 -->
+  <select id="selectProjectAssetsInformationByConditions" resultMap="ProjectAssets">
+  	SELECT * FROM proj_assets
+  	where 1=1 
+  	<if test="projCode != null">
+  		and proj_code = projCode 
+  	</if>
+  	<if test="idAsset != null">
+  		and id_asset = idAsset 
+  	</if>
+  	order by id
+  </select>
+  <!-- 插入项目信息 -->
+  <insert id="insertProjectAssets" parameterType="com.qkby.proj.entity.ProjectAssets" >
+    insert into proj_assets (proj_code, id_asset, extend_1, extend_2, 
+      extend_3)
+      values ( #{projCode}, #{idAsset},#{extend1},#{extend2}, #{extend3})
+  </insert>
+  <!-- 修改项目信息 -->
+  <update id="updateProjectAssets" parameterType="com.qkby.proj.entity.ProjectAssets">
+	  update proj_assets set
+	  <trim suffixOverrides=",">
+	      <if test="projCode != null" >
+	        proj_code = #{projCode},
+	      </if>
+	      <if test="idAsset != null" >
+	        id_asset = #{idAsset},
+	      </if>
+	      <if test="extend1 != null" >
+	        extend_1 = #{extend1},
+	      </if>
+	      <if test="extend2 != null" >
+	        extend_2 = #{extend2},
+	      </if>
+	      <if test="extend3 != null" >
+	        extend_3 = #{extend3},
+	      </if>
+	    </trim>
+	    where id = #{id}
+  </update>
+  <!-- 删除项目信息 -->
+  <delete id="delectProjectAssets" parameterType="map">
+  	delete from proj_assets where id in 
+    <foreach item="item" index="index" collection="ids" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </delete>
+</mapper>

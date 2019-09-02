@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.proj.dao.ProjFileDao" >
+  <resultMap id="ProjectFile" type="com.qkby.proj.entity.ProjectFile" >
+    <id column="id" property="id"  />
+    <result column="proj_code" property="projCode"  />
+    <result column="id_file" property="idFile"  />
+    <result column="id_task" property="idTask"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+  <!-- 根据ID进行查询 -->
+  <select id="selectProjectFileInformationById" resultMap="ProjectFile" parameterType="java.lang.Integer" >
+  	SELECT * FROM proj_file
+  	where id = #{id}
+  </select>
+  <!-- 根据条件查询总数 -->
+  <select id="selectProjectFileInformationByCondition" parameterType="map" resultType="int">
+  	SELECT * FROM proj_file
+  	where 1=1 
+  	<if test="projCode != null">
+  		and proj_code = #{projCode} 
+  	</if>
+  	<if test="idFile != null">
+  		and id_file = #{idFile}
+  	</if>
+  </select>
+  <!-- 根据条件进行查询 -->
+  <select id="selectProjectFileByCondition" resultMap="ProjectFile">
+  	SELECT * FROM proj_file
+  	where 1=1 
+  	<if test="projCode != null">
+  		and proj_code = #{projCode} 
+  	</if>
+  	<if test="idFile != null">
+  		and id_file = #{idFile}
+  	</if>
+  	order by id
+  	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+  </select>
+  <!-- 插入项目信息 -->
+  <insert id="insertProjectFile" parameterType="com.qkby.proj.entity.ProjectFile" >
+    insert into proj_file (proj_code, id_task, id_file, extend_1, extend_2, 
+      extend_3)
+      values ( #{projCode}, #{idTask}, #{idFile},#{extend1},#{extend2}, #{extend3})
+  </insert>
+  <!-- 修改项目信息 -->
+  <update id="updateProjectFile" parameterType="com.qkby.proj.entity.ProjectFile">
+	  update proj_file set
+	  <trim suffixOverrides=",">
+	      <if test="projCode != null" >
+	        proj_code = #{projCode},
+	      </if>
+	      <if test="idFile != null" >
+	        id_file = #{idFile},
+	      </if>
+	      <if test="extend1 != null" >
+	        extend_1 = #{extend1},
+	      </if>
+	      <if test="extend2 != null" >
+	        extend_2 = #{extend2},
+	      </if>
+	      <if test="extend3 != null" >
+	        extend_3 = #{extend3},
+	      </if>
+	    </trim>
+	    where id = #{id}
+  </update>
+  <!-- 删除项目信息 -->
+  <delete id="deleteProjectFile" parameterType="int">
+  	delete from proj_file where id = #{id}
+  </delete>
+</mapper>

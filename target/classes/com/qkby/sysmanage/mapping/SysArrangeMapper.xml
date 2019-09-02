@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysArrangeDao">
+	<resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysArrange">
+		<id column="id" property="id" />
+		<result column="id_user" property="idUser" />
+		<result column="duty_start_time" property="dutyStartTime" />
+		<result column="duty_end_time" property="dutyEndTime" />
+		<result column="extend_1" property="extend1" />
+		<result column="extend_2" property="extend2" />
+		<result column="extend_3" property="extend3" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, id_user, duty_start_time, duty_end_time, extend_1, extend_2, extend_3
+	</sql>
+	<select id="selectArrangeAll" resultMap="BaseResultMap">
+		SELECT * FROM sys_arrange
+	</select>
+	<select id="selectByExample" parameterType="com.qkby.sysmanage.entity.SysArrange"
+		resultMap="BaseResultMap">
+		SELECT sa.id,su.name extend_1,sa.duty_start_time,sa.duty_end_time FROM sys_arrange
+		sa,sys_user su WHERE su.id = sa.id_user and sa.duty_start_time &gt; #{now_time} 
+		<if test="id_user != null">
+			and sa.id_user = #{id_user}
+		</if>
+		<if test="duty_start_time != null">
+			and sa.duty_start_time &gt; #{duty_start_time}
+		</if>
+		<if test="duty_end_time != null">
+			and sa.duty_end_time &lt; #{duty_end_time}
+		</if>
+		ORDER BY sa.duty_start_time 
+		<if test="startPos !=null">
+ 		    limit #{startPos}
+	 	  <if test="pageSize != null">
+	 	  	 , #{pageSize}
+	 	  </if>
+ 		</if>
+	</select>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select
+		id, id_user, duty_start_time, duty_end_time, extend_1, extend_2, extend_3
+		from sys_arrange
+		where id = #{id}
+	</select>
+	<insert id="insert" parameterType="com.qkby.sysmanage.entity.SysArrange">
+		insert into sys_arrange (id, id_user, duty_start_time,
+		duty_end_time, extend_1, extend_2,
+		extend_3)
+		values (#{id}, #{idUser}, #{dutyStartTime},
+		#{dutyEndTime}, #{extend1}, #{extend2},
+		#{extend3})
+	</insert>
+	<select id="countByExample" parameterType="com.qkby.sysmanage.entity.SysArrange"
+		resultType="java.lang.Integer">
+		SELECT count(*) FROM sys_arrange
+		sa,sys_user su WHERE su.id = sa.id_user and sa.duty_start_time &gt; #{now_time}
+		<if test="id_user != null">
+			and sa.id_user = #{id_user}
+		</if>
+		<if test="duty_start_time != null">
+			and sa.duty_start_time &lt; #{duty_start_time}
+		</if>
+		<if test="duty_end_time != null">
+			and sa.duty_end_time &gt; #{duty_end_time}
+		</if>
+	</select>
+	<select id="selectArrangeByDate" parameterType="hashmap" resultMap="BaseResultMap">
+		SELECT * FROM sys_arrange sa 
+		WHERE 1=1
+		<if test="id_user != null">
+			AND sa.id_user = #{id_user}
+		</if>
+		<if test="now != null">
+			AND sa.duty_end_time &gt; #{now} 
+			AND sa.duty_start_time &lt; #{now} 
+		</if>
+	</select>
+	<update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysArrange">
+		update sys_arrange
+		<set>
+			<if test="idUser != null">
+				id_user = #{idUser}
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<delete id="deleteArrange" parameterType="int">
+		DELETE FROM sys_arrange
+    	WHERE id = #{id}
+	</delete>
+	<select id="selectDutyArrange" resultMap="BaseResultMap">
+	        SELECT 
+		     sa.duty_start_time AS duty_start_time,
+		     sa.duty_end_time AS duty_end_time,
+		     GROUP_CONCAT(su.name SEPARATOR ',') AS extend_2,
+		     sa.extend_1 AS extend_1, 
+		     sa.extend_3 AS extend_3
+		     FROM sys_arrange sa,sys_user su WHERE sa.id_user = su.id
+		     GROUP BY sa.duty_start_time
+	</select>
+</mapper>

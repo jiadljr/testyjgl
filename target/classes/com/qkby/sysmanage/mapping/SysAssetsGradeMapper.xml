@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysAssetsGradeDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysAssetsGrade" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="extend_1" property="extend1" jdbcType="VARCHAR" />
+    <result column="extend_2" property="extend2" jdbcType="VARCHAR" />
+    <result column="extend_3" property="extend3" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, code, name, remark, extend_1, extend_2, extend_3
+  </sql>
+  <select id="selectAssetsGradeAll" resultMap="BaseResultMap">
+  	SELECT * FROM sys_assets_grade 
+  </select>
+</mapper>

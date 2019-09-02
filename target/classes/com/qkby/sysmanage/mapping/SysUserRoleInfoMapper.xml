@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysUserRoleInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysUserRoleInfo" >
+    <id column="id" property="id" />
+    <result column="id_user" property="idUser" />
+    <result column="id_role" property="idRole" />
+    <result column="extend_1" property="extend1" />
+    <result column="extend_2" property="extend2" />
+    <result column="extend_3" property="extend3" />
+  </resultMap>
+  <!-- 查询数量 -->
+  <select id="countByExample" parameterType="com.qkby.sysmanage.entity.SysUserRoleInfo" resultType="java.lang.Integer" >
+    select count(*) from sys_user_role
+    where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="idUser != null">
+    	AND id_user=#{idUser}
+    </if>
+    <if test="idRole != null">
+    	AND id_role=#{idRole}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+  </select>
+  <!-- 根据条件删除 -->
+  <delete id="deleteByExample" parameterType="com.qkby.sysmanage.entity.SysUserRoleInfo" >
+    delete from sys_user_role
+    where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="idUser != null">
+    	AND id_user=#{idUser}
+    </if>
+    <if test="idRole != null">
+    	AND id_role=#{idRole}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+  </delete>
+  <!-- 根据Id删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sys_user_role
+    where id = #{id}
+  </delete>
+  <!-- 添加 -->
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysUserRoleInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_user_role (id, id_user, id_role, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{idUser}, #{idRole}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <!--  -->
+  <select id="selectRoleByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap"> 
+ 	 SELECT * FROM sys_user_role WHERE id_user=#{id}
+  </select>
+  <!-- 根据条件查询 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.sysmanage.entity.SysUserRoleInfo" >
+    select
+    id, id_user, id_role, extend_1, extend_2, extend_3
+    from sys_user_role
+    where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="idUser != null">
+    	AND id_user=#{idUser}
+    </if>
+    <if test="idRole != null">
+    	AND id_role=#{idRole}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_3=#{extend3}
+    </if>
+  </select>
+  <!-- 根据Id查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    id, id_user, id_role, extend_1, extend_2, extend_3
+    from sys_user_role
+    where id = #{id}
+  </select>
+  <!-- 根据角色Id查询人员 -->
+  <select id="selectUserByRoleId" parameterType="int" resultMap="BaseResultMap">
+  	SELECT * FROM sys_user_role WHERE id_role = #{role_id}
+  </select>
+  <!-- 根据Id修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysUserRoleInfo" >
+    update sys_user_role
+    <set >
+      <if test="idUser != null" >
+        id_user = #{idUser},
+      </if>
+      <if test="idRole != null" >
+        id_role = #{idRole},
+      </if>
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+  <!-- 根据角色id删除中间表数据 -->
+  <delete id="deleteUserRole" parameterType="map">
+  	DELETE FROM sys_user_role WHERE id_role IN 
+  	<foreach item="item" index="index" collection="ids" 
+  		open="(" separator="," close=")">
+  		#{item}
+  	</foreach>
+  </delete>
+</mapper>

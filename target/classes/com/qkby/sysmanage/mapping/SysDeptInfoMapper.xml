@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysDeptInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysDeptInfo" >
+    <id column="id" property="id"  />
+    <result column="code" property="code"  />
+    <result column="name" property="name"  />
+    <result column="level" property="level"  />
+    <result column="tel" property="tel"  />
+    <result column="parent_id" property="parentId"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+    <result column="ds" property="ds"  />
+  </resultMap>
+  <!-- 根据等级查询科室 -->
+  
+  <select id="selectDeptByLevel" parameterType="map" resultMap="BaseResultMap">
+  	SELECT
+		NAME,
+		id
+		FROM sys_dept
+		WHERE LEVEL = #{levelId}
+		<if test="deptId != null">
+			AND id != #{deptId}
+		</if>
+		AND ds != 1
+  </select>
+  <!-- 根据父id查询 -->
+  <select id="selectDeptByParentId" parameterType="int" resultMap="BaseResultMap">
+  	SELECT 
+    id, 
+    CODE, 
+    NAME, 
+    LEVEL,
+    tel,
+    remark, 
+    parent_id, 
+    (SELECT NAME FROM sys_dept s WHERE sys.parent_id=s.id) AS extend_1, 
+    extend_2, 
+    extend_3,
+    ds
+    FROM sys_dept sys
+    WHERE 1=1 
+    AND parent_id = #{pId}
+    AND sys.ds!=1
+    ORDER BY id DESC
+  </select>
+   <!-- 科室: 申告统计 -->
+  <select id="countDeptApply" resultType="hashmap" parameterType="map">
+	  SELECT sd.name AS deptName,sst.name AS serviceName,COUNT(sd.id) AS appCount,COUNT(sst.id) as serviceCount
+	FROM event_info ei LEFT JOIN sys_dept sd ON ei.id_dept = sd.id LEFT JOIN sys_service_type sst ON ei.event_service = sst.id
+	  WHERE sd.ds != 1  AND DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= DATE(ei.date_create)
+		 <if test="startTime != null || endTime != null">
+			AND ei.date_create BETWEEN #{startTime}
+			AND #{endTime}
+		</if>
+	  GROUP BY deptName
+  </select>
+  <select id="selectLevelByDept" parameterType="map" resultType="map">
+  	SELECT 
+	su.id_dept,
+	(SELECT sd.name FROM sys_dept sd WHERE sd.id = su.id_dept) deptName,
+	COUNT(CASE ei.event_level WHEN 1 THEN 1 END) oneLevelCount,
+	COUNT(CASE ei.event_level WHEN 2 THEN 1 END) twoLevelCount,
+	COUNT(CASE ei.event_level WHEN 3 THEN 1 END) threeLevelCount,
+	COUNT(CASE ei.event_level WHEN 4 THEN 1 END) fourLevelCount
+	FROM sys_user su INNER JOIN event_info ei ON su.id = ei.id_user_aplly 
+	<if test="startTime != null || endTime != null">
+		AND ei.date_create BETWEEN #{startTime}
+		AND #{endTime}
+	</if>
+	GROUP BY su.id_dept
+	<if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	  </if>
+  </select>
+  <select id="deptCountSum" resultMap="BaseResultMap">
+  	SELECT
+	sd.name,
+	COUNT(ei.id) AS extend_1
+	FROM event_info ei
+	RIGHT JOIN sys_dept sd
+	ON ei.id_dept = sd.id
+	WHERE 1=1
+	AND sd.ds != 1
+	AND DATE_SUB(CURDATE(),INTERVAL 30 DAY) &lt;= DATE(ei.date_create)
+	GROUP BY sd.id
+	ORDER BY extend_1 DESC 
+	LIMIT 0,10
+  </select>
+  <select id="deptEvent" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+   SELECT 
+    sys.name,
+    sys.tel
+    FROM sys_dept sys 
+    WHERE id=#{id}
+  </select>
+  <select id="selectPrimAll" resultMap="BaseResultMap">
+   SELECT 
+    id, 
+    CODE, 
+    NAME, 
+    LEVEL, 
+    tel,
+    remark,
+    parent_id,
+    (SELECT NAME FROM sys_dept s WHERE sys.parent_id=s.id) AS extend_1,
+    ds
+    FROM sys_dept sys 
+    WHERE 1=1
+    AND sys.ds!=1
+    ORDER BY id DESC
+  </select>
+  <!-- 根据Id查询 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    id, 
+    code, 
+    name, 
+    level,
+    tel,
+    remark, 
+    parent_id, 
+    (SELECT NAME FROM sys_dept s WHERE sys.parent_id=s.id) AS extend_1, 
+    extend_2, 
+    extend_3,
+    ds
+    from sys_dept sys
+    where 1=1 
+    AND id = #{id}
+    AND sys.ds!=1
+    ORDER BY id DESC
+  </select>
+  <!-- 根据条件查询 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qkby.sysmanage.entity.SysDeptInfo" >
+    select 
+    id, 
+    code, 
+    name, 
+    level, 
+    tel,
+    parent_id, 
+    (SELECT NAME FROM sys_dept s WHERE sys.parent_id=s.id) AS extend_1,
+    remark,
+    extend_2, 
+    extend_3,
+    ds
+    from sys_dept sys
+    where 1=1
+    <if test="id != null">
+    	AND sys.id=#{id} 
+    </if>
+    <if test="code != null">
+    	AND sys.code=#{code}
+    </if>
+    <if test="name != null">
+    	AND sys.name LIKE CONCAT('%',#{name},'%')
+    </if>
+    <if test="level != null">
+    	AND sys.level in 
+    	<foreach item="item" index="index" collection="level"
+    	open="(" separator="," close=")">
+    		#{item}
+    	</foreach>
+    </if>
+    <if test="tel != null">
+    	AND sys.tel LIKE CONCAT('%',#{tel},'%')
+    </if>
+    <if test="parentId != null">
+    	AND sys.parent_id = #{parentId}
+    </if>
+    <if test="extend1 != null">
+    	AND sys.extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND sys.extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND sys.extend_3=#{extend3}
+    </if>
+    AND sys.ds!=1
+    ORDER BY sys.id DESC
+    <if test="startPos != null">
+	LIMIT #{startPos}
+	<if test="pageSize != null">
+		,#{pageSize}
+	</if>
+</if>
+  </select>
+  <!-- 查询数量 -->
+  <select id="countByExample" parameterType="map" resultType="java.lang.Integer" >
+    select count(*) from sys_dept sys
+    where 1=1 
+    AND ds != 1
+    <if test="id != null">
+    	AND sys.id=#{id} 
+    </if>
+    <if test="code != null">
+    	AND sys.code=#{code}
+    </if>
+    <if test="name != null">
+    	AND sys.name LIKE CONCAT('%',#{name},'%')
+    </if>
+    <if test="level != null">
+    	AND sys.level in 
+    	<foreach item="item" index="index" collection="level"
+    	open="(" separator="," close=")">
+    		#{item}
+    	</foreach>
+    </if>
+    <if test="tel != null">
+    	AND sys.tel LIKE CONCAT('%',#{tel},'%')
+    </if>
+    <if test="parentId != null">
+    	AND sys.parent_id = #{parentId}
+    </if>
+    <if test="extend1 != null">
+    	AND sys.extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND sys.extend_2=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND sys.extend_3=#{extend3}
+    </if>
+  </select>
+  <!-- 添加 -->
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysDeptInfo" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_dept (id, code, name, 
+      level, tel, parent_id, extend_1, 
+      extend_2, extend_3, remark,ds
+      )
+    values (#{id}, #{code}, #{name}, 
+      #{level}, #{tel}, #{parentId}, #{extend1}, 
+      #{extend2}, #{extend3}, #{remark},#{ds}
+      )
+  </insert>
+  <!-- 根据Id删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from sys_dept
+    where id in 
+    <foreach item="item" index="index" collection="ids" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </delete>
+  <!-- 根据条件删除 -->
+  <delete id="deleteByExample" parameterType="com.qkby.sysmanage.entity.SysDeptInfo" >
+    delete from sys_dept
+    where 1=1
+    <if test="id != null">
+    	AND id=#{id}
+    </if>
+    <if test="code != null">
+    	AND code=#{code}
+    </if>
+    <if test="name != null">
+    	AND name=#{name}
+    </if>
+    <if test="level != null">
+    	AND level=#{level}
+    </if>
+    <if test="tel != null">
+    	AND tel=#{tel}
+    </if>
+    <if test="parentId != null">
+    	AND parent_id=#{parentId}
+    </if>
+    <if test="extend1 != null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 != null">
+    	AND extend_1=#{extend2}
+    </if>
+    <if test="extend3 != null">
+    	AND extend_1=#{extend3}
+    </if>
+  </delete>
+  <!-- 根据Id修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysDeptInfo" >
+    update sys_dept
+    <set >
+      <if test="code != null" >
+        code = #{code},
+      </if>
+      <if test="name != null" >
+        name = #{name},
+      </if>
+      <if test="level != null" >
+        level = #{level},
+      </if>
+      <if test="tel != null" >
+        tel = #{tel},
+      </if>
+        parent_id = #{parentId},
+      <if test="extend1 != null" >
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null" >
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null" >
+        extend_3 = #{extend3},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+  <!-- 逻辑删除 -->
+  <update id="updateLogic" parameterType="map">
+  	UPDATE sys_dept SET ds=1 WHERE id IN
+  	<foreach index="index" item="item" collection="ids" 
+  		open="(" separator="," close=")">
+  		#{item}
+  	</foreach>
+  </update>
+  <select id="seleDeptInfo" resultMap="BaseResultMap">
+      select * from sys_dept
+  </select>
+  <select id="selectDeptByCode" resultType="int" parameterType="java.lang.String">
+     select id from sys_dept where code = #{code}
+  </select>
+  
+  <update id="updateBatch"  parameterType="java.util.List">  
+    <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+        update sys_dept
+        set
+            parent_id = ${item.parentId},
+            ds = ${item.ds}
+        where id = ${item.id}
+    </foreach>
+</update>
+ <insert id ="insertCodeBatch" parameterType="java.util.List" >
+              <selectKey resultType ="java.lang.Integer" keyProperty= "id"
+                   order= "AFTER">
+                  SELECT LAST_INSERT_ID()
+              </selectKey >
+             insert into redeem_code
+             (id, code, name, 
+		      level, tel, parent_id, extend_1, 
+		      extend_2, extend_3, remark,ds)
+             values
+             <foreach collection ="list" item="dept" index= "index" separator =",">
+                 (
+                  #{dept.id}, #{dept.code}, #{dept.name}, 
+			      #{dept.level}, #{dept.tel}, #{dept.parentId}, #{dept.extend1}, 
+			      #{dept.extend2}, #{dept.extend3}, #{dept.remark},#{dept.ds}
+                 )
+             </foreach >
+      </insert >
+  <select id="selectDeptPareateId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+     SELECT * FROM sys_dept sd WHERE sd.parent_id = #{id} OR sd.id = #{id}
+  </select>
+</mapper>

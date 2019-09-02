@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.sysmanage.dao.SysAssetsTypeDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysAssetsType" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="layer" property="layer" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="extend_1" property="extend1" jdbcType="VARCHAR" />
+    <result column="extend_2" property="extend2" jdbcType="VARCHAR" />
+    <result column="extend_3" property="extend3" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, code, name, parent_id, layer, remark, extend_1, extend_2, extend_3
+  </sql>
+  <select id="selectAssetsTypeByLevel" parameterType="map" resultMap="BaseResultMap">
+  	SELECT
+		NAME,
+		id
+		FROM sys_assets_type
+		WHERE layer = #{levelId}
+		<if test="assetsId != null">
+			AND id != #{assetsId}
+		</if>
+  </select>
+  <!-- 根据资产父id查询 -->
+  <select id="selectAssetsTypeByparentId" parameterType="int" resultMap="BaseResultMap">
+  	SELECT
+	  id,
+	  CODE,
+	  NAME,
+	  parent_id,
+	  layer,
+	  remark,
+	  (SELECT NAME FROM sys_assets_type sat WHERE sat.id=st.parent_id) AS extend_1,
+	  extend_2,
+	  extend_3
+	FROM sys_assets_type st
+    WHERE parent_id=#{pId}
+  </select>
+  
+  <!-- 查询上级类型 -->
+  <select id="selectParentName" resultMap="BaseResultMap">
+  	SELECT id,NAME,parent_id FROM sys_assets_type WHERE parent_id IS NULL 
+  </select>
+  <select id="selectPrimAll" resultMap="BaseResultMap">
+  	SELECT
+	  id,
+	  CODE,
+	  NAME,
+	  parent_id,
+	  layer,
+	  remark,
+	  (SELECT NAME FROM sys_assets_type sat WHERE sat.id=st.parent_id) AS extend_1,
+	  extend_2,
+	  extend_3
+	FROM sys_assets_type st
+	ORDER BY id DESC	
+  </select>
+  <!-- 查询所有资产类型信息 -->
+  <select id="selectAll" resultMap="BaseResultMap">
+   select 
+   id, 
+   code, 
+   name, 
+   parent_id, 
+   layer, 
+   remark, 
+   extend_1, 
+   extend_2, 
+   extend_3
+   from sys_assets_type
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="map" >
+  	SELECT
+	  id,
+	  CODE,
+	  NAME,
+	  parent_id,
+	  layer,
+	  remark,
+	  (SELECT NAME FROM sys_assets_type sat WHERE sat.id=st.parent_id) AS extend_1,
+	  extend_2,
+	  extend_3
+	FROM sys_assets_type st
+	WHERE 1 = 1
+	<if test="id != null">
+		And id=#{id}
+	</if>
+	<if test="code != null">
+		And code=#{code}
+	</if>
+	<if test="name != null">
+		And name LIKE CONCAT('%',#{name},'%')
+	</if>
+	<if test="parentId != null">
+		And parent_id=#{parentId}
+	</if>
+	<if test="layer != null">
+		And layer=#{layer}
+	</if>
+	<if test="remark != null">
+		And remark=#{remark}
+	</if>
+	ORDER BY id DESC
+	<if test="startPos != null">
+	LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT
+	  id,
+	  CODE,
+	  NAME,
+	  parent_id,
+	  layer,
+	  remark,
+	  (SELECT NAME FROM sys_assets_type sat WHERE sat.id=st.parent_id) AS extend_1,
+	  extend_2,
+	  extend_3
+	FROM sys_assets_type st
+    where id = #{id}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from sys_assets_type
+    where id in 
+    <foreach item="item" index="index" collection="ids" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </delete>
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysAssetsType" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>
+    insert into sys_assets_type (id, code, name, 
+      parent_id, layer, remark, 
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{code}, #{name}, 
+      #{parentId}, #{layer}, #{remark}, 
+      #{extend1}, #{extend2}, #{extend3}
+      )
+  </insert>
+  <select id="countByExample" parameterType="map" resultType="java.lang.Integer" >
+    select count(*) from sys_assets_type
+    where 1=1
+    <if test="id != null">
+		And id=#{id}
+	</if>
+	<if test="code != null">
+		And code=#{code}
+	</if>
+	<if test="name != null">
+		And name LIKE CONCAT('%',#{name},'%')
+	</if>
+	<if test="parentId != null">
+		And parent_id=#{parentId}
+	</if>
+	<if test="layer != null">
+		And layer=#{layer}
+	</if>
+	<if test="remark != null">
+		And remark=#{remark}
+	</if>
+  </select>
+  <update id="updateByPrimaryKey" parameterType="com.qkby.sysmanage.entity.SysAssetsType" >
+    update sys_assets_type
+    set code = #{code},
+      name = #{name},
+      parent_id = #{parentId},
+      layer = #{layer},
+      remark = #{remark},
+      extend_1 = #{extend1},
+      extend_2 = #{extend2},
+      extend_3 = #{extend3}
+    where id = #{id}
+  </update>
+  <select id="selectAssetsTypePareateId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+     SELECT * FROM sys_assets_type sat WHERE sat.parent_id = #{id} OR sat.id = #{id}
+  </select>
+</mapper>

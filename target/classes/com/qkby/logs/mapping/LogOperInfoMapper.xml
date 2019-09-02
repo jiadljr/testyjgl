@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.logs.dao.LogOperInfoDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.logs.entity.LogOperInfo" >
+    <id column="id" property="id"  />
+    <result column="id_user" property="idUser"  />
+    <result column="name_user" property="nameUser"  />
+    <result column="date_oper" property="dateOper" />
+    <result column="table_oper" property="tableOper"  />
+    <result column="id_menu_oper" property="idMenuOper"  />
+    <result column="name_menu_oper" property="nameMenuOper"  />
+    <result column="pk_value" property="pkValue"  />
+    <result column="type_oper" property="typeOper"  />
+    <result column="extend_1" property="extend1"  />
+    <result column="extend_2" property="extend2"  />
+    <result column="extend_3" property="extend3"  />
+  </resultMap>
+   <insert id="insert" parameterType="com.qkby.logs.entity.LogOperInfo">
+     <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+     </selectKey>
+    insert into log_oper (id, id_user, name_user, 
+      date_oper, table_oper, id_menu_oper,name_menu_oper, pk_value,type_oper,
+      extend_1, extend_2, extend_3
+      )
+    values (#{id}, #{idUser}, #{nameUser}, 
+      #{dateOper}, #{tableOper}, #{idMenuOper}, #{nameMenuOper} ,#{pkValue},#{typeOper},
+      #{extend1}, #{extend2}, #{extend3}
+      )
+   </insert>
+   <select id="selectOperAll" resultType="hashmap" parameterType="map">
+   SELECT lo.id as id,
+   su.code as code,
+   lo.name_user as nameUser,
+   lo.table_oper as tableOper,
+   lo.type_oper as typeOper,
+   lo.date_oper as dateOper
+   FROM log_oper 
+   lo,sys_user su 
+   WHERE su.id = lo.id_user
+   <if test="startTime != null">
+    and lo.date_oper &gt;= #{startTime}
+   </if>
+   <if test="endTime != null">
+    and lo.date_oper &lt; #{endTime}
+   </if>
+   <if test="staffContact != null">
+    and su.code = #{staffContact}
+   </if>
+   <if test="staffName != null">
+    and lo.name_user = #{staffName}
+   </if>
+   <if test="operationType != null">
+    and lo.type_oper = #{operationType}
+   </if>
+   <if test="operationTable != null">
+    and lo.table_oper = #{operationTable}
+   </if>
+   group by lo.id desc
+   <if test="startPos != null">
+		LIMIT #{startPos}
+		<if test="pageSize != null">
+			,#{pageSize}
+		</if>
+	</if>
+	
+   </select>
+   <select id="selectOperCount" resultType="int" parameterType="map">
+   SELECT count(*)
+   FROM log_oper 
+   lo,sys_user su 
+   WHERE su.id = lo.id_user
+   <if test="startTime != null">
+    and lo.date_oper &gt;= #{startTime}
+   </if>
+   <if test="endTime != null">
+    and lo.date_oper &lt; #{endTime}
+   </if>
+   <if test="staffContact != null">
+    and su.code = #{staffContact}
+   </if>
+   <if test="staffName != null">
+    and lo.name_user = #{staffName}
+   </if>
+   <if test="operationType != null">
+    and lo.type_oper = #{operationType}
+   </if>
+   <if test="operationTable != null">
+    and lo.table_oper = #{operationTable}
+   </if>
+   </select>
+</mapper>

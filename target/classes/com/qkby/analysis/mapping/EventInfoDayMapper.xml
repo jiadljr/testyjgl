@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qkby.analysis.dao.EventInfoDayDao" >
+  <resultMap id="BaseResultMap" type="com.qkby.analysis.entity.EventInfoDay" >
+    <result column="dates" property="dates" jdbcType="VARCHAR" />
+    <result column="amount" property="amount" jdbcType="BIGINT" />
+    <result column="one_level" property="oneLevel" jdbcType="DECIMAL" />
+    <result column="two_level" property="twoLevel" jdbcType="DECIMAL" />
+    <result column="three_level" property="threeLevel" jdbcType="DECIMAL" />
+    <result column="four_level" property="fourLevel" jdbcType="DECIMAL" />
+</resultMap>
+   <select id="selectDay" resultMap="BaseResultMap">
+      select * from event_info_day
+   </select>
+</mapper>

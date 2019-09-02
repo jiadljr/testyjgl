@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://mybatis.apache.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qkby.sysmanage.dao.SysCopInfoDao">
+  <resultMap id="BaseResultMap" type="com.qkby.sysmanage.entity.SysCopInfo">
+    <id column="id" property="id" />
+    <result column="code" property="code" />
+    <result column="name" property="name" />
+    <result column="sub_name" property="subName" />
+    <result column="tel" property="tel" />
+    <result column="mail" property="mail" />
+    <result column="addr" property="addr" />
+    <result column="ds" property="ds" />
+    <result column="remark" property="remark" />
+    <result column="extend_1" property="extend1" />
+    <result column="extend_2" property="extend2" />
+    <result column="extend_3" property="extend3" />
+  </resultMap>
+  <!-- 查询全部 -->
+  <select id="selectCmpyAll" resultMap="BaseResultMap">
+    select
+    id,
+    code,
+    name,
+    sub_name,
+    tel,
+    mail,
+    addr,
+    ds,
+    remark,
+    extend_1,
+    extend_2,
+    extend_3
+    from sys_cmpy
+    order by id desc
+  </select>
+  <!-- 根据条件查询 -->
+  <select id="selectByExample" parameterType="map" resultMap="BaseResultMap">
+    select
+    id,
+    code,
+    name,
+    sub_name,
+    tel,
+    mail,
+    addr,
+    ds,
+    remark,
+    extend_1,
+    extend_2,
+    extend_3
+    from sys_cmpy
+    where 1=1 
+    <if test="id !=null">
+    	AND id=#{id}
+    </if>
+    <if test="code !=null">
+    	AND code LIKE CONCAT('%',#{code} ,'%') 
+    </if>
+    <if test="name !=null">
+    	AND name LIKE CONCAT('%',#{name} ,'%')
+    </if>
+    <if test="subName !=null">
+    	AND sub_name LIKE CONCAT('%',#{subName} ,'%')
+    </if>
+    <if test="tel !=null">
+    	AND tel=#{tel}
+    </if>
+    <if test="mail !=null">
+    	AND mail=#{mail}
+    </if>
+    <if test="addr !=null">
+    	AND addr=#{addr}
+    </if>
+    <if test="ds !=null">
+    	AND ds=#{ds}
+    </if>
+    <if test="remark !=null">
+    	AND remark=#{remark}
+    </if>
+    <if test="extend1 !=null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 !=null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 !=null">
+    	AND extend_3=#{extend3}
+    </if>
+    order by id desc
+    <if test="startPos !=null">
+ 		    limit #{startPos}
+	 	  <if test="pageSize != null">
+	 	  	 , #{pageSize}
+	 	  </if>
+ 		</if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    id,
+    code,
+    name,
+    sub_name,
+    tel,
+    mail,
+    addr,
+    ds,
+    remark,
+    extend_1,
+    extend_2,
+    extend_3
+    from sys_cmpy
+    where id = #{id}
+  </select>
+  <!-- 查询数量 -->
+  <select id="countByExample" resultType="java.lang.Integer" parameterType="map">
+    select count(*) from sys_cmpy where 1=1 
+    <if test="code !=null">
+    	AND code LIKE CONCAT('%',#{code} ,'%') 
+    </if>
+    <if test="name !=null">
+    	AND name LIKE CONCAT('%',#{name} ,'%')
+    </if>
+    <if test="subName !=null">
+    	AND sub_name LIKE CONCAT('%',#{subName} ,'%')
+    </if>
+  </select>
+  <!-- 根据Id删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from sys_cmpy
+    where id in 
+    <foreach item="item" index="index" collection="id" open="("
+		separator="," close=")">
+		#{item}
+	</foreach>
+  </delete>
+  <!-- 根据条件删除 -->
+  <delete id="deleteByExample" parameterType="com.qkby.sysmanage.entity.SysCopInfo">
+    delete from sys_cmpy
+    where 1=1
+    <if test="id !=null">
+    	AND id=#{id}
+    </if>
+    <if test="code !=null">
+    	AND code=#{code}
+    </if>
+    <if test="name !=null">
+    	AND name=#{name}
+    </if>
+    <if test="subName !=null">
+    	AND sub_name=#{subName}
+    </if>
+    <if test="tel !=null">
+    	AND tel=#{tel}
+    </if>
+    <if test="mail !=null">
+    	AND mail=#{mail}
+    </if>
+    <if test="addr !=null">
+    	AND addr=#{addr}
+    </if>
+    <if test="ds !=null">
+    	AND ds=#{ds}
+    </if>
+    <if test="remark !=null">
+    	AND remark=#{remark}
+    </if>
+    <if test="extend1 !=null">
+    	AND extend_1=#{extend1}
+    </if>
+    <if test="extend2 !=null">
+    	AND extend_2=#{extend2}
+    </if>
+    <if test="extend3 !=null">
+    	AND extend_3=#{extend3}
+    </if>
+  </delete>
+  <!-- 添加 -->
+  <insert id="insert" parameterType="com.qkby.sysmanage.entity.SysCopInfo">
+  <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+         </selectKey>  
+    insert into sys_cmpy (id, code, name, 
+      sub_name, tel, mail, 
+      addr, ds, remark, extend_1, 
+      extend_2, extend_3)
+    values (#{id}, #{code}, #{name}, 
+      #{subName}, #{tel}, #{mail}, 
+      #{addr}, #{ds}, #{remark}, #{extend1}, 
+      #{extend2}, #{extend3})
+  </insert>
+  <!-- 根据条件添加 -->
+  <insert id="insertSelective" parameterType="com.qkby.sysmanage.entity.SysCopInfo">
+    insert into sys_cmpy
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="subName != null">
+        sub_name,
+      </if>
+      <if test="tel != null">
+        tel,
+      </if>
+      <if test="mail != null">
+        mail,
+      </if>
+      <if test="addr != null">
+        addr,
+      </if>
+      <if test="ds != null">
+        ds,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="extend1 != null">
+        extend_1,
+      </if>
+      <if test="extend2 != null">
+        extend_2,
+      </if>
+      <if test="extend3 != null">
+        extend_3,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id},
+      </if>
+      <if test="code != null">
+        #{code},
+      </if>
+      <if test="name != null">
+        #{name},
+      </if>
+      <if test="subName != null">
+        #{subName},
+      </if>
+      <if test="tel != null">
+        #{tel},
+      </if>
+      <if test="mail != null">
+        #{mail},
+      </if>
+      <if test="addr != null">
+        #{addr},
+      </if>
+      <if test="ds != null">
+        #{ds},
+      </if>
+      <if test="remark != null">
+        #{remark},
+      </if>
+      <if test="extend1 != null">
+        #{extend1},
+      </if>
+      <if test="extend2 != null">
+        #{extend2},
+      </if>
+      <if test="extend3 != null">
+        #{extend3},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qkby.sysmanage.entity.SysCopInfo">
+    update sys_cmpy
+    <set>
+    <if test="code != null">
+        code = #{code},
+      </if>
+      <if test="name != null">
+        name = #{name},
+      </if>
+      <if test="subName != null">
+        sub_name = #{subName},
+      </if>
+      <if test="tel != null">
+        tel = #{tel},
+      </if>
+      <if test="mail != null">
+        mail = #{mail},
+      </if>
+      <if test="addr != null">
+        addr = #{addr},
+      </if>
+      <if test="ds != null">
+        ds = #{ds},
+      </if>
+      <if test="remark != null">
+        remark = #{remark},
+      </if>
+      <if test="extend1 != null">
+        extend_1 = #{extend1},
+      </if>
+      <if test="extend2 != null">
+        extend_2 = #{extend2},
+      </if>
+      <if test="extend3 != null">
+        extend_3 = #{extend3},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+</mapper>
